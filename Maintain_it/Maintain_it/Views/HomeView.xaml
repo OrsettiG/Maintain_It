@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maintain_it.Views.HomeView">
+    <ContentPage.Content>
+        <StackLayout>
+            
+            <Label Text="Maintain It!" FontSize="32" HorizontalOptions="CenterAndExpand" TextColor="Black"/>
+            <BoxView BackgroundColor="Black" WidthRequest="6000" HeightRequest="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>
+            <ScrollView HorizontalOptions="CenterAndExpand" VerticalOptions="Fill">
+                <StackLayout>
+                    <Label Text="Upcoming Maintenance:" HorizontalOptions="CenterAndExpand" FontSize="24" TextColor="Black"/>
+
+                    <Grid BackgroundColor="LightGray" Padding="10" ColumnSpacing="3" RowSpacing="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="30"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.ColumnSpan="7" Text="Month Name" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="S" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="M" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
+                        <Label Grid.Row="1" Grid.Column="2" Text="T" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
+                        <Label Grid.Row="1" Grid.Column="3" Text="W" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
+                        <Label Grid.Row="1" Grid.Column="4" Text="T" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
+                        <Label Grid.Row="1" Grid.Column="5" Text="F" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
+                        <Label Grid.Row="1" Grid.Column="6" Text="S" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
+                        <BoxView Grid.Row="2" Grid.Column="0" BackgroundColor="White"/>
+                        <Label Grid.Row="2" Grid.Column="0" Text="1" HorizontalOptions="End" Padding="2"/>
+                        <BoxView Grid.Row="2" Grid.Column="1" BackgroundColor="White"/>
+                    </Grid>
+                    
+                </StackLayout>
+            </ScrollView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
