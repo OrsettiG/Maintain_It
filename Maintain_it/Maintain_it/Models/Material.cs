@@ -1,4 +1,5 @@
-﻿namespace Maintain_it.Models
+﻿
+namespace Maintain_it.Models
 {
     public class Material
     {

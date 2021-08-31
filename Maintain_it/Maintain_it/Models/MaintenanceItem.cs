@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using SQLite;
+
 namespace Maintain_it.Models
 {
     public enum Timeframe { DAYS, WEEKS, MONTHS, YEARS }
@@ -16,6 +18,7 @@ namespace Maintain_it.Models
             this.FirstServiceDate = FirstServiceDate;
         }
 
+        [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
         public string Name { get; set; }
         public List<Material> MaterialsAndEquipment { get; set; }

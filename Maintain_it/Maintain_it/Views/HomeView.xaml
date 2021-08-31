@@ -4,14 +4,14 @@
              x:Class="Maintain_it.Views.HomeView">
     <ContentPage.Content>
         <StackLayout>
-            
+
             <Label Text="Maintain It!" FontSize="32" HorizontalOptions="CenterAndExpand" TextColor="Black"/>
             <BoxView BackgroundColor="Black" WidthRequest="6000" HeightRequest="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>
             <ScrollView HorizontalOptions="CenterAndExpand" VerticalOptions="Fill">
                 <StackLayout>
                     <Label Text="Upcoming Maintenance:" HorizontalOptions="CenterAndExpand" FontSize="24" TextColor="Black"/>
 
-                    <Grid BackgroundColor="LightGray" Padding="10" ColumnSpacing="3" RowSpacing="5">
+                    <Grid BackgroundColor="LightGray" Padding="10" ColumnSpacing="4" RowSpacing="5" HorizontalOptions="Center" VerticalOptions="Center">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
@@ -30,7 +30,10 @@
                             <ColumnDefinition Width="30"/>
                             <ColumnDefinition Width="30"/>
                         </Grid.ColumnDefinitions>
+                        <!--Month Name-->
                         <Label Grid.Row="0" Grid.ColumnSpan="7" Text="Month Name" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand"/>
+
+                        <!--Day Labels-->
                         <Label Grid.Row="1" Grid.Column="0" Text="S" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
                         <Label Grid.Row="1" Grid.Column="1" Text="M" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
                         <Label Grid.Row="1" Grid.Column="2" Text="T" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
@@ -38,11 +41,120 @@
                         <Label Grid.Row="1" Grid.Column="4" Text="T" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
                         <Label Grid.Row="1" Grid.Column="5" Text="F" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
                         <Label Grid.Row="1" Grid.Column="6" Text="S" HorizontalOptions="Center" VerticalOptions="CenterAndExpand"/>
+
+                        <!--Sunday Column-->
                         <BoxView Grid.Row="2" Grid.Column="0" BackgroundColor="White"/>
                         <Label Grid.Row="2" Grid.Column="0" Text="1" HorizontalOptions="End" Padding="2"/>
+                        
+                        <BoxView Grid.Row="3" Grid.Column="0" BackgroundColor="White"/>
+                        <Label Grid.Row="3" Grid.Column="0" Text="8" HorizontalOptions="End" Padding="2"/>
+                        
+                        <BoxView Grid.Row="4" Grid.Column="0" BackgroundColor="White"/>
+                        <Label Grid.Row="4" Grid.Column="0" Text="15" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="5" Grid.Column="0" BackgroundColor="White"/>
+                        <Label Grid.Row="5" Grid.Column="0" Text="22" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="6" Grid.Column="0" BackgroundColor="White"/>
+                        <Label Grid.Row="6" Grid.Column="0" Text="29" HorizontalOptions="End" Padding="2"/>
+
+                        <!--Monday Column-->
                         <BoxView Grid.Row="2" Grid.Column="1" BackgroundColor="White"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="2" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="3" Grid.Column="1" BackgroundColor="White"/>
+                        <Label Grid.Row="3" Grid.Column="1" Text="9" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="4" Grid.Column="1" BackgroundColor="White"/>
+                        <Label Grid.Row="4" Grid.Column="1" Text="16" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="5" Grid.Column="1" BackgroundColor="White"/>
+                        <Label Grid.Row="5" Grid.Column="1" Text="23" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="6" Grid.Column="1" BackgroundColor="White"/>
+                        <Label Grid.Row="6" Grid.Column="1" Text="30" HorizontalOptions="End" Padding="2"/>
+
+                        <!--Tuesday Column-->
+                        <BoxView Grid.Row="2" Grid.Column="2" BackgroundColor="White"/>
+                        <Label Grid.Row="2" Grid.Column="2" Text="3" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="3" Grid.Column="2" BackgroundColor="White"/>
+                        <Label Grid.Row="3" Grid.Column="2" Text="10" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="4" Grid.Column="2" BackgroundColor="White"/>
+                        <Label Grid.Row="4" Grid.Column="2" Text="17" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="5" Grid.Column="2" BackgroundColor="White"/>
+                        <Label Grid.Row="5" Grid.Column="2" Text="24" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="6" Grid.Column="2" BackgroundColor="White"/>
+                        <Label Grid.Row="6" Grid.Column="2" Text="31" HorizontalOptions="End" Padding="2"/>
+
+                        <!--Wednesday Column-->
+                        <BoxView Grid.Row="2" Grid.Column="3" BackgroundColor="White"/>
+                        <Label Grid.Row="2" Grid.Column="3" Text="4" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="3" Grid.Column="3" BackgroundColor="White"/>
+                        <Label Grid.Row="3" Grid.Column="3" Text="11" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="4" Grid.Column="3" BackgroundColor="White"/>
+                        <Label Grid.Row="4" Grid.Column="3" Text="18" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="5" Grid.Column="3" BackgroundColor="White"/>
+                        <Label Grid.Row="5" Grid.Column="3" Text="25" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="6" Grid.Column="3" BackgroundColor="LightCyan"/>
+                        <Label Grid.Row="6" Grid.Column="3" Text="1" HorizontalOptions="End" Padding="2"/>
+
+                        <!--Thursday Column-->
+                        <BoxView Grid.Row="2" Grid.Column="4" BackgroundColor="White"/>
+                        <Label Grid.Row="2" Grid.Column="4" Text="5" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="3" Grid.Column="4" BackgroundColor="White"/>
+                        <Label Grid.Row="3" Grid.Column="4" Text="12" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="4" Grid.Column="4" BackgroundColor="White"/>
+                        <Label Grid.Row="4" Grid.Column="4" Text="19" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="5" Grid.Column="4" BackgroundColor="White"/>
+                        <Label Grid.Row="5" Grid.Column="4" Text="26" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="6" Grid.Column="4" BackgroundColor="LightCyan"/>
+                        <Label Grid.Row="6" Grid.Column="4" Text="2" HorizontalOptions="End" Padding="2"/>
+
+                        <!--Friday Column-->
+                        <BoxView Grid.Row="2" Grid.Column="5" BackgroundColor="White"/>
+                        <Label Grid.Row="2" Grid.Column="5" Text="6" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="3" Grid.Column="5" BackgroundColor="White"/>
+                        <Label Grid.Row="3" Grid.Column="5" Text="13" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="4" Grid.Column="5" BackgroundColor="White"/>
+                        <Label Grid.Row="4" Grid.Column="5" Text="20" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="5" Grid.Column="5" BackgroundColor="White"/>
+                        <Label Grid.Row="5" Grid.Column="5" Text="27" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="6" Grid.Column="5" BackgroundColor="LightCyan"/>
+                        <Label Grid.Row="6" Grid.Column="5" Text="3" HorizontalOptions="End" Padding="2"/>
+
+                        <!--Saturday Column-->
+                        <BoxView Grid.Row="2" Grid.Column="6" BackgroundColor="White"/>
+                        <Label Grid.Row="2" Grid.Column="6" Text="7" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="3" Grid.Column="6" BackgroundColor="White"/>
+                        <Label Grid.Row="3" Grid.Column="6" Text="14" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="4" Grid.Column="6" BackgroundColor="White"/>
+                        <Label Grid.Row="4" Grid.Column="6" Text="21" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="5" Grid.Column="6" BackgroundColor="White"/>
+                        <Label Grid.Row="5" Grid.Column="6" Text="28" HorizontalOptions="End" Padding="2"/>
+
+                        <BoxView Grid.Row="6" Grid.Column="6" BackgroundColor="#E0FFFF"/>
+                        <Label Grid.Row="6" Grid.Column="6" Text="4" HorizontalOptions="End" Padding="2"/>
                     </Grid>
-                    
+
                 </StackLayout>
             </ScrollView>
         </StackLayout>
