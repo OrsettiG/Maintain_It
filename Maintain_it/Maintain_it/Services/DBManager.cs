@@ -62,7 +62,8 @@ namespace Maintain_it.Services
 
         public async Task<bool> UpdateItemAsync( MaintenanceItem item )
         {
-            throw new NotImplementedException();
+            await CreateConnection();
+            return await connection.UpdateAsync( item ) != 0;
         }
     }
 }

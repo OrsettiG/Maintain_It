@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Threading.Tasks;
 
 using Maintain_it.Models;
+using Maintain_it.Services;
 
 namespace Maintain_it.ViewModels
 {
@@ -11,16 +13,27 @@ namespace Maintain_it.ViewModels
     {
         public HomeViewModel()
         {
-            _calendar = new Calendar( DateTime.Now );
-
+            dBManager = new DBManager();
+            Task.Run( async () => await LoadData() );
         }
 
-        private Calendar _calendar { get; set; }
-        private ObservableCollection<MaintenanceItem> _upcomingMaintenance { get; set; }
+        #region PROPERTIES
+        #region READ-ONLY
+        private DBManager dBManager { get; }
+        #endregion
+        
+        #region PRIVATE
+        private ObservableCollection<MaintenanceItem> maintenanceItems;
+        #endregion
+        
+        #region PUBLIC // empty
+        #endregion
+        #endregion
 
-        public Calendar Calendar => _calendar;
-        public ObservableCollection<MaintenanceItem> UpcomingMaintenance => _upcomingMaintenance;
-
+        private async Task LoadData()
+        {
+            maintenanceItems = (ObservableCollection<MaintenanceItem>)await dBManager.GetItemsAsync();
+        }
 
     }
 }
