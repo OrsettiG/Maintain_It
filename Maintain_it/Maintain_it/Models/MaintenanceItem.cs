@@ -7,7 +7,7 @@ using SQLite;
 namespace Maintain_it.Models
 {
     public enum Timeframe { DAYS, WEEKS, MONTHS, YEARS }
-    
+
     public class MaintenanceItem
     {
         public MaintenanceItem() { }

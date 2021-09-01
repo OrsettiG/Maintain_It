@@ -16,6 +16,7 @@ namespace Maintain_it.Models
         public string Retailer { get; set; }
         public double UnitPrice { get; set; }
         public int Quantity { get; set; }
+        public bool IsOwned { get; set; }
         public double TotalPrice => Quantity * UnitPrice;
     }
 }

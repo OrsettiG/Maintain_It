@@ -9,30 +9,44 @@ using Maintain_it.Services;
 
 namespace Maintain_it.ViewModels
 {
-    internal class HomeViewModel
+    internal class HomeViewModel : BaseViewModel
     {
         public HomeViewModel()
         {
             dBManager = new DBManager();
-            Task.Run( async () => await LoadData() );
+            _ = Task.Run( async () => await LoadData() );
         }
 
         #region PROPERTIES
         #region READ-ONLY
         private DBManager dBManager { get; }
         #endregion
-        
+
         #region PRIVATE
         private ObservableCollection<MaintenanceItem> maintenanceItems;
         #endregion
-        
-        #region PUBLIC // empty
+
+        #region PUBLIC
+        public ObservableCollection<MaintenanceItem> MaintenanceItems
+        {
+            get => maintenanceItems;
+            set
+            {
+                if( maintenanceItems != value )
+                {
+                    maintenanceItems = value;
+                    RaisePropertyChanged( nameof( MaintenanceItems ) );
+                }
+            }
+        }
         #endregion
+
         #endregion
 
         private async Task LoadData()
         {
-            maintenanceItems = (ObservableCollection<MaintenanceItem>)await dBManager.GetItemsAsync();
+            IEnumerable<MaintenanceItem> items = await dBManager.GetItemsAsync();
+            maintenanceItems = (ObservableCollection<MaintenanceItem>)items;
         }
 
     }

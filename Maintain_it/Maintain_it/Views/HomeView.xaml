@@ -1,7 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels" 
+             xmlns:models="clr-namespace:Maintain_it.Models"
              x:Class="Maintain_it.Views.HomeView">
+    <ContentPage.BindingContext>
+        <viewmodel:HomeViewModel/>
+    </ContentPage.BindingContext>
     <ContentPage.Content>
         <StackLayout>
 
@@ -11,7 +16,7 @@
                 <StackLayout>
                     <Label Text="Upcoming Maintenance:" HorizontalOptions="CenterAndExpand" FontSize="24" TextColor="Black"/>
 
-                    <Grid BackgroundColor="LightGray" Padding="10" ColumnSpacing="4" RowSpacing="5" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Grid BackgroundColor="LightGray" Padding="10" ColumnSpacing="5" RowSpacing="5" HorizontalOptions="Center" VerticalOptions="Center">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
@@ -154,6 +159,50 @@
                         <BoxView Grid.Row="6" Grid.Column="6" BackgroundColor="#E0FFFF"/>
                         <Label Grid.Row="6" Grid.Column="6" Text="4" HorizontalOptions="End" Padding="2"/>
                     </Grid>
+
+                    <CollectionView x:Name="Item" ItemsSource="{Binding MaintenanceItems, Mode=TwoWay}" VerticalOptions="Start" HorizontalOptions="CenterAndExpand" Margin="10" BackgroundColor="#f1f1f1f1">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:MaintenanceItem">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="35"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <CheckBox x:Name="IsComplete" Grid.Column="0" Grid.Row="0" HorizontalOptions="Center" VerticalOptions="Center" IsChecked="{Binding IsComplete}"/>
+                                    <Label Grid.Row="0" Grid.Column="1" HorizontalOptions="StartAndExpand" VerticalOptions="Center" Text="{Binding Name}"/>
+                                    <Label Grid.Row="0" Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center" Text="{Binding NextServiceDate, StringFormat='{dd:MM:yyyy}'}"/>
+                                    <!--Materials-->
+                                    <CollectionView ItemsSource="{Binding MaterialsAndEquipment, Mode=TwoWay}" Grid.Row="1" Grid.ColumnSpan="3" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" Margin="0, 5">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="models:Material">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="35"/>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsOwned}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                    <Label Grid.Column="1" Text="{Binding Name}" IsEnabled="{Binding IsOwned}" HorizontalOptions="Start" VerticalOptions="Center" Margin="5"/>
+                                                    <Label Grid.Column="2" Text="{Binding Quantity}" VerticalOptions="Center" HorizontalOptions="End" Margin="3"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                    
+                                    <!--Add to Shopping list Button-->
+                                    <Button Grid.Row="2" Grid.ColumnSpan="3" Text="Add to Shopping List" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
 
                 </StackLayout>
             </ScrollView>

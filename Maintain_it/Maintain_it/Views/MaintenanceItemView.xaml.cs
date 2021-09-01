@@ -4,20 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Maintain_it.ViewModels;
-
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace Maintain_it.Views
 {
     [XamlCompilation( XamlCompilationOptions.Compile )]
-    public partial class HomeView : ContentPage
+    public partial class MaintenanceItemView : ContentPage
     {
-        public HomeView()
+        public MaintenanceItemView()
         {
             InitializeComponent();
-            BindingContext = new HomeViewModel();
         }
     }
 }
