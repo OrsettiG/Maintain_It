@@ -14,7 +14,9 @@ namespace Maintain_it.ViewModels
         public HomeViewModel()
         {
             dBManager = new DBManager();
-            _ = Task.Run( async () => await LoadData() );
+            maintenanceItems = LoadData();
+
+            //_ = Task.Run( async () => await LoadData() );
         }
 
         #region PROPERTIES
@@ -30,24 +32,88 @@ namespace Maintain_it.ViewModels
         public ObservableCollection<MaintenanceItem> MaintenanceItems
         {
             get => maintenanceItems;
-            set
+        }
+        #endregion
+
+        #endregion
+
+        private ObservableCollection<MaintenanceItem> LoadData()
+        {
+            ObservableCollection<MaintenanceItem> Items = new ObservableCollection<MaintenanceItem>();
+
+            foreach( MaintenanceItem item in items )
             {
-                if( maintenanceItems != value )
+                Items.Add( item );
+            }
+            
+            return Items;
+        }
+
+        private readonly IEnumerable<MaintenanceItem> items = new List<MaintenanceItem>()
+        {
+            new MaintenanceItem( "Item 1", DateTime.Now )
+            {
+                NextServiceDate = DateTime.Now.AddDays( 1 ),
+                MaterialsAndEquipment = new List<Material>()
                 {
-                    maintenanceItems = value;
-                    RaisePropertyChanged( nameof( MaintenanceItems ) );
+                    new Material( "Mat1", "Store1", 10.00d, 1 ),
+                    new Material( "Mat2", "Store2", 11.00d, 2 ),
+                    new Material( "Mat3", "Store3", 12.00d, 3 ),
+                    new Material( "Mat4", "Store4", 13.00d, 4 ),
+                    new Material( "Mat2", "Store2", 11.00d, 2 ),
+                    new Material( "Mat3", "Store3", 12.00d, 3 ),
+                    new Material( "Mat4", "Store4", 13.00d, 4 ),
+                    new Material( "Mat2", "Store2", 11.00d, 2 ),
+                    new Material( "Mat3", "Store3", 12.00d, 3 ),
+                    new Material( "Mat4", "Store4", 13.00d, 4 )
+                }
+            },
+            new MaintenanceItem( "Item 2", DateTime.Now.AddDays(1) )
+            {
+                NextServiceDate = DateTime.Now.AddDays( 2 ),
+                MaterialsAndEquipment = new List<Material>()
+                {
+                    new Material( "Mat1", "Store1", 10.00d, 1 ),
+                    new Material( "Mat2", "Store2", 11.00d, 2 ),
+                    new Material( "Mat3", "Store3", 12.00d, 3 ),
+                    new Material( "Mat4", "Store4", 13.00d, 4 )
+                }
+            },
+            new MaintenanceItem( "Item 3", DateTime.Now.AddDays(2) )
+            {
+                NextServiceDate = DateTime.Now.AddDays( 3 ),
+                MaterialsAndEquipment = new List<Material>()
+                {
+                    new Material( "Mat1", "Store1", 10.00d, 1 ),
+                    new Material( "Mat2", "Store2", 11.00d, 2 ),
+                    new Material( "Mat3", "Store3", 12.00d, 3 ),
+                    new Material( "Mat4", "Store4", 13.00d, 4 )
+                }
+            },
+            new MaintenanceItem( "Item 4", DateTime.Now.AddDays(3) )
+            {
+                NextServiceDate = DateTime.Now.AddDays( 4 ),
+                MaterialsAndEquipment = new List<Material>()
+                {
+                    new Material( "Mat1", "Store1", 10.00d, 1 ),
+                    new Material( "Mat2", "Store2", 11.00d, 2 ),
+                    new Material( "Mat3", "Store3", 12.00d, 3 ),
+                    new Material( "Mat4", "Store4", 13.00d, 4 )
+                }
+            },
+            new MaintenanceItem( "Item 5", DateTime.Now.AddDays(4) )
+            {
+                NextServiceDate = DateTime.Now.AddDays( 5 ),
+                MaterialsAndEquipment = new List<Material>()
+                {
+                    new Material( "Mat1", "Store1", 10.00d, 1 ),
+                    new Material( "Mat2", "Store2", 11.00d, 2 ),
+                    new Material( "Mat3", "Store3", 12.00d, 3 ),
+                    new Material( "Mat4", "Store4", 13.00d, 4 )
                 }
             }
-        }
-        #endregion
 
-        #endregion
-
-        private async Task LoadData()
-        {
-            IEnumerable<MaintenanceItem> items = await dBManager.GetItemsAsync();
-            maintenanceItems = (ObservableCollection<MaintenanceItem>)items;
-        }
+        };
 
     }
 }
