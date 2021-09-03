@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,9 +15,7 @@ namespace Maintain_it.ViewModels
         public HomeViewModel()
         {
             dBManager = new DBManager();
-            maintenanceItems = LoadData();
-
-            //_ = Task.Run( async () => await LoadData() );
+            _ = Task.Run( async () => await LoadData() );
         }
 
         #region PROPERTIES
@@ -25,95 +24,33 @@ namespace Maintain_it.ViewModels
         #endregion
 
         #region PRIVATE
-        private ObservableCollection<MaintenanceItem> maintenanceItems;
+        private ObservableCollection<MaintenanceItemViewModel> maintenanceItems;
         #endregion
 
         #region PUBLIC
-        public ObservableCollection<MaintenanceItem> MaintenanceItems
+        public ObservableCollection<MaintenanceItemViewModel> MaintenanceItems
         {
             get => maintenanceItems;
+            set => maintenanceItems = value;
         }
         #endregion
 
         #endregion
 
-        private ObservableCollection<MaintenanceItem> LoadData()
+        private async Task LoadData()
         {
-            ObservableCollection<MaintenanceItem> Items = new ObservableCollection<MaintenanceItem>();
-
-            foreach( MaintenanceItem item in items )
-            {
-                Items.Add( item );
-            }
-            
-            return Items;
+            IEnumerable<MaintenanceItem> dbItems = await dBManager.GetItemsAsync();
+            List<MaintenanceItemViewModel> maintenanceItemViewModels = (List<MaintenanceItemViewModel>)dbItems.Select( i => CreateMaintenanceItemViewModel( i ) );
+            maintenanceItems = new ObservableCollection<MaintenanceItemViewModel>( maintenanceItemViewModels );
         }
 
-        private readonly IEnumerable<MaintenanceItem> items = new List<MaintenanceItem>()
+        private MaintenanceItemViewModel CreateMaintenanceItemViewModel( MaintenanceItem i )
         {
-            new MaintenanceItem( "Item 1", DateTime.Now )
-            {
-                NextServiceDate = DateTime.Now.AddDays( 1 ),
-                MaterialsAndEquipment = new List<Material>()
-                {
-                    new Material( "Mat1", "Store1", 10.00d, 1 ),
-                    new Material( "Mat2", "Store2", 11.00d, 2 ),
-                    new Material( "Mat3", "Store3", 12.00d, 3 ),
-                    new Material( "Mat4", "Store4", 13.00d, 4 ),
-                    new Material( "Mat2", "Store2", 11.00d, 2 ),
-                    new Material( "Mat3", "Store3", 12.00d, 3 ),
-                    new Material( "Mat4", "Store4", 13.00d, 4 ),
-                    new Material( "Mat2", "Store2", 11.00d, 2 ),
-                    new Material( "Mat3", "Store3", 12.00d, 3 ),
-                    new Material( "Mat4", "Store4", 13.00d, 4 )
-                }
-            },
-            new MaintenanceItem( "Item 2", DateTime.Now.AddDays(1) )
-            {
-                NextServiceDate = DateTime.Now.AddDays( 2 ),
-                MaterialsAndEquipment = new List<Material>()
-                {
-                    new Material( "Mat1", "Store1", 10.00d, 1 ),
-                    new Material( "Mat2", "Store2", 11.00d, 2 ),
-                    new Material( "Mat3", "Store3", 12.00d, 3 ),
-                    new Material( "Mat4", "Store4", 13.00d, 4 )
-                }
-            },
-            new MaintenanceItem( "Item 3", DateTime.Now.AddDays(2) )
-            {
-                NextServiceDate = DateTime.Now.AddDays( 3 ),
-                MaterialsAndEquipment = new List<Material>()
-                {
-                    new Material( "Mat1", "Store1", 10.00d, 1 ),
-                    new Material( "Mat2", "Store2", 11.00d, 2 ),
-                    new Material( "Mat3", "Store3", 12.00d, 3 ),
-                    new Material( "Mat4", "Store4", 13.00d, 4 )
-                }
-            },
-            new MaintenanceItem( "Item 4", DateTime.Now.AddDays(3) )
-            {
-                NextServiceDate = DateTime.Now.AddDays( 4 ),
-                MaterialsAndEquipment = new List<Material>()
-                {
-                    new Material( "Mat1", "Store1", 10.00d, 1 ),
-                    new Material( "Mat2", "Store2", 11.00d, 2 ),
-                    new Material( "Mat3", "Store3", 12.00d, 3 ),
-                    new Material( "Mat4", "Store4", 13.00d, 4 )
-                }
-            },
-            new MaintenanceItem( "Item 5", DateTime.Now.AddDays(4) )
-            {
-                NextServiceDate = DateTime.Now.AddDays( 5 ),
-                MaterialsAndEquipment = new List<Material>()
-                {
-                    new Material( "Mat1", "Store1", 10.00d, 1 ),
-                    new Material( "Mat2", "Store2", 11.00d, 2 ),
-                    new Material( "Mat3", "Store3", 12.00d, 3 ),
-                    new Material( "Mat4", "Store4", 13.00d, 4 )
-                }
-            }
+            MaintenanceItemViewModel vm = new MaintenanceItemViewModel( i );
+            vm.ItemStatusChanged += ItemStatusChanged;
+            return vm;
+        }
 
-        };
-
+        private void ItemStatusChanged( object sender, EventArgs e ) { }
     }
 }
