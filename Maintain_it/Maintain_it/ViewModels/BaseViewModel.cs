@@ -7,19 +7,9 @@ using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
 {
-    public abstract class BaseViewModel : INotifyPropertyChanged
+    public abstract class BaseViewModel : BindableObject
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void RaisePropertyChanged( params string[] propertyNames )
-        {
-            foreach( string propertyName in propertyNames )
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        public INavigation Navigation { get; set;}
+        public INavigation Navigation { get; set; }
 
     }
 }

@@ -8,49 +8,94 @@ using System.Threading.Tasks;
 using Maintain_it.Models;
 using Maintain_it.Services;
 
+using MvvmHelpers.Commands;
+
+using Xamarin.Forms;
+
 namespace Maintain_it.ViewModels
 {
     internal class HomeViewModel : BaseViewModel
     {
         public HomeViewModel()
         {
-            dBManager = new DBManager();
-            _ = Task.Run( async () => await LoadData() );
+            db = new MaintenanceItemService();
+            MaintenanceItems = new ObservableCollection<MaintenanceItem>();
+            AddCommand = new AsyncCommand( Add );
+            DeleteCommand = new AsyncCommand( Delete );
+            RefreshCommand = new AsyncCommand( Refresh );
+
+            Refresh();
         }
+
+        private int itemNum = 0;
 
         #region PROPERTIES
         #region READ-ONLY
-        private DBManager dBManager { get; }
+        private MaintenanceItemService db { get; }
         #endregion
 
         #region PRIVATE
-        private ObservableCollection<MaintenanceItemViewModel> maintenanceItems;
+        private ObservableCollection<MaintenanceItem> maintenanceItems;
+        private bool IsBusy { get; set; }
         #endregion
 
         #region PUBLIC
-        public ObservableCollection<MaintenanceItemViewModel> MaintenanceItems
+        public ObservableCollection<MaintenanceItem> MaintenanceItems
         {
-            get => maintenanceItems;
-            set => maintenanceItems = value;
+            get;
+            set;
         }
         #endregion
 
         #endregion
 
-        private async Task LoadData()
+        #region COMMANDS
+        public AsyncCommand AddCommand { get; }
+        public AsyncCommand DeleteCommand { get; }
+        public AsyncCommand RefreshCommand { get; }
+        #endregion
+
+        private async Task Add()
         {
-            IEnumerable<MaintenanceItem> dbItems = await dBManager.GetItemsAsync();
-            List<MaintenanceItemViewModel> maintenanceItemViewModels = (List<MaintenanceItemViewModel>)dbItems.Select( i => CreateMaintenanceItemViewModel( i ) );
-            maintenanceItems = new ObservableCollection<MaintenanceItemViewModel>( maintenanceItemViewModels );
+            MaintenanceItem item = new MaintenanceItem( $"Item {itemNum}" );
+
+            await db.AddItemAsync( item );
+            itemNum++;
+
+            await Refresh();
         }
 
-        private MaintenanceItemViewModel CreateMaintenanceItemViewModel( MaintenanceItem i )
+        private async Task Refresh()
         {
-            MaintenanceItemViewModel vm = new MaintenanceItemViewModel( i );
-            vm.ItemStatusChanged += ItemStatusChanged;
-            return vm;
+            if( !IsBusy )
+            {
+                IsBusy = true;
+
+                //await Task.Delay( 0 );
+
+                MaintenanceItems.Clear();
+
+                IEnumerable<MaintenanceItem> items = await db.GetAllItemsAsync();
+
+                foreach( MaintenanceItem item in items )
+                {
+                    MaintenanceItems.Add( item );
+                }
+
+                IsBusy = false;
+            }
         }
 
-        private void ItemStatusChanged( object sender, EventArgs e ) { }
+        private async Task Delete()
+        {
+            MaintenanceItem item = MaintenanceItems[0];
+
+            if(item != null )
+            {
+                await db.DeleteItemAsync( item.Id );
+            }
+
+            await Refresh();
+        }
     }
 }

@@ -57,5 +57,30 @@ namespace Maintain_it.Services
         {
             return await Task.FromResult( items );
         }
+
+        Task IDataStore<MaintenanceItem>.AddItemAsync( MaintenanceItem item )
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IDataStore<MaintenanceItem>.UpdateItemAsync( MaintenanceItem item )
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IDataStore<MaintenanceItem>.DeleteItemAsync( int id )
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Init()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<MaintenanceItem>> GetAllItemsAsync( bool forceRefresh = false )
+        {
+            throw new NotImplementedException();
+        }
     }
 }

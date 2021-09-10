@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels"
+             x:Class="Maintain_it.Views.TestItemView">
+
+    <ContentPage.BindingContext>
+        <viewmodel:TestItem/>
+    </ContentPage.BindingContext>
+    
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="TEST" FontSize="Title" HorizontalOptions="Center"/>
+
+            <CollectionView ItemsSource="{Binding Items}" HorizontalOptions="Center">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Label Text="{Binding Name}" HorizontalOptions="CenterAndExpand" FontSize="Large"/>
+                            <Label Text="{Binding id}" FontSize="Small" HorizontalOptions="CenterAndExpand"/>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Text="Refresh Items" Command="{Binding RefreshCommand}" HorizontalOptions="Center"/>
+                <Button Grid.Column="1" Text="Add new Item" Command="{Binding AddCommand}" HorizontalOptions="Center"/>
+                <Button Grid.Column="2" Text="Delete First Item" Command="{Binding DeleteCommand}" HorizontalOptions="Center"/>
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

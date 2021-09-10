@@ -12,7 +12,7 @@
         <StackLayout>
             <Label Text="{Binding Item.Name}" VerticalOptions="Start" HorizontalOptions="CenterAndExpand" />
 
-            <ScrollView Margin="10" Orientation="Vertical" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+            <!--<ScrollView Margin="10" Orientation="Vertical" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
                 <StackLayout Margin="5" VerticalOptions="StartAndExpand" HorizontalOptions="CenterAndExpand">
                     <Label Text="Materials and Equipment" HorizontalOptions="StartAndExpand" VerticalOptions="Center"/>
                     <CollectionView ItemsSource="{Binding Item.MaterialsAndEquipment, Mode=TwoWay}">
@@ -32,7 +32,7 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </StackLayout>
-            </ScrollView>
+            </ScrollView>-->
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

@@ -13,6 +13,7 @@ namespace Maintain_it
         public AppShell()
         {
             InitializeComponent();
+            Routing.RegisterRoute(nameof(TestItemView), typeof(TestItemView));
             Routing.RegisterRoute( nameof( HomeView ), typeof( HomeView ) );
             Routing.RegisterRoute( nameof( MaintenanceView ), typeof( MaintenanceView ) );
             Routing.RegisterRoute( nameof( SettingsView ), typeof( SettingsView ) );
@@ -21,7 +22,7 @@ namespace Maintain_it
 
         private async void OnMenuItemClicked( object sender, EventArgs e )
         {
-            await Shell.Current.GoToAsync( "//HomeView" );
+            await Current.GoToAsync( "//TestView" );
         }
     }
 }
