@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 using Maintain_it.Models;
 
@@ -83,7 +84,23 @@ namespace Maintain_it.Services
 
         //};
 
-        private readonly MaintenanceItem defaultItem = new MaintenanceItem( "Default Item" );
+        private readonly MaintenanceItem defaultItem = new MaintenanceItem( "Item 1" )
+        {
+            NextServiceDate = DateTime.Now.AddDays( 1 ),
+            MaterialsAndEquipment = new List<Material>()
+                {
+                    new Material( "Mat1", "Store1", 10.00d, 1 ),
+                    new Material( "Mat2", "Store2", 11.00d, 2 ),
+                    new Material( "Mat3", "Store3", 12.00d, 3 ),
+                    new Material( "Mat4", "Store4", 13.00d, 4 ),
+                    new Material( "Mat5", "Store5", 13.00d, 5 ),
+                    new Material( "Mat6", "Store6", 13.00d, 6 ),
+                    new Material( "Mat7", "Store7", 13.00d, 7 ),
+                    new Material( "Mat8", "Store8", 13.00d, 8 ),
+                    new Material( "Mat9", "Store9", 13.00d, 9 ),
+                    new Material( "Mat10", "Store10", 13.00d, 10 )
+                }
+        };
 
         public async Task Init()
         {
@@ -95,11 +112,13 @@ namespace Maintain_it.Services
             string dbPath = Path.Combine( FileSystem.AppDataDirectory, "MaintenanceItems.db" );
 
             db = new SQLiteAsyncConnection( dbPath );
+
             _ = await db.CreateTableAsync<MaintenanceItem>();
 
             if( await db.Table<MaintenanceItem>().CountAsync() < 1 )
             {
-                _ = db.InsertAsync( defaultItem );
+                string json = JsonConvert.SerializeObject( defaultItem );
+                _ = db.InsertAsync( json );
             }
 
         }
@@ -107,7 +126,8 @@ namespace Maintain_it.Services
         public async Task AddItemAsync( MaintenanceItem item )
         {
             await Init();
-            _ = await db.InsertAsync( item );
+            
+            _ = await db.InsertAsync( JsonConvert.SerializeObject( item ) );
         }
 
         public async Task DeleteItemAsync( int id )

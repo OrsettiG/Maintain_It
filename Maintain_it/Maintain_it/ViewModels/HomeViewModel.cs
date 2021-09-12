@@ -27,7 +27,7 @@ namespace Maintain_it.ViewModels
             Refresh();
         }
 
-        private int itemNum = 0;
+        private int itemNum = 1;
 
         #region PROPERTIES
         #region READ-ONLY
@@ -57,7 +57,18 @@ namespace Maintain_it.ViewModels
 
         private async Task Add()
         {
-            MaintenanceItem item = new MaintenanceItem( $"Item {itemNum}" );
+            MaintenanceItem item = new MaintenanceItem( $"Item {itemNum}" )
+            {
+                NextServiceDate = DateTime.Now.AddDays( 1 ),
+                MaterialsAndEquipment = new List<Material>()
+                {
+                    new Material( "Default 1", "Store1", 10.00d, 1 ),
+                    new Material( "Default 2", "Store2", 11.00d, 2 ),
+                    new Material( "Default 3", "Store3", 12.00d, 3 ),
+                    new Material( "Default 4", "Store4", 13.00d, 4 ),
+
+                }
+            };
 
             await db.AddItemAsync( item );
             itemNum++;
@@ -75,7 +86,7 @@ namespace Maintain_it.ViewModels
 
                 MaintenanceItems.Clear();
 
-                IEnumerable<MaintenanceItem> items = await db.GetAllItemsAsync();
+                List<MaintenanceItem> items = await db.GetAllItemsAsync() as List<MaintenanceItem>;
 
                 foreach( MaintenanceItem item in items )
                 {
