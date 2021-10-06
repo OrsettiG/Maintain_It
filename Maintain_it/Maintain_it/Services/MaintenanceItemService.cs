@@ -117,8 +117,8 @@ namespace Maintain_it.Services
 
             if( await db.Table<MaintenanceItem>().CountAsync() < 1 )
             {
-                string json = JsonConvert.SerializeObject( defaultItem );
-                _ = db.InsertAsync( json );
+                //string json = JsonConvert.SerializeObject( defaultItem );
+                _ = db.InsertAsync( defaultItem );
             }
 
         }
@@ -126,8 +126,8 @@ namespace Maintain_it.Services
         public async Task AddItemAsync( MaintenanceItem item )
         {
             await Init();
-            
-            _ = await db.InsertAsync( JsonConvert.SerializeObject( item ) );
+            //JsonConvert.SerializeObject( item )
+            _ = await db.InsertAsync( item );
         }
 
         public async Task DeleteItemAsync( int id )

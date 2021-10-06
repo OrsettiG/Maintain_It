@@ -60,14 +60,14 @@ namespace Maintain_it.ViewModels
             MaintenanceItem item = new MaintenanceItem( $"Item {itemNum}" )
             {
                 NextServiceDate = DateTime.Now.AddDays( 1 ),
-                MaterialsAndEquipment = new List<Material>()
-                {
-                    new Material( "Default 1", "Store1", 10.00d, 1 ),
-                    new Material( "Default 2", "Store2", 11.00d, 2 ),
-                    new Material( "Default 3", "Store3", 12.00d, 3 ),
-                    new Material( "Default 4", "Store4", 13.00d, 4 ),
+                //MaterialsAndEquipment = new List<Material>()
+                //{
+                //    new Material( "Default 1", "Store1", 10.00d, 1 ),
+                //    new Material( "Default 2", "Store2", 11.00d, 2 ),
+                //    new Material( "Default 3", "Store3", 12.00d, 3 ),
+                //    new Material( "Default 4", "Store4", 13.00d, 4 ),
 
-                }
+                //}
             };
 
             await db.AddItemAsync( item );

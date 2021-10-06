@@ -4,6 +4,8 @@ using System.Text;
 
 using SQLite;
 
+using SQLiteNetExtensions.Attributes;
+
 namespace Maintain_it.Models
 {
     public enum Timeframe { DAYS, WEEKS, MONTHS, YEARS }
@@ -20,19 +22,27 @@ namespace Maintain_it.Models
 
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
+        
+        [Unique]
         public string Name { get; set; }
-        public List<int> MaterialsAndEquipment { get; set; }
-        public List<int> Process { get; set; }
+        
+        [ManyToMany( typeof( ItemsToMaterials ) )]
+        public List<Material> Materials { get; set; }
+        
+        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        public List<Step> Process { get; set; }
+
+        [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<string> Notes { get; set; }
+        
         public DateTime FirstServiceDate { get; set; }
-        public DateTime LastServiceDate { get; set; }
+        public DateTime PreviousServiceDate { get; set; }
         public DateTime NextServiceDate { get; set; }
-        public bool Repeats { get; set; }
-        public int Frequency { get; set; }
+        public bool IsRecurring { get; set; }
+        public int RecursEvery { get; set; }
         public Timeframe Timeframe { get; set; }
-        public bool Recurring { get; set; }
-        public int Times { get; set; }
-        public bool IsComplete { get; set; }
+        public int TimesServiced { get; set; }
+        public bool PreviousServiceCompleted { get; set; }
         public bool NotifyOfNextServiceDate { get; set; }
 
     }
