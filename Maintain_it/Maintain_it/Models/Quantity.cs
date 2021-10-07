@@ -12,16 +12,16 @@ namespace Maintain_it.Models
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
-        
+
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<Material> Materials { get; set; }
 
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<StepMaterial> StepMaterials { get; set; }
-        
+
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<ShoppingListItem> ShoppingListItems { get; set; }
-        
-        public int Value { get; set; }
+
+        public int Count { get; set; }
     }
 }

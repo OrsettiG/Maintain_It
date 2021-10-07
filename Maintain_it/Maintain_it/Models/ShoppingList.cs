@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using SQLite;
 
@@ -8,13 +6,17 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Retailer
+    public class ShoppingList
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        [ManyToMany( typeof( MaterialsToRetailers ) )]
-        public List<Material> Materials { get; set; }
+        #region Many To Many Relationships
+
+        [ManyToMany( typeof( ShoppingListItem ) )]
+        public List<ShoppingListItem> Items { get; set; }
+
+        #endregion
 
         #region Properties
         public string Name { get; set; }
