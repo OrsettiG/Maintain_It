@@ -1,11 +1,15 @@
-﻿using SQLite;
+﻿using Maintain_it.Services;
+
+using SQLite;
 
 using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Photo
+    public class Photo : IStorableObject
     {
+        public Photo() { }
+
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
@@ -18,6 +22,7 @@ namespace Maintain_it.Models
 
         #region Properties
         public byte[] Bytes { get; set; }
+        public string Comment { get; set; }
         #endregion
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Maintain_it.Services;
+
 using SQLite;
 
 using SQLiteNetExtensions.Attributes;
@@ -10,7 +12,7 @@ namespace Maintain_it.Models
 {
     public enum Timeframe { DAYS, WEEKS, MONTHS, YEARS }
 
-    public class MaintenanceItem
+    public class MaintenanceItem : IStorableObject
     {
         public MaintenanceItem() { }
 

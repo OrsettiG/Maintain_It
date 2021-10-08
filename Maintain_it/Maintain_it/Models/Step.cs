@@ -1,13 +1,17 @@
 ﻿using System.Collections.Generic;
 
+using Maintain_it.Services;
+
 using SQLite;
 
 using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Step
+    public class Step : IStorableObject
     {
+        public Step() { }
+
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 

@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Maintain_it.Services;
+
 using SQLite;
 
 using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class StepMaterial
+    public class StepMaterial : IStorableObject
     {
+        public StepMaterial() { }
+
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 

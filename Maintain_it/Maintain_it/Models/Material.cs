@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 
+using Maintain_it.Services;
+
 using SQLite;
 
 using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Material
+    public class Material : IStorableObject
     {
 
         public Material() { }

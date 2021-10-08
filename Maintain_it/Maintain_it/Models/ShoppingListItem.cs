@@ -1,13 +1,17 @@
 ﻿using System.Collections.Generic;
 
+using Maintain_it.Services;
+
 using SQLite;
 
 using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class ShoppingListItem
+    public class ShoppingListItem : IStorableObject
     {
+        public ShoppingListItem() { }
+
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 

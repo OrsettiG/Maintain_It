@@ -13,28 +13,23 @@ using Xamarin.Essentials;
 
 namespace Maintain_it.Services
 {
-    public class MaterialService : IDataStore<Material>
+    public class MaterialService : Service<Material>, IDataStore<Material>
     {
-        private SQLiteAsyncConnection db;
-
-        public async Task Init()
+        public override async Task Init()
         {
-            if( db != null )
+            await base.Init();
+            
+            if( db.Table<Material>() == null )
             {
-                return;
-            }
+                _ = await db.CreateTableAsync<Material>();
 
-            string path = Path.Combine( FileSystem.AppDataDirectory, "Materials.db" );
-
-            db = new SQLiteAsyncConnection( path );
-            _ = await db.CreateTableAsync<Material>();
-
-            if(await db.Table<Material>().CountAsync() < 1 )
-            {
-                _ = db.InsertAsync( new Material()
+                if(await db.Table<Material>().CountAsync() < 1 )
                 {
-                    Name = "Default Material"
-                } );
+                    _ = db.InsertAsync( new Material()
+                    {
+                        Name = "Default Material"
+                    } );
+                }
             }
         }
 
