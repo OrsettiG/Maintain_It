@@ -10,6 +10,7 @@ namespace Maintain_it.Models
 {
     public class ShoppingList : IStorableObject
     {
+
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 

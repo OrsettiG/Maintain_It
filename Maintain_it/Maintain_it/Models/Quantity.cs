@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Maintain_it.Services;
+
 using SQLite;
 
 using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Quantity
+    public class Quantity : IStorableObject
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }

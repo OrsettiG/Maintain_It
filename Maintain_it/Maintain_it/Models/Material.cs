@@ -21,14 +21,16 @@ namespace Maintain_it.Models
             //this.Quantity = QuantityOwned;
         }
 
+        
+
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
         #region One To Many Relationships
 
+
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<StepMaterial> StepMaterials { get; set; }
-
         #endregion
 
         #region Many To One Relationships
@@ -56,7 +58,7 @@ namespace Maintain_it.Models
         
         public string Name { get; set; }
         public double UnitPrice { get; set; }
-        public double TotalPrice => QuantityId * UnitPrice;
+        public double TotalPrice => Quantity.Count * UnitPrice;
         
         #endregion
     }

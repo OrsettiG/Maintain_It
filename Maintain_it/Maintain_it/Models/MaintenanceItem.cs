@@ -10,7 +10,7 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public enum Timeframe { DAYS, WEEKS, MONTHS, YEARS }
+    public enum Timeframe { MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS }
 
     public class MaintenanceItem : IStorableObject
     {
@@ -24,19 +24,19 @@ namespace Maintain_it.Models
 
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
-        
+
         [Unique]
         public string Name { get; set; }
-        
+
         [ManyToMany( typeof( ItemsToMaterials ) )]
         public List<Material> Materials { get; set; }
-        
+
         [OneToMany( CascadeOperations = CascadeOperation.All )]
-        public List<Step> Process { get; set; }
+        public List<Step> Steps { get; set; }
 
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<string> Notes { get; set; }
-        
+
         public DateTime FirstServiceDate { get; set; }
         public DateTime PreviousServiceDate { get; set; }
         public DateTime NextServiceDate { get; set; }

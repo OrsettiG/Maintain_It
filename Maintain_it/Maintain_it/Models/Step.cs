@@ -22,18 +22,23 @@ namespace Maintain_it.Models
 
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<Note> Notes { get; set; }
+
         #endregion
 
         #region Many To One Relationships
+
         [ForeignKey( typeof( MaintenanceItem ) )]
         public int MaintenanceItemId { get; set; }
         [ManyToOne]
         public MaintenanceItem MaintenanceItem { get; set; }
+
         #endregion
 
         #region Many to Many Relationships
+
         [ManyToMany( typeof( StepsToStepMaterials ) )]
         public List<StepMaterial> StepMaterials { get; set; }
+
         #endregion
 
         #region Properties
@@ -42,6 +47,7 @@ namespace Maintain_it.Models
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
         public float TimeRequired { get; set; }
+        public Timeframe Timeframe { get; set; }
 
         #endregion
     }

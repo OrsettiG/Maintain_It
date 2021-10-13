@@ -14,8 +14,21 @@ using Xamarin.Essentials;
 
 namespace Maintain_it.Services
 {
-    public class MaintenanceItemService : Service<MaintenanceItem>, IDataStore<MaintenanceItem>
+    public class MaintenanceItemService : Service<MaintenanceItem>
     {
+        internal static MaintenanceItem defaultMaintenanceItem = new MaintenanceItem()
+        {
+            Name = "Default MaintenanceItem",
+            NextServiceDate = DateTime.Now.AddDays( 1 ),
+            Materials = new List<Material>()
+            {
+                MaterialService.defaultMaterial
+            },
+            Steps = new List<Step>()
+            {
+                StepService.defaultStep
+            }
+        };
 
         //private readonly List<MaintenanceItem> items = new List<MaintenanceItem>()
         //{
@@ -83,31 +96,21 @@ namespace Maintain_it.Services
 
         //};
 
-        private readonly MaintenanceItem defaultItem = new MaintenanceItem( "Item 1" )
+
+        public override async Task Init()
         {
-            NextServiceDate = DateTime.Now.AddDays( 1 ),
-            //MaterialsAndEquipment = new List<Material>()
-            //    {
-            //        new Material( "Mat1", "Store1", 10.00d, 1 ),
-            //        new Material( "Mat2", "Store2", 11.00d, 2 ),
-            //        new Material( "Mat3", "Store3", 12.00d, 3 )
-            //    }
-        };
+            await base.Init();
 
-        //public override async Task Init()
-        //{
-        //    await base.Init();
+            if( db.Table<MaintenanceItem>() == null )
+            {
+                _ = await db.CreateTableAsync<MaintenanceItem>();
+            }
 
-        //    if( db.Table<MaintenanceItem>() == null )
-        //    {
-        //        _ = await db.CreateTableAsync<MaintenanceItem>();
-
-        //        if( await db.Table<MaintenanceItem>().CountAsync() < 1 )
-        //        {
-        //            _ = db.InsertAsync( defaultItem );
-        //        }
-        //    }
-        //}
+            if( await db.Table<MaintenanceItem>().CountAsync() < 1 )
+            {
+                _ = db.InsertAsync( defaultMaintenanceItem );
+            }
+        }
 
         //public async Task AddItemAsync( MaintenanceItem item )
         //{

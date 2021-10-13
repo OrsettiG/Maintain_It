@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,8 +10,20 @@ namespace Maintain_it.Services
 {
     public class PhotoService : Service<Photo>
     {
+        internal static Photo defaultPhoto = new Photo()
+        {
+            Comment = "Default Photo",
+            Bytes = File.ReadAllBytes("Maintain_it/EmbeddedImages/HappyCup.jpg")
+        };
+
         public override async Task Init()
         {
+            await base.Init();
+            if( db.Table<Photo>() == null )
+            {
+                _ = await db.CreateTableAsync<Photo>();
+            }
+
             if( await db.Table<Photo>().CountAsync() < 1 )
             {
                 _ = await db.InsertAsync( new Photo()
@@ -18,31 +31,6 @@ namespace Maintain_it.Services
                     Comment = "Default Photo"
                 } );
             }
-        }
-
-        public Task AddItemAsync( Photo item )
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteItemAsync( int id )
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Photo>> GetAllItemsAsync( bool forceRefresh = false )
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Photo> GetItemAsync( int id )
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateItemAsync( Photo item )
-        {
-            throw new NotImplementedException();
         }
     }
 }
