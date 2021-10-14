@@ -21,20 +21,25 @@ namespace Maintain_it.Models
         #endregion
 
         #region Many To One Relationships
+
         [ForeignKey( typeof( Step ) )]
         public int StepId { get; set; }
         [ManyToOne]
         public Step Step { get; set; }
+        
         #endregion
 
+        // Empty
         #region Many To Many Relationships
         #endregion
 
         #region Properties
+
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }
+        
         #endregion
     }
 }

@@ -14,7 +14,8 @@ namespace Maintain_it.Services
             Title = "Default Note",
             Description = "A default note to ensure the database is working correctly",
             Created = DateTime.Now,
-            LastUpdated = DateTime.Now
+            LastUpdated = DateTime.Now,
+            Step = StepService.defaultStep
         };
 
         public override async Task Init()

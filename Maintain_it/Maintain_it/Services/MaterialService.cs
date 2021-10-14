@@ -18,6 +18,8 @@ namespace Maintain_it.Services
         internal static Material defaultMaterial = new Material()
         {
             Name = "Default",
+            Quantity = QuantityService.defaultQuantity,
+            UnitPrice = 10d,
             StepMaterials = new List<StepMaterial>()
             {
                 StepMaterialService.defaultStepMaterial
@@ -26,9 +28,10 @@ namespace Maintain_it.Services
             {
                 RetailerService.defaultRetailer
             },
-            Quantity = QuantityService.defaultQuantity,
-            UnitPrice = 10d,
-
+            MaintenanceItem = new List<MaintenanceItem>()
+            {
+                MaintenanceItemService.defaultMaintenanceItem
+            }
         };
 
         public override async Task Init()

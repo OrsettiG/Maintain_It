@@ -14,7 +14,7 @@ namespace Maintain_it.Services
 {
     public class Service<T> : IDataStore<T> where T : IStorableObject, new()
     {
-        private protected SQLiteAsyncConnection db;
+        private protected static SQLiteAsyncConnection db;
 
         public virtual async Task Init()
         {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Maintain_it.Services
 {
-    public interface IDataStore<T>
+    public interface IDataStore<T> where T : IStorableObject, new()
     {
         Task Init();
         Task AddItemAsync( T item );

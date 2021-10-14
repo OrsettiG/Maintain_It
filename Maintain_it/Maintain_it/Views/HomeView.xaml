@@ -239,7 +239,7 @@
                                                     <ColumnDefinition Width="80"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <CheckBox Grid.Column="1" IsChecked="{Binding IsOwned, Mode=TwoWay}" HorizontalOptions="End" VerticalOptions="Center"/>
+                                                <!-- <CheckBox Grid.Column="1" IsChecked="{Binding IsOwned, Mode=TwoWay}" HorizontalOptions="End" VerticalOptions="Center"/> -->
                                                 <Label Grid.Column="2" Text="{Binding Name}" HorizontalOptions="Start" VerticalOptions="Center" Margin="5"/>
                                                 <Label Grid.Column="3" Text="{Binding Quantity}" VerticalOptions="Center" HorizontalOptions="Center"/>
                                             </Grid>

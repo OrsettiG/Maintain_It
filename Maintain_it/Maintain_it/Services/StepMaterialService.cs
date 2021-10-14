@@ -13,12 +13,14 @@ namespace Maintain_it.Services
         {
             ShoppingListItems = new List<ShoppingListItem>()
             {
-                
+                ShoppingListItemService.defaultShoppingListItem
             },
             Steps = new List<Step>()
             {
                 StepService.defaultStep
-            }
+            },
+            Quantity = QuantityService.defaultQuantity,
+            Material = MaterialService.defaultMaterial
         };
 
         public override async Task Init()

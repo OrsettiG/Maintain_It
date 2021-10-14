@@ -25,18 +25,10 @@ namespace Maintain_it.Models
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
+        #region Properties
         [Unique]
         public string Name { get; set; }
-
-        [ManyToMany( typeof( ItemsToMaterials ) )]
-        public List<Material> Materials { get; set; }
-
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
-        public List<Step> Steps { get; set; }
-
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
-        public List<string> Notes { get; set; }
-
+        public string Comment { get; set; }
         public DateTime FirstServiceDate { get; set; }
         public DateTime PreviousServiceDate { get; set; }
         public DateTime NextServiceDate { get; set; }
@@ -46,6 +38,12 @@ namespace Maintain_it.Models
         public int TimesServiced { get; set; }
         public bool PreviousServiceCompleted { get; set; }
         public bool NotifyOfNextServiceDate { get; set; }
+        #endregion
 
+        [ManyToMany( typeof( ItemsToMaterials ) )]
+        public List<Material> Materials { get; set; }
+
+        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        public List<Step> Steps { get; set; }
     }
 }

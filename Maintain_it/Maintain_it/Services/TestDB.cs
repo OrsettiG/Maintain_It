@@ -12,7 +12,7 @@ using Xamarin.Essentials;
 
 namespace Maintain_it.Services
 {
-    public class TestDB : IDataStore<TestItemModel>
+    public class TestDB //: IDataStore<TestItemModel>
     {
         private SQLiteAsyncConnection db;
 

@@ -18,7 +18,8 @@ namespace Maintain_it.ViewModels
     {
         public HomeViewModel()
         {
-            db = new MaintenanceItemService();
+            db = new DbServiceLocator();
+            Task.Run( () => db.Init()).Wait();
             MaintenanceItems = new ObservableCollection<MaintenanceItem>();
             AddCommand = new AsyncCommand( Add );
             DeleteCommand = new AsyncCommand( Delete );
@@ -31,7 +32,7 @@ namespace Maintain_it.ViewModels
 
         #region PROPERTIES
         #region READ-ONLY
-        private MaintenanceItemService db { get; }
+        private DbServiceLocator db { get; }
         #endregion
 
         #region PRIVATE
@@ -57,18 +58,7 @@ namespace Maintain_it.ViewModels
 
         private async Task Add()
         {
-            MaintenanceItem item = new MaintenanceItem( $"Item {itemNum}" )
-            {
-                NextServiceDate = DateTime.Now.AddDays( 1 ),
-                //MaterialsAndEquipment = new List<Material>()
-                //{
-                //    new Material( "Default 1", "Store1", 10.00d, 1 ),
-                //    new Material( "Default 2", "Store2", 11.00d, 2 ),
-                //    new Material( "Default 3", "Store3", 12.00d, 3 ),
-                //    new Material( "Default 4", "Store4", 13.00d, 4 ),
-
-                //}
-            };
+            MaintenanceItem item = MaintenanceItemService.defaultMaintenanceItem;
 
             await db.AddItemAsync( item );
             itemNum++;
@@ -86,7 +76,7 @@ namespace Maintain_it.ViewModels
 
                 MaintenanceItems.Clear();
 
-                List<MaintenanceItem> items = await db.GetAllItemsAsync() as List<MaintenanceItem>;
+                List<MaintenanceItem> items = await db.GetAllItemsAsync<MaintenanceItem>() as List<MaintenanceItem>;
 
                 foreach( MaintenanceItem item in items )
                 {
@@ -101,9 +91,9 @@ namespace Maintain_it.ViewModels
         {
             MaintenanceItem item = MaintenanceItems[0];
 
-            if(item != null )
+            if( item != null )
             {
-                await db.DeleteItemAsync( item.Id );
+                await db.DeleteItemAsync<MaintenanceItem>( item.Id );
             }
 
             await Refresh();

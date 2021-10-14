@@ -13,7 +13,8 @@ namespace Maintain_it.Services
         internal static Photo defaultPhoto = new Photo()
         {
             Comment = "Default Photo",
-            Bytes = File.ReadAllBytes("Maintain_it/EmbeddedImages/HappyCup.jpg")
+            Bytes = File.ReadAllBytes("Maintain_it/EmbeddedImages/HappyCup.jpg"),
+            Step = StepService.defaultStep
         };
 
         public override async Task Init()

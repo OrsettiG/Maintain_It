@@ -19,7 +19,17 @@ namespace Maintain_it.Services
         internal static MaintenanceItem defaultMaintenanceItem = new MaintenanceItem()
         {
             Name = "Default MaintenanceItem",
-            NextServiceDate = DateTime.Now.AddDays( 1 ),
+            NextServiceDate = DateTime.Now.AddDays( 10 ),
+            FirstServiceDate = DateTime.Now.AddDays( -10 ),
+            PreviousServiceDate = DateTime.Now,
+            PreviousServiceCompleted = true,
+            IsRecurring = true,
+            RecursEvery = 10,
+            Timeframe = Timeframe.DAYS,
+            TimesServiced = 2,
+            NotifyOfNextServiceDate = true,
+            Comment = "Default Maintenance Item Comment",
+
             Materials = new List<Material>()
             {
                 MaterialService.defaultMaterial
