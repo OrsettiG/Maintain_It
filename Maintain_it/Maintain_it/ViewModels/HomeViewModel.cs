@@ -18,17 +18,27 @@ namespace Maintain_it.ViewModels
     {
         public HomeViewModel()
         {
-            db = new DbServiceLocator();
-            Task.Run( () => db.Init()).Wait();
+            if( DbServiceLocator.locator == null )
+            {
+                db = new DbServiceLocator();
+                Task.Run( () => db.Init() ).Wait();
+            }
+            else
+            {
+                db = DbServiceLocator.locator;
+            }
             MaintenanceItems = new ObservableCollection<MaintenanceItem>();
             AddCommand = new AsyncCommand( Add );
             DeleteCommand = new AsyncCommand( Delete );
+            UpdateCommand = new AsyncCommand( Update );
             RefreshCommand = new AsyncCommand( Refresh );
-
+            fakeData = new FakeData();
+            itemNum = rand.Next( 100000 );
             Refresh();
         }
 
-        private int itemNum = 1;
+        private Random rand = new Random();
+        private int itemNum;
 
         #region PROPERTIES
         #region READ-ONLY
@@ -38,6 +48,7 @@ namespace Maintain_it.ViewModels
         #region PRIVATE
         private ObservableCollection<MaintenanceItem> maintenanceItems;
         private bool IsBusy { get; set; }
+        private FakeData fakeData { get; set; }
         #endregion
 
         #region PUBLIC
@@ -54,15 +65,18 @@ namespace Maintain_it.ViewModels
         public AsyncCommand AddCommand { get; }
         public AsyncCommand DeleteCommand { get; }
         public AsyncCommand RefreshCommand { get; }
+        public AsyncCommand UpdateCommand { get; }
         #endregion
 
         private async Task Add()
         {
-            MaintenanceItem item = MaintenanceItemService.defaultMaintenanceItem;
-
+            MaintenanceItem item = fakeData.maintenanceItem;
+            item.Name += itemNum.ToString();
+            item.Materials.Add( fakeData.material );
+            item.Steps.Add( fakeData.step );
             await db.AddItemAsync( item );
             itemNum++;
-
+            Console.WriteLine( item.Materials[0].UnitPrice );
             await Refresh();
         }
 
@@ -89,11 +103,27 @@ namespace Maintain_it.ViewModels
 
         private async Task Delete()
         {
-            MaintenanceItem item = MaintenanceItems[0];
-
-            if( item != null )
+            foreach( MaintenanceItem item in MaintenanceItems )
             {
-                await db.DeleteItemAsync<MaintenanceItem>( item.Id );
+                //MaintenanceItem item = MaintenanceItems[0];
+
+                if( item != null )
+                {
+                    await db.DeleteItemAsync<MaintenanceItem>( item.Id );
+                }
+            }
+
+            await Refresh();
+        }
+
+        private async Task Update()
+        {
+            foreach( MaintenanceItem item in MaintenanceItems )
+            {
+                if( await db.GetItemAsync<MaintenanceItem>( item.Id ) != item )
+                {
+                    await db.UpdateItemAsync( item );
+                }
             }
 
             await Refresh();

@@ -15,6 +15,7 @@ namespace Maintain_it.Views
         public MaintenanceView()
         {
             InitializeComponent();
+            //BindingContext = new MaintenanceView();
         }
     }
 }

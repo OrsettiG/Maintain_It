@@ -8,6 +8,8 @@ using Maintain_it.Models;
 
 using SQLite;
 
+using SQLiteNetExtensionsAsync.Extensions;
+
 using Xamarin.Essentials;
 
 namespace Maintain_it.Services
@@ -25,14 +27,20 @@ namespace Maintain_it.Services
 
             db = AsyncDatabaseConnection.Db;
 
-            _ = await db.CreateTableAsync<T>();
+            _ = await db.DeleteAllAsync<T>();
 
+            _ = await db.CreateTableAsync<T>();
+            _ = await db.CreateTableAsync<ItemsToMaterials>();
+            _ = await db.CreateTableAsync<MaterialsToRetailers>();
+            _ = await db.CreateTableAsync<ShoppingListItemToShoppingList>();
+            _ = await db.CreateTableAsync<StepsToStepMaterials>();
         }
 
         public virtual async Task AddItemAsync( T item )
         {
             await Init();
-            _ = await db.InsertAsync( item );
+            await db.InsertWithChildrenAsync( item );
+            //_ = await db.InsertAsync( item );
         }
 
         public virtual async Task DeleteItemAsync( int id )
@@ -44,7 +52,7 @@ namespace Maintain_it.Services
         public virtual async Task<IEnumerable<T>> GetAllItemsAsync( bool forceRefresh = false )
         {
             await Init();
-            List<T> data = await db.Table<T>().ToListAsync();
+            List<T> data = await db.GetAllWithChildrenAsync<T>(); //db.Table<T>().ToListAsync();
             return data;
         }
 
@@ -52,14 +60,14 @@ namespace Maintain_it.Services
         {
             await Init();
 
-            return await db.Table<T>().Where( x => x.Id == id ).FirstOrDefaultAsync();
+            return await db.GetWithChildrenAsync<T>( id ); //db.Table<T>().Where( x => x.Id == id ).FirstOrDefaultAsync();
         }
 
 
         public virtual async Task UpdateItemAsync( T item )
         {
             await Init();
-            _ = await db.InsertOrReplaceAsync( item );
+            await db.InsertWithChildrenAsync( item ); //db.InsertOrReplaceAsync( item );
         }
     }
 }

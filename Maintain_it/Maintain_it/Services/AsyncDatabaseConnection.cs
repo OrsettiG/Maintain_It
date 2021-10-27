@@ -5,14 +5,16 @@ using System.Text;
 
 using SQLite;
 
+using SQLiteNetExtensionsAsync.Extensions;
+
 using Xamarin.Essentials;
 
 namespace Maintain_it.Services
 {
     public static class AsyncDatabaseConnection
     {
-        private static readonly SQLiteAsyncConnection db;
+        private static SQLiteAsyncConnection db;
 
-        internal static SQLiteAsyncConnection Db => db ?? new SQLiteAsyncConnection( Path.Combine( FileSystem.AppDataDirectory, "MaintainIt.db" ) );
+        public static SQLiteAsyncConnection Db => db ??= new SQLiteAsyncConnection( Path.Combine( FileSystem.AppDataDirectory, "MaintainIt.db" ) );
     }
 }

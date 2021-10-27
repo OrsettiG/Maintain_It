@@ -10,11 +10,16 @@ using Xamarin.Forms.Xaml;
 namespace Maintain_it.Views
 {
     [XamlCompilation( XamlCompilationOptions.Compile )]
-    public partial class MaintenanceItemView : ContentPage
+    public partial class MaintenanceItemDetailView : ContentPage
     {
-        public MaintenanceItemView()
+        public MaintenanceItemDetailView()
         {
             InitializeComponent();
+        }
+
+        private void Stepper_PropertyChanged( object sender, System.ComponentModel.PropertyChangedEventArgs e )
+        {
+
         }
     }
 }

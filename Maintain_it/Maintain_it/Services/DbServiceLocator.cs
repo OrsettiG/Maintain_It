@@ -10,6 +10,23 @@ namespace Maintain_it.Services
 {
     public class DbServiceLocator
     {
+        public DbServiceLocator()
+        {
+            locator = this;
+            Register( new Service<MaintenanceItem>() );
+            Register( new Service<Material>() );
+            Register( new Service<Step>() );
+            Register( new Service<StepMaterial>() );
+            Register( new Service<ShoppingList>() );
+            Register( new Service<ShoppingListItem>() );
+            Register( new Service<Retailer>() );
+            Register( new Service<Quantity>() );
+            Register( new Service<Note>() );
+            Register( new Service<Photo>() );
+        }
+
+        public static DbServiceLocator locator = null;
+
         private static class LocatorEntry<T, U> where T : Service<U> where U : IStorableObject, new()
         {
             public static Service<U> Instance { get; set; }
@@ -25,54 +42,18 @@ namespace Maintain_it.Services
             return LocatorEntry<Service<T>, T>.Instance;
         }
 
-        public DbServiceLocator()
-        {
-            _maintenanceItemService = new MaintenanceItemService();
-            _materialService = new MaterialService();
-            _stepService = new StepService();
-            _stepMaterialService = new StepMaterialService();
-            _shoppingListItemService = new ShoppingListItemService();
-            _shoppingListService = new ShoppingListService();
-            _quantityService = new QuantityService();
-            _noteService = new NoteService();
-            _photoService = new PhotoService();
-            _retailerService = new RetailerService();
-
-            Register( new Service<MaintenanceItem>() );
-            Register( new Service<Material>() );
-            Register( new Service<Step>() );
-            Register( new Service<StepMaterial>() );
-            Register( new Service<ShoppingList>() );
-            Register( new Service<ShoppingListItem>() );
-            Register( new Service<Retailer>() );
-            Register( new Service<Quantity>() );
-            Register( new Service<Note>() );
-            Register( new Service<Photo>() );
-        }
-
-        private readonly MaintenanceItemService  _maintenanceItemService;
-        private readonly MaterialService         _materialService;
-        private readonly StepService             _stepService;
-        private readonly StepMaterialService     _stepMaterialService;
-        private readonly ShoppingListItemService _shoppingListItemService;
-        private readonly ShoppingListService     _shoppingListService;
-        private readonly QuantityService         _quantityService;
-        private readonly NoteService             _noteService;
-        private readonly PhotoService            _photoService;
-        private readonly RetailerService         _retailerService;
-
         public async Task Init()
         {
-            await _maintenanceItemService.Init();
-            await _materialService.Init();
-            await _stepService.Init();
-            await _stepMaterialService.Init();
-            await _shoppingListItemService.Init();
-            await _shoppingListService.Init();
-            await _quantityService.Init();
-            await _noteService.Init();
-            await _photoService.Init();
-            await _retailerService.Init();
+            await GetService<MaintenanceItem>().Init();
+            await GetService<Material>().Init();
+            await GetService<Step>().Init();
+            await GetService<StepMaterial>().Init();
+            await GetService<ShoppingListItem>().Init();
+            await GetService<ShoppingList>().Init();
+            await GetService<Retailer>().Init();
+            await GetService<Quantity>().Init();
+            await GetService<Note>().Init();
+            await GetService<Photo>().Init();
         }
 
         public async Task AddItemAsync<T>( T item ) where T : IStorableObject, new()

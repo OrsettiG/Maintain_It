@@ -8,16 +8,17 @@ using Xamarin.Forms;
 
 namespace Maintain_it
 {
-    public partial class AppShell : Xamarin.Forms.Shell
+    public partial class AppShell : Shell
     {
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute(nameof(TestItemView), typeof(TestItemView));
+            Routing.RegisterRoute( nameof( TestItemView ), typeof( TestItemView ) );
             Routing.RegisterRoute( nameof( HomeView ), typeof( HomeView ) );
             Routing.RegisterRoute( nameof( MaintenanceView ), typeof( MaintenanceView ) );
             Routing.RegisterRoute( nameof( SettingsView ), typeof( SettingsView ) );
             Routing.RegisterRoute( nameof( AboutView ), typeof( AboutView ) );
+            Routing.RegisterRoute( nameof( MaintenanceItemDetailView ), typeof( MaintenanceItemDetailView ) );
         }
 
         private async void OnMenuItemClicked( object sender, EventArgs e )

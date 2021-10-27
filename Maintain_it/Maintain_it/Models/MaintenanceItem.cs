@@ -4,17 +4,32 @@ using System.Text;
 
 using Maintain_it.Services;
 
+using MvvmHelpers;
+
 using SQLite;
 
 using SQLiteNetExtensions.Attributes;
 
+
 namespace Maintain_it.Models
 {
-    public enum Timeframe { MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS }
-
     public class MaintenanceItem : IStorableObject
     {
-        public MaintenanceItem() { }
+        public MaintenanceItem() 
+        {
+            Name = "New Maintenance Item";
+            Comment = "Default Comment";
+            FirstServiceDate = DateTime.Now;
+            IsRecurring = false;
+            RecursEvery = 0;
+            Frequency = Timeframe.DAYS;
+            TimesServiced = 0;
+            PreviousServiceCompleted = false;
+            NotifyOfNextServiceDate = true;
+
+            Materials = new List<Material>();
+            Steps = new List<Step>();
+        }
 
         public MaintenanceItem( string Name )
         {
@@ -26,7 +41,7 @@ namespace Maintain_it.Models
         public int Id { get; set; }
 
         #region Properties
-        [Unique]
+        [NotNull]
         public string Name { get; set; }
         public string Comment { get; set; }
         public DateTime FirstServiceDate { get; set; }
@@ -34,7 +49,7 @@ namespace Maintain_it.Models
         public DateTime NextServiceDate { get; set; }
         public bool IsRecurring { get; set; }
         public int RecursEvery { get; set; }
-        public Timeframe Timeframe { get; set; }
+        public Timeframe Frequency { get; set; }
         public int TimesServiced { get; set; }
         public bool PreviousServiceCompleted { get; set; }
         public bool NotifyOfNextServiceDate { get; set; }
