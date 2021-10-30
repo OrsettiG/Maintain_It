@@ -22,10 +22,7 @@ namespace Maintain_it.Models
         [ManyToOne]
         public StepMaterial StepMaterial { get; set; }
 
-        [ForeignKey( typeof( Quantity ) )]
-        public int QuantityId { get; set; }
-        [ManyToOne]
-        public Quantity Quantity { get; set; }
+
 
         #endregion
 
@@ -38,6 +35,7 @@ namespace Maintain_it.Models
 
         #region Properties
 
+        public int Quantity { get; set; }
         public bool Purchased { get; set; }
 
         #endregion

@@ -15,21 +15,7 @@ namespace Maintain_it.Models
 {
     public class MaintenanceItem : IStorableObject
     {
-        public MaintenanceItem() 
-        {
-            Name = "New Maintenance Item";
-            Comment = "Default Comment";
-            FirstServiceDate = DateTime.Now;
-            IsRecurring = false;
-            RecursEvery = 0;
-            Frequency = Timeframe.DAYS;
-            TimesServiced = 0;
-            PreviousServiceCompleted = false;
-            NotifyOfNextServiceDate = true;
-
-            Materials = new List<Material>();
-            Steps = new List<Step>();
-        }
+        public MaintenanceItem(){}
 
         public MaintenanceItem( string Name )
         {

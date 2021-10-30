@@ -13,16 +13,7 @@ namespace Maintain_it.Services
         public DbServiceLocator()
         {
             locator = this;
-            Register( new Service<MaintenanceItem>() );
-            Register( new Service<Material>() );
-            Register( new Service<Step>() );
-            Register( new Service<StepMaterial>() );
-            Register( new Service<ShoppingList>() );
-            Register( new Service<ShoppingListItem>() );
-            Register( new Service<Retailer>() );
-            Register( new Service<Quantity>() );
-            Register( new Service<Note>() );
-            Register( new Service<Photo>() );
+            _ = Task.Run( async () => await Init() );
         }
 
         public static DbServiceLocator locator = null;
@@ -30,11 +21,16 @@ namespace Maintain_it.Services
         private static class LocatorEntry<T, U> where T : Service<U> where U : IStorableObject, new()
         {
             public static Service<U> Instance { get; set; }
+
+            public static async Task AddInstance( Service<U> service )
+            {
+                _ = await Task.Run( () => Instance = service );
+            }
         }
 
-        public static void Register<T>( Service<T> instance ) where T : IStorableObject, new()
+        public async static Task Register<T>( Service<T> instance ) where T : IStorableObject, new()
         {
-            LocatorEntry<Service<T>, T>.Instance = instance;
+            await LocatorEntry<Service<T>, T>.AddInstance( instance );
         }
 
         public static Service<T> GetService<T>() where T : IStorableObject, new()
@@ -44,6 +40,15 @@ namespace Maintain_it.Services
 
         public async Task Init()
         {
+            await Register( new Service<MaintenanceItem>() );
+            await Register( new Service<Material>() );
+            await Register( new Service<Step>() );
+            await Register( new Service<StepMaterial>() );
+            await Register( new Service<ShoppingList>() );
+            await Register( new Service<ShoppingListItem>() );
+            await Register( new Service<Retailer>() );
+            await Register( new Service<Note>() );
+
             await GetService<MaintenanceItem>().Init();
             await GetService<Material>().Init();
             await GetService<Step>().Init();
@@ -51,9 +56,8 @@ namespace Maintain_it.Services
             await GetService<ShoppingListItem>().Init();
             await GetService<ShoppingList>().Init();
             await GetService<Retailer>().Init();
-            await GetService<Quantity>().Init();
             await GetService<Note>().Init();
-            await GetService<Photo>().Init();
+
         }
 
         public async Task AddItemAsync<T>( T item ) where T : IStorableObject, new()

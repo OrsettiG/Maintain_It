@@ -25,7 +25,7 @@ namespace Maintain_it.ViewModels
             AddCommand = new AsyncCommand( Add );
             DeleteCommand = new AsyncCommand( Delete );
 
-            Refresh();
+            _ = Task.Run( async () => await Refresh() );
         }
 
         private TestDB db;

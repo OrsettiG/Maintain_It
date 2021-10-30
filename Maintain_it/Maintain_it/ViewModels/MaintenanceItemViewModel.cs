@@ -10,6 +10,7 @@ using Maintain_it.Services;
 
 using MvvmHelpers.Commands;
 using MvvmHelpers;
+using Maintain_it.Views;
 
 namespace Maintain_it.ViewModels
 {
@@ -18,17 +19,14 @@ namespace Maintain_it.ViewModels
         #region Constructors
         public MaintenanceItemViewModel()
         {
-            _ = Task.Run( InitializeServices );
+            _ = Task.Run( async () => await InitializeServices() );
 
             Steps = new ObservableRangeCollection<Step>();
-            Materials = new ObservableRangeCollection<Material>();
 
-            AddCommand = new AsyncCommand( Add );
-            DeleteCommand = new AsyncCommand( Delete );
-            UpdateCommand = new AsyncCommand( Update );
-            RefreshCommand = new AsyncCommand( Refresh );
-            OnIncrementCommand = new Command( Increment );
-            OnDecrementCommand = new Command( Decrement );
+            Steps.Add( new Step()
+            {
+                Name = "Default Step"
+            } );
         }
 
         //public MaintenanceItemViewModel( MaintenanceItem item ) => Item = item;
@@ -42,28 +40,38 @@ namespace Maintain_it.ViewModels
 
         private string name = "New Maintenance Item";
         public string Name { get => name; set => SetProperty( ref name, value ); }
+
         private string comment;
         public string Comment { get => comment; set => SetProperty( ref comment, value ); }
+
         private DateTime firstServiceDate = DateTime.Now;
         public DateTime FirstServiceDate { get => firstServiceDate; set => SetProperty( ref firstServiceDate, value ); }
+
         private DateTime previousServiceDate;
         public DateTime PreviousServiceDate { get => previousServiceDate; set => SetProperty( ref previousServiceDate, value ); }
+
         private DateTime nextServiceDate = DateTime.Now;
         public DateTime NextServiceDate { get => nextServiceDate; set => SetProperty( ref nextServiceDate, value ); }
+
         private bool isRecurring = false;
         public bool IsRecurring { get => isRecurring; set => SetProperty( ref isRecurring, value ); }
+
         private int recursEvery = 1;
         public int RecursEvery { get => recursEvery; set => SetProperty( ref recursEvery, value ); }
+
         private Timeframe frequency = Timeframe.MONTHS;
         public Timeframe Frequency { get => frequency; set => SetProperty( ref frequency, value ); }
+
         private int timesServiced;
         public int TimesServiced { get => timesServiced; set => SetProperty( ref timesServiced, value ); }
+
         private bool previousServiceCompleted;
         public bool PreviousServiceCompleted { get => previousServiceCompleted; set => SetProperty( ref previousServiceCompleted, value ); }
+
         private bool notifyOfNextServiceDate = true;
         public bool NotifyOfNextServiceDate { get => notifyOfNextServiceDate; set => SetProperty( ref notifyOfNextServiceDate, value ); }
 
-        public ObservableRangeCollection<Material> Materials { get; set; }
+
         public ObservableRangeCollection<Step> Steps { get; set; }
 
         #endregion
@@ -73,8 +81,7 @@ namespace Maintain_it.ViewModels
         {
             if( DbServiceLocator.locator == null )
             {
-                db = new DbServiceLocator();
-                await db.Init();
+                _ = await Task.Run( () => db = new DbServiceLocator() );
             }
             else
             {
@@ -84,12 +91,26 @@ namespace Maintain_it.ViewModels
         #endregion
 
         #region COMMANDS
-        public AsyncCommand AddCommand { get; }
-        public AsyncCommand DeleteCommand { get; }
-        public AsyncCommand RefreshCommand { get; }
-        public AsyncCommand UpdateCommand { get; }
-        public ICommand OnIncrementCommand { get; }
-        public ICommand OnDecrementCommand { get; }
+        private AsyncCommand addCommand;
+        public AsyncCommand AddCommand => addCommand ??= new AsyncCommand( Add );
+
+        private AsyncCommand deleteCommand;
+        public AsyncCommand DeleteCommand => deleteCommand ??= new AsyncCommand( Delete );
+
+        private AsyncCommand refreshCommand;
+        public AsyncCommand RefreshCommand => refreshCommand ??= new AsyncCommand( Refresh );
+
+        private AsyncCommand updateCommand;
+        public AsyncCommand UpdateCommand => updateCommand ??= new AsyncCommand( Update );
+
+        private Command onIncrementCommand;
+        public ICommand OnIncrementCommand => onIncrementCommand ??= new Command( Increment );
+
+        private Command onDecrementCommand;
+        public ICommand OnDecrementCommand => onDecrementCommand ??= new Command( Decrement );
+
+        private AsyncCommand newStepCommand;
+        public ICommand NewStepCommand => newStepCommand ??= new AsyncCommand( NewStep );
         #endregion
 
         private void Increment()
@@ -119,18 +140,17 @@ namespace Maintain_it.ViewModels
                 TimesServiced = timesServiced,
                 PreviousServiceCompleted = previousServiceCompleted,
                 NotifyOfNextServiceDate = notifyOfNextServiceDate,
-                Materials = ConvertToList( Materials),
-                Steps = ConvertToList( Steps)
+                Steps = ConvertToList( Steps )
             };
 
             await db.AddItemAsync( item );
             await Refresh();
         }
 
-        private List<T> ConvertToList<T>(IEnumerable<T> target )
+        private List<T> ConvertToList<T>( IEnumerable<T> target )
         {
             List<T> list = new List<T>();
-            foreach(T item in target )
+            foreach( T item in target )
             {
                 list.Add( item );
             }
@@ -148,8 +168,8 @@ namespace Maintain_it.ViewModels
 
                 item = await db.GetItemAsync<MaintenanceItem>( item.Id );
 
-                //This might cause a bug... Just check it if the list isn't displaying when you think it should be
-                Materials = new ObservableRangeCollection<Material>( await db.GetAllItemsAsync<Material>() );
+                ////This might cause a bug... Just check it if the list isn't displaying when you think it should be
+                //StepMaterials = new ObservableRangeCollection<Material>( await db.GetAllItemsAsync<Material>() );
 
                 IsBusy = false;
             }
@@ -167,7 +187,7 @@ namespace Maintain_it.ViewModels
 
         private async Task Update()
         {
-            if(item != null)
+            if( item != null )
             {
                 if( await db.GetItemAsync<MaintenanceItem>( item.Id ) != item )
                 {
@@ -176,6 +196,12 @@ namespace Maintain_it.ViewModels
 
                 await Refresh();
             }
+        }
+
+
+        private async Task NewStep()
+        {
+            await AppShell.Current.GoToAsync( nameof( AddNewStepView ) );
         }
     }
 }

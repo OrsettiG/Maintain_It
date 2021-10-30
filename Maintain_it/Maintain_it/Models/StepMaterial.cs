@@ -17,13 +17,14 @@ namespace Maintain_it.Models
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
+        #region Properties
+
+        public int Quantity { get; set; }
+
+        #endregion
+
         #region Many To One Relationships
-        // Quantity
-        [ForeignKey( typeof( Quantity ) )]
-        public int QuantityId { get; set; }
-        [ManyToOne]
-        public Quantity Quantity { get; set; }
-        
+
         // Material
         [ForeignKey( typeof( Material ) )]
         public int MaterialId { get; set; }

@@ -18,9 +18,6 @@ namespace Maintain_it.Models
         #region One To Many Relationships
 
         [OneToMany( CascadeOperations = CascadeOperation.All )]
-        public List<Photo> Photos { get; set; }
-
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<Note> Notes { get; set; }
 
         #endregion

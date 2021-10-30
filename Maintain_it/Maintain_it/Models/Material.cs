@@ -16,9 +16,6 @@ namespace Maintain_it.Models
         public Material( string Name )
         {
             this.Name = Name;
-            //this.Retailer = Retailer;
-            //this.UnitPrice = UnitPrice;
-            //this.Quantity = QuantityOwned;
         }
 
         
@@ -33,15 +30,6 @@ namespace Maintain_it.Models
         public List<StepMaterial> StepMaterials { get; set; }
         #endregion
 
-        #region Many To One Relationships
-
-        [ForeignKey( typeof( Quantity ) )]
-        public int QuantityId { get; set; }
-        [ManyToOne]
-        public Quantity Quantity { get; set; }
-        
-        #endregion
-
         #region Many To Many Relationships
         
         [ManyToMany( typeof( ItemsToMaterials ) )]
@@ -52,13 +40,11 @@ namespace Maintain_it.Models
 
         #endregion
 
-
-
         #region Properties
         
         public string Name { get; set; }
         public double UnitPrice { get; set; }
-        public double TotalPrice => Quantity.Count * UnitPrice;
+        public int Quantity { get; set; }
         
         #endregion
     }

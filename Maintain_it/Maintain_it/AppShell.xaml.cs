@@ -19,11 +19,12 @@ namespace Maintain_it
             Routing.RegisterRoute( nameof( SettingsView ), typeof( SettingsView ) );
             Routing.RegisterRoute( nameof( AboutView ), typeof( AboutView ) );
             Routing.RegisterRoute( nameof( MaintenanceItemDetailView ), typeof( MaintenanceItemDetailView ) );
+            Routing.RegisterRoute( nameof( AddNewStepView ), typeof( AddNewStepView ) );
         }
 
         private async void OnMenuItemClicked( object sender, EventArgs e )
         {
-            await Current.GoToAsync( "//TestView" );
+            await Current.GoToAsync( "//MaintenanceItemDetailView" );
         }
     }
 }

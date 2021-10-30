@@ -35,8 +35,8 @@ namespace Maintain_it.Models
 
         #region Properties
 
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public string Text { get; set; }
+        public string ImagePath { get; set; }
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }
         

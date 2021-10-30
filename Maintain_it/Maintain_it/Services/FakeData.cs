@@ -25,9 +25,7 @@ namespace Maintain_it.Services
             shoppingList = defaultShoppingList;
             shoppingListItem = defaultShoppingListItem;
             retailer = defaultRetailer;
-            quantity = defaultQuantity;
             note = defaultNote;
-            photo = defaultPhoto;
         }
 
         public MaintenanceItem maintenanceItem { get; set; }
@@ -37,9 +35,7 @@ namespace Maintain_it.Services
         public ShoppingList shoppingList {  get; set; }
         public ShoppingListItem shoppingListItem { get; set; }
         public Retailer retailer { get; set; }
-        public Quantity quantity { get; set; }
         public Note note { get; set; }
-        public Photo photo { get; set; }
 
         public static MaintenanceItem defaultMaintenanceItem = new MaintenanceItem ()
         {
@@ -76,16 +72,7 @@ namespace Maintain_it.Services
             TimeRequired = 1f,
             Timeframe = Timeframe.HOURS,
             Notes = new List<Note>(),
-            Photos = new List<Photo>(),
             StepMaterials = new List<StepMaterial>()
-        };
-
-        public static Quantity defaultQuantity = new Quantity()
-        {
-            Materials = new List<Material>(),
-            StepMaterials = new List<StepMaterial>(),
-            ShoppingListItems = new List<ShoppingListItem>(),
-            Count = 1
         };
 
         public static StepMaterial defaultStepMaterial = new StepMaterial()
@@ -102,15 +89,10 @@ namespace Maintain_it.Services
 
         public static Note defaultNote = new Note()
         {
-            Title = "Default Note",
-            Description = "A default note to ensure the database is working correctly",
+            Text = "A default note to ensure the database is working correctly",
+            ImagePath = "pretend/path/for/testing",
             Created = DateTime.Now,
             LastUpdated = DateTime.Now
-        };
-
-        public static Photo defaultPhoto = new Photo()
-        {
-            Comment = "Default Photo"
         };
 
         public static ShoppingListItem defaultShoppingListItem = new ShoppingListItem()
