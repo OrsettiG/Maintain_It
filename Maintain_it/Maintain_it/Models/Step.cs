@@ -40,7 +40,9 @@ namespace Maintain_it.Models
 
         #region Properties
 
-        public string Name { get; set; }
+#nullable enable
+        public string? Name { get; set; }
+#nullable disable
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
         public float TimeRequired { get; set; }

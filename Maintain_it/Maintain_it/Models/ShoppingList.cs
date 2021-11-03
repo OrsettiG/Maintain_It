@@ -22,7 +22,9 @@ namespace Maintain_it.Models
         #endregion
 
         #region Properties
-        public string Name { get; set; }
+#nullable enable
+        public string? Name { get; set; }
+#nullable disable
         #endregion
     }
 }

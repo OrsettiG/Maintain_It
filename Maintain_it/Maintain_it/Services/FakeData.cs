@@ -51,7 +51,6 @@ namespace Maintain_it.Services
             NotifyOfNextServiceDate = true,
             Comment = "Default Maintenance Item Comment",
 
-            Materials = new List<Material>(),
             Steps = new List<Step>()
         };
 
@@ -60,8 +59,7 @@ namespace Maintain_it.Services
             Name = "Default",
             UnitPrice = 10d,
             StepMaterials = new List<StepMaterial>(),
-            Retailers = new List<Retailer>(),
-            MaintenanceItem = new List<MaintenanceItem>()
+            Retailers = new List<Retailer>()
         };
 
         public static Step defaultStep = new Step()

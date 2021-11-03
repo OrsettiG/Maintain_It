@@ -10,5 +10,9 @@ namespace Maintain_it.Services
     {
         [PrimaryKey, AutoIncrement]
         int Id { get; set; }
+#nullable enable
+        [Unique]
+        string? Name { get; set; }
+#nullable disable
     }
 }

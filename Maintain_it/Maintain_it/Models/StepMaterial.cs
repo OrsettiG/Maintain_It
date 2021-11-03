@@ -18,7 +18,9 @@ namespace Maintain_it.Models
         public int Id { get; set; }
 
         #region Properties
-
+#nullable enable
+        public string? Name { get; set; }
+#nullable disable
         public int Quantity { get; set; }
 
         #endregion

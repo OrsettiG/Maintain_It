@@ -19,7 +19,7 @@ namespace Maintain_it.ViewModels
         #region Constructors
         public MaintenanceItemViewModel()
         {
-            _ = Task.Run( async () => await InitializeServices() );
+            //_ = Task.Run( async () => await InitializeServices() );
 
             Steps = new ObservableRangeCollection<Step>();
 
@@ -33,7 +33,6 @@ namespace Maintain_it.ViewModels
         #endregion
 
         #region PROPERTIES
-        private DbServiceLocator db;
         private MaintenanceItem item;
         public List<Timeframe> Timeframes => Options.timeframes;
         public bool IsBusy { get; private set; }
@@ -74,20 +73,6 @@ namespace Maintain_it.ViewModels
 
         public ObservableRangeCollection<Step> Steps { get; set; }
 
-        #endregion
-
-        #region Initializers
-        private async Task InitializeServices()
-        {
-            if( DbServiceLocator.locator == null )
-            {
-                _ = await Task.Run( () => db = new DbServiceLocator() );
-            }
-            else
-            {
-                db = DbServiceLocator.locator;
-            }
-        }
         #endregion
 
         #region COMMANDS
@@ -143,7 +128,7 @@ namespace Maintain_it.ViewModels
                 Steps = ConvertToList( Steps )
             };
 
-            await db.AddItemAsync( item );
+            await DbServiceLocator.AddItemAsync( item );
             await Refresh();
         }
 
@@ -166,10 +151,10 @@ namespace Maintain_it.ViewModels
 
                 //await Task.Delay( 0 );
 
-                item = await db.GetItemAsync<MaintenanceItem>( item.Id );
+                item = await DbServiceLocator.GetItemAsync<MaintenanceItem>( item.Id );
 
                 ////This might cause a bug... Just check it if the list isn't displaying when you think it should be
-                //StepMaterials = new ObservableRangeCollection<Material>( await db.GetAllItemsAsync<Material>() );
+                //StepMaterials = new ObservableRangeCollection<Material>( await DbServiceLocator.GetAllItemsAsync<Material>() );
 
                 IsBusy = false;
             }
@@ -179,7 +164,7 @@ namespace Maintain_it.ViewModels
         {
             if( item != null )
             {
-                await db.DeleteItemAsync<MaintenanceItem>( item.Id );
+                await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
             }
 
             await Refresh();
@@ -189,9 +174,9 @@ namespace Maintain_it.ViewModels
         {
             if( item != null )
             {
-                if( await db.GetItemAsync<MaintenanceItem>( item.Id ) != item )
+                if( await DbServiceLocator.GetItemAsync<MaintenanceItem>( item.Id ) != item )
                 {
-                    await db.UpdateItemAsync( item );
+                    await DbServiceLocator.UpdateItemAsync( item );
                 }
 
                 await Refresh();

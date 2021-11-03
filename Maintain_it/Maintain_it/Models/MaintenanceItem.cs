@@ -28,7 +28,9 @@ namespace Maintain_it.Models
 
         #region Properties
         [NotNull]
-        public string Name { get; set; }
+#nullable enable
+        public string? Name { get; set; }
+#nullable disable
         public string Comment { get; set; }
         public DateTime FirstServiceDate { get; set; }
         public DateTime PreviousServiceDate { get; set; }
@@ -40,9 +42,6 @@ namespace Maintain_it.Models
         public bool PreviousServiceCompleted { get; set; }
         public bool NotifyOfNextServiceDate { get; set; }
         #endregion
-
-        [ManyToMany( typeof( ItemsToMaterials ) )]
-        public List<Material> Materials { get; set; }
 
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<Step> Steps { get; set; }

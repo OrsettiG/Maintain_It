@@ -32,8 +32,6 @@ namespace Maintain_it.Models
 
         #region Many To Many Relationships
         
-        [ManyToMany( typeof( ItemsToMaterials ) )]
-        public List<MaintenanceItem> MaintenanceItem { get; set; }
 
         [ManyToMany( typeof( MaterialsToRetailers ) )]
         public List<Retailer> Retailers { get; set; }
@@ -41,8 +39,10 @@ namespace Maintain_it.Models
         #endregion
 
         #region Properties
-        
-        public string Name { get; set; }
+
+#nullable enable
+        public string? Name { get; set; }
+#nullable disable
         public double UnitPrice { get; set; }
         public int Quantity { get; set; }
         

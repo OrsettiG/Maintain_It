@@ -26,7 +26,7 @@ namespace Maintain_it.Models
         public int StepId { get; set; }
         [ManyToOne]
         public Step Step { get; set; }
-        
+
         #endregion
 
         // Empty
@@ -34,7 +34,9 @@ namespace Maintain_it.Models
         #endregion
 
         #region Properties
-
+#nullable enable
+        public string? Name { get; set; }
+#nullable disable
         public string Text { get; set; }
         public string ImagePath { get; set; }
         public DateTime Created { get; set; }

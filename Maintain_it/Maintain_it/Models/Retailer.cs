@@ -21,7 +21,9 @@ namespace Maintain_it.Models
         public List<Material> Materials { get; set; }
 
         #region Properties
-        public string Name { get; set; }
+#nullable enable
+        public string? Name { get; set; }
+#nullable disable
         #endregion
     }
 }

@@ -18,6 +18,8 @@ namespace Maintain_it.Services
     {
         private protected static SQLiteAsyncConnection db;
 
+        private readonly string _SQLiteCommandString_last_insert_rowid = "select last_insert_rowid()";
+
         public virtual async Task Init()
         {
             if( db != null )
@@ -27,20 +29,35 @@ namespace Maintain_it.Services
 
             db = AsyncDatabaseConnection.Db;
 
-            _ = await db.DeleteAllAsync<T>();
-
             _ = await db.CreateTableAsync<T>();
-            _ = await db.CreateTableAsync<ItemsToMaterials>();
-            _ = await db.CreateTableAsync<MaterialsToRetailers>();
-            _ = await db.CreateTableAsync<ShoppingListItemToShoppingList>();
-            _ = await db.CreateTableAsync<StepsToStepMaterials>();
+            
+            // Checks to make sure that the Join tables are created the first time any Service is Initted, but then only checks one every time after that. Just prevents us from unnecessarily pinging the db a bunch of times every time a service is created.
+            if(db.Table<StepsToStepMaterials>() == null )
+            {
+                if(db.Table<MaterialsToRetailers>() == null )
+                {
+                    if( db.Table<ShoppingListItemToShoppingList>() == null )
+                    {
+                        _ = await db.CreateTableAsync<ShoppingListItemToShoppingList>();
+                    }
+                    _ = await db.CreateTableAsync<MaterialsToRetailers>();
+                }
+                _ = await db.CreateTableAsync<StepsToStepMaterials>();
+            }
+        }
+
+        public virtual async Task<int> AddItemAndReturnRowIdAsync( T item )
+        {
+            await Init();
+            await db.InsertWithChildrenAsync( item );
+            int id = await db.ExecuteScalarAsync<int>( _SQLiteCommandString_last_insert_rowid );
+            return id;
         }
 
         public virtual async Task AddItemAsync( T item )
         {
             await Init();
             await db.InsertWithChildrenAsync( item );
-            //_ = await db.InsertAsync( item );
         }
 
         public virtual async Task DeleteItemAsync( int id )

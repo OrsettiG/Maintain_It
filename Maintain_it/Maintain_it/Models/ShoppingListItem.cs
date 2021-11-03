@@ -34,7 +34,9 @@ namespace Maintain_it.Models
         #endregion
 
         #region Properties
-
+#nullable enable
+        public string? Name { get; set; }
+#nullable disable
         public int Quantity { get; set; }
         public bool Purchased { get; set; }
 

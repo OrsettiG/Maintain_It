@@ -18,20 +18,12 @@ namespace Maintain_it.ViewModels
     {
         public HomeViewModel()
         {
-            if( DbServiceLocator.locator == null )
-            {
-                db = new DbServiceLocator();
-                Task.Run( () => db.Init() ).Wait();
-            }
-            else
-            {
-                db = DbServiceLocator.locator;
-            }
             MaintenanceItems = new ObservableCollection<MaintenanceItem>();
             AddCommand = new AsyncCommand( Add );
             DeleteCommand = new AsyncCommand( Delete );
             UpdateCommand = new AsyncCommand( Update );
             RefreshCommand = new AsyncCommand( Refresh );
+            AddAndReturnIDCommand = new AsyncCommand( AddAndReturnId );
             fakeData = new FakeData();
             itemNum = rand.Next( 100000 );
             Refresh();
@@ -42,7 +34,6 @@ namespace Maintain_it.ViewModels
 
         #region PROPERTIES
         #region READ-ONLY
-        private DbServiceLocator db { get; }
         #endregion
 
         #region PRIVATE
@@ -57,6 +48,9 @@ namespace Maintain_it.ViewModels
             get;
             set;
         }
+
+        private int _lastItemID;
+        public int LastItemID { get => _lastItemID; set => SetProperty( ref _lastItemID, value); }
         #endregion
 
         #endregion
@@ -66,17 +60,26 @@ namespace Maintain_it.ViewModels
         public AsyncCommand DeleteCommand { get; }
         public AsyncCommand RefreshCommand { get; }
         public AsyncCommand UpdateCommand { get; }
+        public AsyncCommand AddAndReturnIDCommand { get; }
         #endregion
 
         private async Task Add()
         {
             MaintenanceItem item = fakeData.maintenanceItem;
             item.Name += itemNum.ToString();
-            item.Materials.Add( fakeData.material );
             item.Steps.Add( fakeData.step );
-            await db.AddItemAsync( item );
+            await DbServiceLocator.AddItemAsync( item );
             itemNum++;
-            Console.WriteLine( item.Materials[0].UnitPrice );
+            await Refresh();
+        }
+
+        private async Task AddAndReturnId()
+        {
+            MaintenanceItem item = fakeData.maintenanceItem;
+            item.Name += itemNum.ToString();
+
+            LastItemID = await DbServiceLocator.AddItemAndReturnIdAsync( item );
+
             await Refresh();
         }
 
@@ -90,7 +93,7 @@ namespace Maintain_it.ViewModels
 
                 MaintenanceItems.Clear();
 
-                List<MaintenanceItem> items = await db.GetAllItemsAsync<MaintenanceItem>() as List<MaintenanceItem>;
+                List<MaintenanceItem> items = await DbServiceLocator.GetAllItemsAsync<MaintenanceItem>() as List<MaintenanceItem>;
 
                 foreach( MaintenanceItem item in items )
                 {
@@ -109,7 +112,7 @@ namespace Maintain_it.ViewModels
 
                 if( item != null )
                 {
-                    await db.DeleteItemAsync<MaintenanceItem>( item.Id );
+                    await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
                 }
             }
 
@@ -120,9 +123,9 @@ namespace Maintain_it.ViewModels
         {
             foreach( MaintenanceItem item in MaintenanceItems )
             {
-                if( await db.GetItemAsync<MaintenanceItem>( item.Id ) != item )
+                if( await DbServiceLocator.GetItemAsync<MaintenanceItem>( item.Id ) != item )
                 {
-                    await db.UpdateItemAsync( item );
+                    await DbServiceLocator.UpdateItemAsync( item );
                 }
             }
 
