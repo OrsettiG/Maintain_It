@@ -4,9 +4,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.Views;
 
 using MvvmHelpers.Commands;
 
@@ -49,6 +51,9 @@ namespace Maintain_it.ViewModels
             set;
         }
 
+        private int _deletedRows;
+        public int DeletedRows { get => _deletedRows; set => SetProperty(ref _deletedRows, value); }
+
         private int _lastItemID;
         public int LastItemID { get => _lastItemID; set => SetProperty( ref _lastItemID, value); }
         #endregion
@@ -61,16 +66,21 @@ namespace Maintain_it.ViewModels
         public AsyncCommand RefreshCommand { get; }
         public AsyncCommand UpdateCommand { get; }
         public AsyncCommand AddAndReturnIDCommand { get; }
+
+        private AsyncCommand _deleteAllCommand;
+        public ICommand DeleteAllCommand => _deleteAllCommand ??= new AsyncCommand( DeleteAllAsync );
         #endregion
 
         private async Task Add()
         {
-            MaintenanceItem item = fakeData.maintenanceItem;
-            item.Name += itemNum.ToString();
-            item.Steps.Add( fakeData.step );
-            await DbServiceLocator.AddItemAsync( item );
-            itemNum++;
-            await Refresh();
+            //MaintenanceItem item = fakeData.maintenanceItem;
+            //item.Name += itemNum.ToString();
+            //item.Steps.Add( fakeData.step );
+            //await DbServiceLocator.AddItemAsync( item );
+            //itemNum++;
+            //await Refresh();
+
+            await Shell.Current.GoToAsync( nameof( MaintenanceItemDetailView ) );
         }
 
         private async Task AddAndReturnId()
@@ -130,6 +140,33 @@ namespace Maintain_it.ViewModels
             }
 
             await Refresh();
+        }
+
+        private async Task DeleteAllAsync()
+        {
+            int count = 0;
+            count += await DbServiceLocator.DeleteAllAsync<MaintenanceItem>();
+            count += await DbServiceLocator.DeleteAllAsync<Step>();
+            count += await DbServiceLocator.DeleteAllAsync<Material>();
+            count += await DbServiceLocator.DeleteAllAsync<Retailer>();
+            count += await DbServiceLocator.DeleteAllAsync<ShoppingList>();
+            count += await DbServiceLocator.DeleteAllAsync<ShoppingListItem>();
+            count += await DbServiceLocator.DeleteAllAsync<Note>();
+            count += await DbServiceLocator.DeleteAllAsync<StepMaterial>();
+
+            DeletedRows = count;
+            
+            await Refresh();
+        }
+
+        private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
+        {
+            switch( kvp.Key )
+            {
+                default:
+                    await Refresh();
+                    break;
+            }
         }
     }
 }

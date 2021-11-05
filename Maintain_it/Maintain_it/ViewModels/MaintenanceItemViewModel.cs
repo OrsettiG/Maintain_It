@@ -1,16 +1,21 @@
 ﻿using System;
+using System.Web;
+using System.Text;
+using System.Windows.Input;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
+using Maintain_it.Views;
 using Maintain_it.Models;
 using Maintain_it.Services;
 
 using MvvmHelpers.Commands;
 using MvvmHelpers;
-using Maintain_it.Views;
+
+
+using Xamarin.Forms;
+using Command = MvvmHelpers.Commands.Command;
 
 namespace Maintain_it.ViewModels
 {
@@ -19,14 +24,8 @@ namespace Maintain_it.ViewModels
         #region Constructors
         public MaintenanceItemViewModel()
         {
-            //_ = Task.Run( async () => await InitializeServices() );
-
-            Steps = new ObservableRangeCollection<Step>();
-
-            Steps.Add( new Step()
-            {
-                Name = "Default Step"
-            } );
+            _steps = new ObservableRangeCollection<Step>();
+            newStepId = new List<int>();
         }
 
         //public MaintenanceItemViewModel( MaintenanceItem item ) => Item = item;
@@ -34,7 +33,9 @@ namespace Maintain_it.ViewModels
 
         #region PROPERTIES
         private MaintenanceItem item;
+
         public List<Timeframe> Timeframes => Options.timeframes;
+
         public bool IsBusy { get; private set; }
 
         private string name = "New Maintenance Item";
@@ -56,7 +57,7 @@ namespace Maintain_it.ViewModels
         public bool IsRecurring { get => isRecurring; set => SetProperty( ref isRecurring, value ); }
 
         private int recursEvery = 1;
-        public int RecursEvery { get => recursEvery; set => SetProperty( ref recursEvery, value ); }
+        public int RecursEvery { get => recursEvery; set => SetProperty( ref recursEvery, ( value! < 0 && value! > 1000 ) ? value : 1 ); }
 
         private Timeframe frequency = Timeframe.MONTHS;
         public Timeframe Frequency { get => frequency; set => SetProperty( ref frequency, value ); }
@@ -70,8 +71,13 @@ namespace Maintain_it.ViewModels
         private bool notifyOfNextServiceDate = true;
         public bool NotifyOfNextServiceDate { get => notifyOfNextServiceDate; set => SetProperty( ref notifyOfNextServiceDate, value ); }
 
+        #region QUERY PARAMS
+        private readonly List<int> newStepId;
+        private readonly int maintenanceItemId;
+        #endregion
 
-        public ObservableRangeCollection<Step> Steps { get; set; }
+        private ObservableRangeCollection<Step> _steps;
+        public ObservableRangeCollection<Step> Steps { get => _steps; set => SetProperty( ref _steps, value ); }
 
         #endregion
 
@@ -83,7 +89,7 @@ namespace Maintain_it.ViewModels
         public AsyncCommand DeleteCommand => deleteCommand ??= new AsyncCommand( Delete );
 
         private AsyncCommand refreshCommand;
-        public AsyncCommand RefreshCommand => refreshCommand ??= new AsyncCommand( Refresh );
+        public AsyncCommand RefreshCommand => refreshCommand ??= new AsyncCommand( RefreshSteps );
 
         private AsyncCommand updateCommand;
         public AsyncCommand UpdateCommand => updateCommand ??= new AsyncCommand( Update );
@@ -97,6 +103,37 @@ namespace Maintain_it.ViewModels
         private AsyncCommand newStepCommand;
         public ICommand NewStepCommand => newStepCommand ??= new AsyncCommand( NewStep );
         #endregion
+
+        #region METHODS
+
+        public override async void ApplyQueryAttributes( IDictionary<string, string> query )
+        {
+            foreach( KeyValuePair<string, string> kvp in query )
+            {
+                await EvaluateQueryParams( kvp );
+            }
+        }
+
+        private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
+        {
+            switch( kvp.Key )
+            {
+                case nameof( newStepId ):
+                    if( int.TryParse( HttpUtility.UrlDecode( kvp.Value ), out int stepId ) )
+                    {
+                        newStepId.Add( stepId );
+                        await RefreshSteps();
+                    }
+                    break;
+                case nameof( maintenanceItemId ):
+                    if( int.TryParse( HttpUtility.UrlDecode( kvp.Value ), out int miId ) )
+                    {
+                        //Fetch MaintenanceItem from db
+                        //Initialize page w/ MI data
+                    }
+                    break;
+            }
+        }
 
         private void Increment()
         {
@@ -125,36 +162,49 @@ namespace Maintain_it.ViewModels
                 TimesServiced = timesServiced,
                 PreviousServiceCompleted = previousServiceCompleted,
                 NotifyOfNextServiceDate = notifyOfNextServiceDate,
-                Steps = ConvertToList( Steps )
+                Steps = await ConvertToListAsync( Steps )
             };
 
             await DbServiceLocator.AddItemAsync( item );
-            await Refresh();
+            ClearData();
+            await Shell.Current.GoToAsync( nameof( HomeView ) );
         }
 
-        private List<T> ConvertToList<T>( IEnumerable<T> target )
+        private void ClearData()
         {
-            List<T> list = new List<T>();
-            foreach( T item in target )
-            {
-                list.Add( item );
-            }
-
-            return list;
-        }
-
-        private async Task Refresh()
-        {
-            if( !IsBusy && item != null )
+            if( !IsBusy )
             {
                 IsBusy = true;
 
-                //await Task.Delay( 0 );
+                Name = "New Maintenance Item";
+                Comment = string.Empty;
+                FirstServiceDate = DateTime.Now;
+                PreviousServiceDate = DateTime.Now;
+                NextServiceDate = DateTime.Now.AddDays( 1 );
+                IsRecurring = false;
+                RecursEvery = 0;
+                Frequency = Timeframe.MONTHS;
+                TimesServiced = 0;
+                PreviousServiceCompleted = false;
+                NotifyOfNextServiceDate = false;
+                Steps.Clear();
+                item = null;
 
-                item = await DbServiceLocator.GetItemAsync<MaintenanceItem>( item.Id );
+                IsBusy = false;
+            }
+        }
 
-                ////This might cause a bug... Just check it if the list isn't displaying when you think it should be
-                //StepMaterials = new ObservableRangeCollection<Material>( await DbServiceLocator.GetAllItemsAsync<Material>() );
+        private async Task RefreshSteps()
+        {
+            if( !IsBusy )
+            {
+                IsBusy = true;
+
+                Steps.Clear();
+
+                List<Step> s = await DbServiceLocator.GetItemRangeAsync<Step>( newStepId ) as List<Step>;
+
+                Steps.AddRange( s );
 
                 IsBusy = false;
             }
@@ -166,8 +216,6 @@ namespace Maintain_it.ViewModels
             {
                 await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
             }
-
-            await Refresh();
         }
 
         private async Task Update()
@@ -178,16 +226,16 @@ namespace Maintain_it.ViewModels
                 {
                     await DbServiceLocator.UpdateItemAsync( item );
                 }
-
-                await Refresh();
             }
         }
 
 
         private async Task NewStep()
         {
-            await AppShell.Current.GoToAsync( nameof( AddNewStepView ) );
+            await Shell.Current.GoToAsync( nameof( AddNewStepView ) );
         }
+
+        #endregion
     }
 }
 

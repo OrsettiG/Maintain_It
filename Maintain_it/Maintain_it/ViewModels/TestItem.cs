@@ -77,5 +77,9 @@ namespace Maintain_it.ViewModels
             }
         }
 
+        private protected override Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Maintain_it.ViewModels;
+
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -15,6 +17,7 @@ namespace Maintain_it.Views
         public AddNewStepView()
         {
             InitializeComponent();
+            BindingContext = new StepViewModel();
         }
     }
 }

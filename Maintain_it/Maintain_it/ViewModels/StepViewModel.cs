@@ -7,9 +7,12 @@ using System.Windows.Input;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.Views;
 
 using MvvmHelpers;
 using MvvmHelpers.Commands;
+
+using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
 {
@@ -24,7 +27,7 @@ namespace Maintain_it.ViewModels
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
-        public float TimeRequired { get; set; }
+        public double TimeRequired { get; set; }
         public Timeframe Timeframe { get; set; }
 
         public ObservableRangeCollection<StepMaterial> StepMaterials;
@@ -36,16 +39,35 @@ namespace Maintain_it.ViewModels
         #region COMMANDS
 
         AsyncCommand addCommand;
-
         public ICommand AddCommand => addCommand ??= new AsyncCommand( Add );
 
         #endregion
 
         #region METHODS
 
-        private async Task<int> Add()
+        private async Task Add()
         {
-            return await DbServiceLocator.AddItemAndReturnIdAsync( step );
+            Console.WriteLine( "Add Step Command Fired" );
+
+            step = new Step()
+            {
+                Name = Name,
+                Description = Description,
+                TimeRequired = TimeRequired,
+                Timeframe = Timeframe.MINUTES,
+                IsCompleted = false,
+
+                StepMaterials = await ConvertToListAsync( StepMaterials ),
+                Notes = await ConvertToListAsync( Notes )
+            };
+
+            int stepId = await DbServiceLocator.AddItemAndReturnIdAsync( step );
+            await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}/?newStepId={stepId}" );
+        }
+
+        private protected override Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

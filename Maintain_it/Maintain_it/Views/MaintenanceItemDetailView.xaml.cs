@@ -16,10 +16,5 @@ namespace Maintain_it.Views
         {
             InitializeComponent();
         }
-
-        private void Stepper_PropertyChanged( object sender, System.ComponentModel.PropertyChangedEventArgs e )
-        {
-
-        }
     }
 }

@@ -69,7 +69,7 @@ namespace Maintain_it.Services
         public virtual async Task<IEnumerable<T>> GetAllItemsAsync( bool forceRefresh = false )
         {
             await Init();
-            List<T> data = await db.GetAllWithChildrenAsync<T>(); //db.Table<T>().ToListAsync();
+            List<T> data = await db.GetAllWithChildrenAsync<T>();
             return data;
         }
 
@@ -77,14 +77,27 @@ namespace Maintain_it.Services
         {
             await Init();
 
-            return await db.GetWithChildrenAsync<T>( id ); //db.Table<T>().Where( x => x.Id == id ).FirstOrDefaultAsync();
+            return await db.GetWithChildrenAsync<T>( id );
         }
 
+        public virtual async Task<IEnumerable<T>> GetItemRangeAsync( List<int> ids )
+        {
+            await Init();
+
+            List<T> data = await db.Table<T>().Where(x => ids.Contains(x.Id) ).ToListAsync();
+            return data;
+        }
 
         public virtual async Task UpdateItemAsync( T item )
         {
             await Init();
             await db.InsertWithChildrenAsync( item ); //db.InsertOrReplaceAsync( item );
+        }
+
+        public virtual async Task<int> DeleteAllAsync<T>()
+        {
+            await Init();
+            return await db.DeleteAllAsync<T>();
         }
     }
 }

@@ -98,6 +98,20 @@ namespace Maintain_it.Services
         }
 
         /// <summary>
+        /// Get only items with Ids matching the passed in List<T> from the appropriate Table
+        /// </summary>
+        /// <typeparam name="T">Service Type</typeparam>
+        /// <param name="ids">List of Ids to get</param>
+        /// <returns>IEnumerable<T></returns>
+        public static async Task<IEnumerable<T>> GetItemRangeAsync<T>( List<int> ids) where T: IStorableObject, new()
+        {
+            Service<T> instance = await GetService<T>();
+
+            IEnumerable<T> data = await instance.GetItemRangeAsync(ids);
+            return data;
+        }
+
+        /// <summary>
         /// Gets the item with the passed in id from the approprate table
         /// </summary>
         /// <typeparam name="T"> The Service type to use </typeparam>
@@ -118,6 +132,17 @@ namespace Maintain_it.Services
         {
             Service<T> instance = await GetService<T>();
             await instance.UpdateItemAsync( item );
+        }
+
+        /// <summary>
+        /// Deletes ALL items from the table containing the specified type. ALL of them. They will be gone forever. ALL of them. Not just one, ALL of them. Completely irretreavable. Gone. ALL I repeat ALL of them. Permanently.
+        /// </summary>
+        /// <typeparam name="T">The type of tableyou want to clear</typeparam>
+        /// <returns>The number of deleted rows</returns>
+        public static async Task<int> DeleteAllAsync<T>() where T: IStorableObject, new()
+        {
+            Service<T> instance = await GetService<T>();
+            return await instance.DeleteAllAsync<T>();
         }
     }
 }

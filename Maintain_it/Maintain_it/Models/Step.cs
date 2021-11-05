@@ -45,7 +45,7 @@ namespace Maintain_it.Models
 #nullable disable
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
-        public float TimeRequired { get; set; }
+        public double TimeRequired { get; set; }
         public Timeframe Timeframe { get; set; }
 
         #endregion

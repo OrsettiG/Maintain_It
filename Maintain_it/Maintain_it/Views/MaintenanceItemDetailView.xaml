@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-             xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels" xmlns:models="clr-namespace:Maintain_it.Models"
+             xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels" 
+             xmlns:models="clr-namespace:Maintain_it.Models"
              x:DataType="viewmodels:MaintenanceItemViewModel"
              x:Class="Maintain_it.Views.MaintenanceItemDetailView">
     <ContentPage.BindingContext>
         <viewmodels:MaintenanceItemViewModel/>
     </ContentPage.BindingContext>
-
     <ContentPage.Content>
         <StackLayout x:DataType="viewmodels:MaintenanceItemViewModel">
 
@@ -16,25 +16,25 @@
             <ScrollView Margin="10" Orientation="Vertical" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
                 <Grid Padding="3">
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Comment Label and Entry -->
-                    <Label Text="Comment:" Grid.Column="0" Grid.Row="0"/>
+                    <Label Text="Comment:" Grid.Column="0" Grid.Row="0" BackgroundColor="Green"/>
                     <Entry Text="{Binding Comment}" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" MaxLength="150"/>
 
                     <!-- First Service Date Label and Picker -->
@@ -80,20 +80,48 @@
                            HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
                            TextDecorations="Underline"/>
 
-                    <Button Text="Add New Step" Command="{Binding NewStepCommand}"/>
-
-                    <StackLayout BindableLayout.ItemsSource="{Binding Steps}" HorizontalOptions="Start">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="viewmodels:StepViewModel">
-                                <Label Text="{Binding Name}"/>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </StackLayout>
+                    <Frame Grid.ColumnSpan="3" Grid.Row="8"
+                           BackgroundColor="LightGray"
+                           Padding=" 10">
+                        <CollectionView ItemsSource="{Binding Steps}"
+                                        ItemSizingStrategy="MeasureFirstItem"
+                                        HorizontalOptions="Center"
+                                        Margin="5"
+                                        HeightRequest="300"
+                                        SelectionMode="Single">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout 
+                                    Orientation="Horizontal" 
+                                    HorizontalItemSpacing="15" 
+                                    VerticalItemSpacing="10" 
+                                    SnapPointsAlignment="End"
+                                    SnapPointsType="None"
+                                    Span="4"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Step">
+                                    <Frame BackgroundColor="DarkGray" Padding="5">
+                                        <Grid BackgroundColor="Gray" Padding="3">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <Label Text="{Binding Name}" Grid.Row="0" WidthRequest="50" BackgroundColor="Aquamarine"/>
+                                            <Label Text="{Binding Description}" Grid.Row="1"/>
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Frame>
                     
+                    <Button Text="Add New Step" Command="{Binding NewStepCommand}"
+                            Grid.Column="0" Grid.ColumnSpan="3"
+                            Grid.Row="9"/>
                 </Grid>
             </ScrollView>
 
-            <Button Text="Add" Command="{Binding AddCommand}"/>
+            <Button Text="Refresh Steps" Command="{Binding AddCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

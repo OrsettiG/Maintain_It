@@ -86,7 +86,7 @@
         <ShellContent Route="HomeView" ContentTemplate="{DataTemplate local:HomeView}" />
     </FlyoutItem>
     <FlyoutItem Title="Maintenance" Icon="icon_feed.png">
-        <ShellContent Route="MaintenanceItemDetailView" ContentTemplate="{DataTemplate local:MaintenanceItemDetailView}" />
+        <!--<ShellContent Route="MaintenanceItemDetailView" ContentTemplate="{DataTemplate local:MaintenanceItemDetailView}" />-->
     </FlyoutItem>
     <FlyoutItem Title="Settings" Icon="icon_feed.png">
         <ShellContent Route="SettingsView" ContentTemplate="{DataTemplate local:SettingsView}" />
