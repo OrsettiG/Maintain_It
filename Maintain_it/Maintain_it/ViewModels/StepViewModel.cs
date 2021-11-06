@@ -62,7 +62,7 @@ namespace Maintain_it.ViewModels
             };
 
             int stepId = await DbServiceLocator.AddItemAndReturnIdAsync( step );
-            await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}/?newStepId={stepId}" );
+            await Shell.Current.GoToAsync( $"..?newStepId={stepId}" );
         }
 
         private protected override Task EvaluateQueryParams( KeyValuePair<string, string> kvp )

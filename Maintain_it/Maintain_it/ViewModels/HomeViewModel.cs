@@ -163,7 +163,7 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                default:
+                case nameof(Refresh):
                     await Refresh();
                     break;
             }

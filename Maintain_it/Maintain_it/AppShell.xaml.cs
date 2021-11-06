@@ -14,17 +14,16 @@ namespace Maintain_it
         {
             InitializeComponent();
             Routing.RegisterRoute( nameof( TestItemView ), typeof( TestItemView ) );
-            Routing.RegisterRoute( nameof( HomeView ), typeof( HomeView ) );
             Routing.RegisterRoute( nameof( MaintenanceView ), typeof( MaintenanceView ) );
             Routing.RegisterRoute( nameof( SettingsView ), typeof( SettingsView ) );
             Routing.RegisterRoute( nameof( AboutView ), typeof( AboutView ) );
-            Routing.RegisterRoute( nameof( MaintenanceItemDetailView ), typeof( MaintenanceItemDetailView ) );
-            Routing.RegisterRoute( nameof( AddNewStepView ), typeof( AddNewStepView ) );
+            Routing.RegisterRoute( $"{nameof( MaintenanceItemDetailView )}", typeof( MaintenanceItemDetailView ) );
+            Routing.RegisterRoute( $"{nameof( MaintenanceItemDetailView )}/{nameof( AddNewStepView )}", typeof( AddNewStepView ) );
         }
 
-        private async void OnMenuItemClicked( object sender, EventArgs e )
-        {
-            await Current.GoToAsync( "//MaintenanceItemDetailView" );
-        }
+        //private async void OnMenuItemClicked( object sender, EventArgs e )
+        //{
+        //    await Current.GoToAsync( "//MaintenanceItemDetailView" );
+        //}
     }
 }

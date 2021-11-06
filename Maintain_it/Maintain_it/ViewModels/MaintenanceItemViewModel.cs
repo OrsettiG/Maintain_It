@@ -167,7 +167,7 @@ namespace Maintain_it.ViewModels
 
             await DbServiceLocator.AddItemAsync( item );
             ClearData();
-            await Shell.Current.GoToAsync( nameof( HomeView ) );
+            await Shell.Current.GoToAsync( $"//{nameof( HomeView )}?Refresh=true" );
         }
 
         private void ClearData()
@@ -232,7 +232,7 @@ namespace Maintain_it.ViewModels
 
         private async Task NewStep()
         {
-            await Shell.Current.GoToAsync( nameof( AddNewStepView ) );
+            await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}" );
         }
 
         #endregion
