@@ -46,7 +46,7 @@ namespace Maintain_it.Services
             PreviousServiceCompleted = true,
             IsRecurring = true,
             RecursEvery = 10,
-            Frequency = Timeframe.DAYS,
+            Frequency = (int)Timeframe.Days,
             TimesServiced = 2,
             NotifyOfNextServiceDate = true,
             Comment = "Default Maintenance Item Comment",
@@ -68,7 +68,7 @@ namespace Maintain_it.Services
             Description = "Default Step description",
             IsCompleted = false,
             TimeRequired = 1f,
-            Timeframe = Timeframe.HOURS,
+            Timeframe = (int)Timeframe.Hours,
             Notes = new List<Note>(),
             StepMaterials = new List<StepMaterial>()
         };
@@ -89,7 +89,7 @@ namespace Maintain_it.Services
         {
             Text = "A default note to ensure the database is working correctly",
             ImagePath = "pretend/path/for/testing",
-            Created = DateTime.Now,
+            CreatedOn = DateTime.Now,
             LastUpdated = DateTime.Now
         };
 

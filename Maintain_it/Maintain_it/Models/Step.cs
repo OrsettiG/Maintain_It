@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Maintain_it.Services;
 
@@ -46,8 +47,8 @@ namespace Maintain_it.Models
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
         public double TimeRequired { get; set; }
-        public Timeframe Timeframe { get; set; }
-
+        public int Timeframe { get; set; }
+        public DateTime CreatedOn { get; set; }
         #endregion
     }
 }

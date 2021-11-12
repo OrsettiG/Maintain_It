@@ -45,9 +45,8 @@
                                     <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" FontSize="Medium" HorizontalOptions="StartAndExpand" VerticalOptions="Center" Text="{Binding Name}"/>
                                     <Label Grid.Row="1" Grid.Column="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Center" Text="Next Service Date:" Padding="0, 5"/>
                                     <Label Grid.Row="1" Grid.Column="2" HorizontalOptions="Start" VerticalOptions="Center" Text="{Binding NextServiceDate, StringFormat='{0:MMM dd, yyyy}'}" Padding="0, 5"/>
-                                    <Label Grid.Row="1" Grid.Column="2" Text="{Binding Materials.Count}" HorizontalOptions="End" VerticalOptions="Center"/>
 
-                                    <!--Materials Column Headers-->
+                                    <!--Step Column Headers-->
 
                                     <Grid Grid.Row="2" Grid.ColumnSpan="4">
                                         <Grid.ColumnDefinitions>
@@ -56,11 +55,11 @@
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Label Grid.Column="0" Text="Material Name" FontSize="Subtitle" TextDecorations="Underline" HorizontalOptions="StartAndExpand" Padding="25,0,0,0"/>
-                                        <Label Grid.Column="2" Text="Quantity Needed" FontSize="Subtitle" TextDecorations="Underline" HorizontalOptions="StartAndExpand"/>
+                                        <Label Grid.Column="0" Text="Step Name" FontSize="Subtitle" TextDecorations="Underline" HorizontalOptions="StartAndExpand" Padding="25,0,0,0"/>
+                                        <Label Grid.Column="2" Text="Step Description" FontSize="Subtitle" TextDecorations="Underline" HorizontalOptions="StartAndExpand"/>
                                     </Grid>
                                     
-                                    <!--Materials CollectionView-->
+                                    <!--Step CollectionView-->
                                     <CollectionView ItemsSource="{Binding Steps, Mode=OneWay}" 
                                                     ItemSizingStrategy="MeasureFirstItem" 
                                                     HorizontalOptions="Center" 
@@ -93,7 +92,7 @@
                                                     </Grid.ColumnDefinitions>
 
                                                     <!--<CheckBox Grid.Column="1" IsChecked="{Binding Quantity, Mode=TwoWay}" HorizontalOptions="End" VerticalOptions="Center"/>-->
-                                                    <Label Grid.Column="2" Text="{Binding Name}" HorizontalOptions="Start" VerticalOptions="Center" Margin="5"/>
+                                                    <Label Grid.Column="2" Text="{Binding Name}" HorizontalOptions="Start" VerticalOptions="Center" Margin="5" BackgroundColor="Aquamarine"/>
                                                     <Label Grid.Column="3" Text="{Binding Description}" VerticalOptions="Center" HorizontalOptions="Center"/>
                                                 </Grid>
                                             </DataTemplate>

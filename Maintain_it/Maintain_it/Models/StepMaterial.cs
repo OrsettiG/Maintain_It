@@ -22,7 +22,7 @@ namespace Maintain_it.Models
         public string? Name { get; set; }
 #nullable disable
         public int Quantity { get; set; }
-
+        public DateTime CreatedOn { get; set; }
         #endregion
 
         #region Many To One Relationships

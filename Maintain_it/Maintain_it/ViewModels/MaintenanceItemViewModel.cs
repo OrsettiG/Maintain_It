@@ -59,7 +59,7 @@ namespace Maintain_it.ViewModels
         private int recursEvery = 1;
         public int RecursEvery { get => recursEvery; set => SetProperty( ref recursEvery, ( value! < 0 && value! > 1000 ) ? value : 1 ); }
 
-        private Timeframe frequency = Timeframe.MONTHS;
+        private Timeframe frequency = Timeframe.Months;
         public Timeframe Frequency { get => frequency; set => SetProperty( ref frequency, value ); }
 
         private int timesServiced;
@@ -158,7 +158,7 @@ namespace Maintain_it.ViewModels
                 NextServiceDate = nextServiceDate,
                 IsRecurring = isRecurring,
                 RecursEvery = recursEvery,
-                Frequency = frequency,
+                Frequency = (int)frequency,
                 TimesServiced = timesServiced,
                 PreviousServiceCompleted = previousServiceCompleted,
                 NotifyOfNextServiceDate = notifyOfNextServiceDate,
@@ -183,7 +183,7 @@ namespace Maintain_it.ViewModels
                 NextServiceDate = DateTime.Now.AddDays( 1 );
                 IsRecurring = false;
                 RecursEvery = 0;
-                Frequency = Timeframe.MONTHS;
+                Frequency = Timeframe.Months;
                 TimesServiced = 0;
                 PreviousServiceCompleted = false;
                 NotifyOfNextServiceDate = false;

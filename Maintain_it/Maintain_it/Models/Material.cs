@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Maintain_it.Services;
 
@@ -45,7 +46,7 @@ namespace Maintain_it.Models
 #nullable disable
         public double UnitPrice { get; set; }
         public int Quantity { get; set; }
-        
+        public DateTime CreatedOn { get; set; }
         #endregion
     }
 }

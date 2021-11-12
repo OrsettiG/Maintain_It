@@ -106,8 +106,8 @@
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
-                                            <Label Text="{Binding Name}" Grid.Row="0" WidthRequest="50" BackgroundColor="Aquamarine"/>
-                                            <Label Text="{Binding Description}" Grid.Row="1"/>
+                                            <Label Text="{Binding Id}" Grid.Row="0" WidthRequest="50" BackgroundColor="Aquamarine"/>
+                                            <Label Text="{Binding Name}" Grid.Row="1"/>
                                         </Grid>
                                     </Frame>
                                 </DataTemplate>

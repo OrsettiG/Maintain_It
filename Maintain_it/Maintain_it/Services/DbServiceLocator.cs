@@ -10,33 +10,17 @@ namespace Maintain_it.Services
 {
     public static class DbServiceLocator
     {
-        //public DbServiceLocator()
-        //{
-        //}
 
-        //// !!Singleton!! Be careful with this thing.
-        //private static DbServiceLocator _locator;
-        //// Singleton can only ever be set once with null coalesce
-        ///// <summary>
-        ///// This will always return a valid DbServiceLocator.
-        ///// </summary>
-        //public static DbServiceLocator Locator => _locator ??= new DbServiceLocator();
-
-        // Private singleton class for each Service type. Async Task to add an instance is just so that all the other methods can run async without complaining. Not sure that is actually needed, but you know, what the hell.
+        // Private singleton class for each Service type. Async Task to add an instance is just so that all the other methods can run async without complaining. Not sure that is actually does anything, but you know, what the hell.
         private static class LocatorEntry<T, U> where T : Service<U> where U : IStorableObject, new()
         {
             public static Service<U> Instance { get; set; }
-
-            public static async Task AddInstance( Service<U> service )
-            {
-                Instance = service;
-            }
         }
 
         // Registers new services
-        private async static Task Register<T>( Service<T> instance ) where T : IStorableObject, new()
+        private static void Register<T>( Service<T> instance ) where T : IStorableObject, new()
         {
-            await LocatorEntry<Service<T>, T>.AddInstance( instance );
+            LocatorEntry<Service<T>, T>.Instance = instance;
         }
 
         // Gets a service if it already exists and creates + inits a new one based on the supplied type if not. Allows for lazy loading of services.
@@ -44,11 +28,30 @@ namespace Maintain_it.Services
         {
             if( LocatorEntry<Service<T>, T>.Instance == null )
             {
-                await Register( new Service<T>() );
+                Register( new Service<T>() );
                 await LocatorEntry<Service<T>, T>.Instance.Init();
             }
 
             return LocatorEntry<Service<T>, T>.Instance;
+        }
+
+        /// <summary>
+        /// Init a new Service for the specified type if it has not already been initted.
+        /// </summary>
+        /// <typeparam name="T">Service type to init</typeparam>
+        public static async Task Init<T>() where T : IStorableObject, new()
+        {
+            if( LocatorEntry<Service<T>, T>.Instance == null )
+            {
+                Register( new Service<T>() );
+                await LocatorEntry<Service<T>, T>.Instance.Init();
+                return;
+            }
+
+            if( !LocatorEntry<Service<T>, T>.Instance.IsInitialized() )
+            {
+                await LocatorEntry<Service<T>, T>.Instance.Init();
+            }
         }
 
         /// <summary>
@@ -68,7 +71,7 @@ namespace Maintain_it.Services
         /// <typeparam name="T"> The item type you are adding </typeparam>
         /// <param name="Item"> The item you are adding </param>
         /// <returns> The RowId of the item you just added </returns>
-        public static async Task<int> AddItemAndReturnIdAsync<T> (T Item) where T : IStorableObject, new()
+        public static async Task<int> AddItemAndReturnIdAsync<T>( T Item ) where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
             return await instance.AddItemAndReturnRowIdAsync( Item );
@@ -103,11 +106,28 @@ namespace Maintain_it.Services
         /// <typeparam name="T">Service Type</typeparam>
         /// <param name="ids">List of Ids to get</param>
         /// <returns>IEnumerable<T></returns>
-        public static async Task<IEnumerable<T>> GetItemRangeAsync<T>( List<int> ids) where T: IStorableObject, new()
+        public static async Task<IEnumerable<T>> GetItemRangeAsync<T>( List<int> ids ) where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
 
             IEnumerable<T> data = await instance.GetItemRangeAsync(ids);
+            return data;
+        }
+
+        /// <summary>
+        /// Gets all items created on or between the passed in DateTimes.
+        /// </summary>
+        /// <typeparam name="T">Service Type</typeparam>
+        /// <param name="newestDateCreated">The most recent items to return</param>
+        /// <param name="oldestDateCreated">The oldest items to return</param>
+        /// <param name="returnAll">Optional parameter if you want only a certain number of items.</param>
+        /// <param name="returnCount">The number of items to return if you don't return all.</param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<T>> GetItemsInDateRange<T>( DateTime newestDateCreated, DateTime oldestDateCreated, bool returnAll = true, int returnCount = 0 ) where T : IStorableObject, new()
+        {
+            Service<T> instance = await GetService<T>();
+            IEnumerable<T> data = await instance.GetItemsInDateRangeAsync(newestDateCreated, oldestDateCreated, returnAll, returnCount);
+
             return data;
         }
 
@@ -139,7 +159,7 @@ namespace Maintain_it.Services
         /// </summary>
         /// <typeparam name="T">The type of tableyou want to clear</typeparam>
         /// <returns>The number of deleted rows</returns>
-        public static async Task<int> DeleteAllAsync<T>() where T: IStorableObject, new()
+        public static async Task<int> DeleteAllAsync<T>() where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
             return await instance.DeleteAllAsync<T>();

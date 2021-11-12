@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Maintain_it.Services;
 
@@ -25,6 +26,7 @@ namespace Maintain_it.Models
 #nullable enable
         public string? Name { get; set; }
 #nullable disable
+        public DateTime CreatedOn { get; set; }
         #endregion
     }
 }

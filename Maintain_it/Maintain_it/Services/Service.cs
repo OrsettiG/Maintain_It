@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,21 +17,16 @@ namespace Maintain_it.Services
 {
     public class Service<T> : IDataStore<T> where T : IStorableObject, new()
     {
-        private protected static SQLiteAsyncConnection db;
+        private protected static SQLiteAsyncConnection db = AsyncDatabaseConnection.Db;
 
         private readonly string _SQLiteCommandString_last_insert_rowid = "select last_insert_rowid()";
+        private readonly string _SQLiteCommandString_last_insert_rowid_per_table = $"select seq from sqlite_sequence where name = \"{typeof(T).Name}\"";
 
         public virtual async Task Init()
-        {
-            if( db != null )
-            {
-                return;
-            }
-
-            db = AsyncDatabaseConnection.Db;
-
+        {                
+            //Create Table
             _ = await db.CreateTableAsync<T>();
-            
+
             // Checks to make sure that the Join tables are created the first time any Service is Initted, but then only checks one every time after that. Just prevents us from unnecessarily pinging the db a bunch of times every time a service is created.
             if(db.Table<StepsToStepMaterials>() == null )
             {
@@ -46,12 +42,34 @@ namespace Maintain_it.Services
             }
         }
 
+        /// <summary>
+        /// !!!USE WITH CAUTION!!! Completely deletes all tables from the database. There is no recovering from this. !!!USE WITH CAUTION!!!
+        /// </summary>
+        internal static async Task DropAllTables()
+        {
+            _ = await db.DropTableAsync<MaintenanceItem>();
+            _ = await db.DropTableAsync<Step>();
+            _ = await db.DropTableAsync<StepMaterial>();
+            _ = await db.DropTableAsync<Material>();
+            _ = await db.DropTableAsync<Note>();
+            _ = await db.DropTableAsync<Retailer>();
+            _ = await db.DropTableAsync<ShoppingList>();
+            _ = await db.DropTableAsync<ShoppingListItem>();
+        }
+
+        public virtual bool IsInitialized()
+        {
+            return db.Table<T>() != null;
+        }
+
         public virtual async Task<int> AddItemAndReturnRowIdAsync( T item )
         {
             await Init();
             await db.InsertWithChildrenAsync( item );
             int id = await db.ExecuteScalarAsync<int>( _SQLiteCommandString_last_insert_rowid );
-            return id;
+            List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
+            
+            return lastIds[0];
         }
 
         public virtual async Task AddItemAsync( T item )
@@ -86,6 +104,17 @@ namespace Maintain_it.Services
 
             List<T> data = await db.Table<T>().Where(x => ids.Contains(x.Id) ).ToListAsync();
             return data;
+        }
+        
+        public virtual async Task<IEnumerable<T>> GetItemsInDateRangeAsync( DateTime newestDateCreated, DateTime oldestDateCreated, bool returnAll = true, int returnCount = 0 )
+        {
+            await Init();
+            List<T> data;
+            
+            data = await db.Table<T>().Where(x => x.CreatedOn <= newestDateCreated && x.CreatedOn >= oldestDateCreated ).ToListAsync();
+
+
+            return !returnAll && returnCount > 0 ? data.Take( returnCount ) : data;
         }
 
         public virtual async Task UpdateItemAsync( T item )
