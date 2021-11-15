@@ -21,16 +21,8 @@ namespace Maintain_it
             MainPage = new AppShell();
         }
 
-        protected async override void OnStart()
+        protected override void OnStart()
         {
-            await DbServiceLocator.Init<MaintenanceItem>();
-            await DbServiceLocator.Init<Note>();
-            await DbServiceLocator.Init<Step>();
-            await DbServiceLocator.Init<Material>();
-            await DbServiceLocator.Init<StepMaterial>();
-            await DbServiceLocator.Init<Retailer>();
-            await DbServiceLocator.Init<ShoppingList>();
-            await DbServiceLocator.Init<ShoppingListItem>();
         }
 
         protected override void OnSleep()

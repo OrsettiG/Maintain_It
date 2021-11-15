@@ -99,6 +99,9 @@ namespace Maintain_it.ViewModels
             int id = await DbServiceLocator.AddItemAndReturnIdAsync( n );
 
             Notes.Add( await DbServiceLocator.GetItemAsync<Note>( id ) );
+            
+            NoteText = string.Empty;
+            NoteImagePath = string.Empty;
         }
 
         private async Task TakePhoto()

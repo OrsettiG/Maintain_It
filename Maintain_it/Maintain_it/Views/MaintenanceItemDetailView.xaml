@@ -121,7 +121,7 @@
                 </Grid>
             </ScrollView>
 
-            <Button Text="Refresh Steps" Command="{Binding AddCommand}"/>
+            <Button Text="Save" Command="{Binding AddCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

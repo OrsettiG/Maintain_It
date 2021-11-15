@@ -23,7 +23,7 @@ namespace Maintain_it.Services
         private readonly string _SQLiteCommandString_last_insert_rowid_per_table = $"select seq from sqlite_sequence where name = \"{typeof(T).Name}\"";
 
         public virtual async Task Init()
-        {                
+        {
             //Create Table
             _ = await db.CreateTableAsync<T>();
 
