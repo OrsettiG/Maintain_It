@@ -26,35 +26,6 @@ namespace Maintain_it.Services
         {
             //Create Table
             _ = await db.CreateTableAsync<T>();
-
-            // Checks to make sure that the Join tables are created the first time any Service is Initted, but then only checks one every time after that. Just prevents us from unnecessarily pinging the db a bunch of times every time a service is created.
-            if(db.Table<StepsToStepMaterials>() == null )
-            {
-                if(db.Table<MaterialsToRetailers>() == null )
-                {
-                    if( db.Table<ShoppingListItemToShoppingList>() == null )
-                    {
-                        _ = await db.CreateTableAsync<ShoppingListItemToShoppingList>();
-                    }
-                    _ = await db.CreateTableAsync<MaterialsToRetailers>();
-                }
-                _ = await db.CreateTableAsync<StepsToStepMaterials>();
-            }
-        }
-
-        /// <summary>
-        /// !!!USE WITH CAUTION!!! Completely deletes all tables from the database. There is no recovering from this. !!!USE WITH CAUTION!!!
-        /// </summary>
-        internal static async Task DropAllTables()
-        {
-            _ = await db.DropTableAsync<MaintenanceItem>();
-            _ = await db.DropTableAsync<Step>();
-            _ = await db.DropTableAsync<StepMaterial>();
-            _ = await db.DropTableAsync<Material>();
-            _ = await db.DropTableAsync<Note>();
-            _ = await db.DropTableAsync<Retailer>();
-            _ = await db.DropTableAsync<ShoppingList>();
-            _ = await db.DropTableAsync<ShoppingListItem>();
         }
 
         public virtual bool IsInitialized()

@@ -26,16 +26,14 @@ namespace Maintain_it.Models
 
         #region One To Many Relationships
 
-
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<StepMaterial> StepMaterials { get; set; }
-        #endregion
 
-        #region Many To Many Relationships
-        
+        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        public List<Retailer> RetailerMaterials { get; set; }
 
-        [ManyToMany( typeof( MaterialsToRetailers ) )]
-        public List<Retailer> Retailers { get; set; }
+        [OneToMany(CascadeOperations = CascadeOperation.All )]
+        public List<ShoppingListMaterial> ShoppingListMaterials { get; set; }
 
         #endregion
 
@@ -44,8 +42,7 @@ namespace Maintain_it.Models
 #nullable enable
         public string? Name { get; set; }
 #nullable disable
-        public double UnitPrice { get; set; }
-        public int Quantity { get; set; }
+        public int QuantityOwned { get; set; }
         public DateTime CreatedOn { get; set; }
         #endregion
     }

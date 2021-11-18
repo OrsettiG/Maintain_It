@@ -150,7 +150,7 @@ namespace Maintain_it.ViewModels
             count += await DbServiceLocator.DeleteAllAsync<Material>();
             count += await DbServiceLocator.DeleteAllAsync<Retailer>();
             count += await DbServiceLocator.DeleteAllAsync<ShoppingList>();
-            count += await DbServiceLocator.DeleteAllAsync<ShoppingListItem>();
+            count += await DbServiceLocator.DeleteAllAsync<ShoppingListMaterial>();
             count += await DbServiceLocator.DeleteAllAsync<Note>();
             count += await DbServiceLocator.DeleteAllAsync<StepMaterial>();
 

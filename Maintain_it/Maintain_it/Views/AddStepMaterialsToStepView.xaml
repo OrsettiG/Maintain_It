@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maintain_it.Views.AddStepMaterialsToStepView"
+             xmlns:models="clr-namespace:Maintain_it.Models"
+             xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
+             BindingContext="viewmodels:AddStepMaterialToStepViewModel">
+    <ContentPage.Content>
+        <StackLayout>
+            <Frame BackgroundColor="LightGray" BorderColor="Black" Margin="5" HeightRequest="150">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Entry Grid.Column="0" Grid.Row="0"
+                           Placeholder="Search..."
+                           HorizontalOptions="Fill" VerticalOptions="Center"
+                           BackgroundColor="White"/>
+                    <Button Text="Create New"
+                            Grid.Column="0" Grid.Row="1"
+                            BackgroundColor="CadetBlue" 
+                            TextColor="White" 
+                            BorderColor="CadetBlue"  BorderWidth="3"/>
+                </Grid>
+            </Frame>
+            
+            <CollectionView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame>
+                            <Grid>
+                                
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

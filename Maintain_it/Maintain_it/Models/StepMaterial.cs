@@ -32,18 +32,13 @@ namespace Maintain_it.Models
         public int MaterialId { get; set; }
         [ManyToOne]
         public Material Material { get; set; }
-        #endregion
-
-        #region One to Many Relationships
-        // ShoppingListItem
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
-        public List<ShoppingListItem> ShoppingListItems { get; set; }
-        #endregion
-
-        #region Many To Many Relationships
+        
         // Step
-        [ManyToMany( typeof( StepsToStepMaterials ) )]
-        public List<Step> Steps { get; set; }
+        [ForeignKey( typeof( Step ) )]
+        public int StepId { get; set; }
+        [ManyToOne]
+        public Step Step { get; set; }
+        
         #endregion
     }
 }

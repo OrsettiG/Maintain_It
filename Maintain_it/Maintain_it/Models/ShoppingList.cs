@@ -17,8 +17,8 @@ namespace Maintain_it.Models
 
         #region Many To Many Relationships
 
-        [ManyToMany( typeof( ShoppingListItem ) )]
-        public List<ShoppingListItem> Items { get; set; }
+        [OneToMany( CascadeOperations = CascadeOperation.All)]
+        public List<ShoppingListMaterial> Materials { get; set; }
 
         #endregion
 

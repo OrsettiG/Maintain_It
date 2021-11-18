@@ -9,28 +9,24 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class ShoppingListItem : IStorableObject
+    public class ShoppingListMaterial : IStorableObject
     {
-        public ShoppingListItem() { }
+        public ShoppingListMaterial() { }
 
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
         #region Many To One Relationships
 
-        [ForeignKey( typeof( StepMaterial ) )]
-        public int StepMaterialId { get; set; }
+        [ForeignKey(typeof(Material))]
+        public int MaterialId { get; set; }
         [ManyToOne]
-        public StepMaterial StepMaterial { get; set; }
+        public Material Material { get; set; }
 
-
-
-        #endregion
-
-        #region Many To Many Relationships
-
-        [ManyToMany( typeof( ShoppingListItemToShoppingList ) )]
-        public List<ShoppingList> ShoppingLists { get; set; }
+        [ForeignKey(typeof(ShoppingList))]
+        public int ShoppingListId { get; set; }
+        [ManyToOne]
+        public ShoppingList ShoppingList { get; set; }
 
         #endregion
 

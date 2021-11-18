@@ -22,7 +22,6 @@ namespace Maintain_it.ViewModels
         public StepViewModel()
         {
             _ = Task.Run( async () => await DbServiceLocator.Init<Step>() );
-            StepMaterials = new ObservableRangeCollection<StepMaterial>();
         }
 
         private string _name;
@@ -42,8 +41,11 @@ namespace Maintain_it.ViewModels
         private string _noteImagePath;
         public FileImageSource NoteImagePath { get => _noteImagePath; set => SetProperty( ref _noteImagePath, value.File ); }
 
+        private int _stepMatCounter;
+        public int StepMatCounter { get => _stepMatCounter; set => SetProperty( ref _stepMatCounter, value >= 0 ? value : 0); }
 
-        public ObservableRangeCollection<StepMaterial> StepMaterials;
+        private ObservableRangeCollection<StepMaterial> _stepMaterials;
+        public ObservableRangeCollection<StepMaterial> StepMaterials => _stepMaterials ??= new ObservableRangeCollection<StepMaterial>();
         private ObservableRangeCollection<Note> notes;
         public ObservableRangeCollection<Note> Notes => notes ??= new ObservableRangeCollection<Note>();
 
@@ -56,15 +58,35 @@ namespace Maintain_it.ViewModels
 
         AsyncCommand addStepCommand;
         public ICommand AddStepCommand => addStepCommand ??= new AsyncCommand( AddStep );
+        
+        AsyncCommand selectMaterialsCommand;
+        public ICommand SelectMaterialsCommand => selectMaterialsCommand ??= new AsyncCommand( SelectMaterials );
 
         AsyncCommand addNoteCommand;
         public ICommand AddNoteCommand => addNoteCommand ??= new AsyncCommand( AddNote );
 
         AsyncCommand takePhotoCommand;
         public ICommand TakePhotoCommand => takePhotoCommand ??= new AsyncCommand( TakePhoto );
+
+        Command decrementStepMatQuantityCommand;
+        public ICommand DecrementStepMatQuantityCommand => decrementStepMatQuantityCommand ??= new Command( DecrementStepMatCounter );
+
+        Command incrementStepMatQuantityCommand;
+        public ICommand IncrementStepMatQuantityCommand => incrementStepMatQuantityCommand ??= new Command( IncrementStepMatCounter );
+
         #endregion
 
         #region METHODS
+
+        private void DecrementStepMatCounter()
+        {
+            StepMatCounter--;
+        }
+
+        private void IncrementStepMatCounter()
+        {
+            StepMatCounter++;
+        }
 
         private async Task AddStep()
         {
@@ -77,13 +99,18 @@ namespace Maintain_it.ViewModels
                 IsCompleted = false,
                 CreatedOn = DateTime.Now,
 
-                StepMaterials = await ConvertToListAsync( StepMaterials ),
+                StepMaterials = StepMaterials.Count < 1 ? null : await ConvertToListAsync( StepMaterials ),
                 Notes = await ConvertToListAsync( Notes )
             };
 
             int stepId = await DbServiceLocator.AddItemAndReturnIdAsync( step );
             Console.WriteLine( $"StepId returned: {stepId}" );
             await Shell.Current.GoToAsync( $"..?newStepId={stepId}" );
+        }
+
+        private async Task SelectMaterials()
+        {
+            await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}" );
         }
 
         private async Task AddNote()

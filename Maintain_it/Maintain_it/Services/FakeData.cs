@@ -33,7 +33,7 @@ namespace Maintain_it.Services
         public Step step { get; set; }
         public StepMaterial stepMaterial { get; set; }
         public ShoppingList shoppingList {  get; set; }
-        public ShoppingListItem shoppingListItem { get; set; }
+        public ShoppingListMaterial shoppingListItem { get; set; }
         public Retailer retailer { get; set; }
         public Note note { get; set; }
 
@@ -57,9 +57,8 @@ namespace Maintain_it.Services
         public static Material defaultMaterial = new Material()
         {
             Name = "Default",
-            UnitPrice = 10d,
             StepMaterials = new List<StepMaterial>(),
-            Retailers = new List<Retailer>()
+            RetailerMaterials = new List<Retailer>()
         };
 
         public static Step defaultStep = new Step()
@@ -75,14 +74,12 @@ namespace Maintain_it.Services
 
         public static StepMaterial defaultStepMaterial = new StepMaterial()
         {
-            ShoppingListItems = new List<ShoppingListItem>(),
-            Steps = new List<Step>()
+            Name="Default"
         };
 
         public static Retailer defaultRetailer = new Retailer()
         {
-            Name = "Default Retailer",
-            Materials = new List<Material>()
+            Name = "Default Retailer"
         };
 
         public static Note defaultNote = new Note()
@@ -93,16 +90,15 @@ namespace Maintain_it.Services
             LastUpdated = DateTime.Now
         };
 
-        public static ShoppingListItem defaultShoppingListItem = new ShoppingListItem()
+        public static ShoppingListMaterial defaultShoppingListItem = new ShoppingListMaterial()
         {
-            ShoppingLists = new List<ShoppingList>(),
             Purchased = false
         };
 
         public static ShoppingList defaultShoppingList = new ShoppingList()
         {
             Name = "Default Shopping List",
-            Items = new List<ShoppingListItem>()
+            Materials = new List<ShoppingListMaterial>()
         };
 
     }

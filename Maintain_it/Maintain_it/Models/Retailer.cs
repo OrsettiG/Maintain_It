@@ -17,8 +17,8 @@ namespace Maintain_it.Models
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        [ManyToMany( typeof( MaterialsToRetailers ) )]
-        public List<Material> Materials { get; set; }
+        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        public List<RetailerMaterial> Materials { get; set; }
 
         #region Properties
 #nullable enable
