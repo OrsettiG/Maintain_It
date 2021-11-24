@@ -45,7 +45,7 @@ namespace Maintain_it.ViewModels
             get => quantity;
             set
             {
-                if(value > 0 && value < maxQuantity )
+                if( value > 0 && value < maxQuantity )
                 {
                     _ = SetProperty( ref quantity, value );
                 }
@@ -82,12 +82,12 @@ namespace Maintain_it.ViewModels
 
         private void DecrementQuantity()
         {
-            Quantity = Quantity > 1 ? Quantity-- : 0;
+            Quantity--;
         }
 
         private void IncrementQuantity()
         {
-            Quantity = Quantity < maxQuantity ? Quantity++ : Quantity;
+            Quantity++;
         }
         #endregion
 

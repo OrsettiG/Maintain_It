@@ -15,9 +15,6 @@ namespace Maintain_it
         public App()
         {
             InitializeComponent();
-
-            DependencyService.Register<MockDataStore>();
-
             MainPage = new AppShell();
         }
 

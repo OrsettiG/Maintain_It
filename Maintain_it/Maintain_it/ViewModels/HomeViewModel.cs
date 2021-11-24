@@ -26,7 +26,6 @@ namespace Maintain_it.ViewModels
             UpdateCommand = new AsyncCommand( Update );
             RefreshCommand = new AsyncCommand( Refresh );
             AddAndReturnIDCommand = new AsyncCommand( AddAndReturnId );
-            fakeData = new FakeData();
             itemNum = rand.Next( 100000 );
             Refresh();
         }
@@ -41,7 +40,6 @@ namespace Maintain_it.ViewModels
         #region PRIVATE
         private ObservableCollection<MaintenanceItem> maintenanceItems;
         private bool IsBusy { get; set; }
-        private FakeData fakeData { get; set; }
         #endregion
 
         #region PUBLIC
@@ -85,7 +83,7 @@ namespace Maintain_it.ViewModels
 
         private async Task AddAndReturnId()
         {
-            MaintenanceItem item = fakeData.maintenanceItem;
+            MaintenanceItem item = new MaintenanceItem();
             item.Name += itemNum.ToString();
 
             LastItemID = await DbServiceLocator.AddItemAndReturnIdAsync( item );

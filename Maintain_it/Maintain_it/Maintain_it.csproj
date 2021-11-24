@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="EmbeddedImages\HappyCup.jpg" />
+    <None Remove="Resources\Fonts\FontAwesome.otf" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="EmbeddedImages\HappyCup.jpg" />
+    <EmbeddedResource Include="Resources\Fonts\FontAwesome.otf" />
   </ItemGroup>
 
   <ItemGroup>

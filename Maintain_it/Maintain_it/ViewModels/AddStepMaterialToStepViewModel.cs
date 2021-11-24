@@ -93,6 +93,7 @@ namespace Maintain_it.ViewModels
 
         private async Task Refresh()
         {
+            Console.WriteLine( "Refreshed" );
             if( !locked )
             {
                 locked = true;
@@ -191,6 +192,11 @@ namespace Maintain_it.ViewModels
                     }
 
                     await PopulatePreselectedStepMaterials();
+                    break;
+
+                case "refresh":
+                    Console.WriteLine( "Awaiting Refresh" );
+                    await Refresh();
                     break;
             }
         }
