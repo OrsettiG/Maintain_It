@@ -15,6 +15,17 @@ namespace Maintain_it.ViewModels
 {
     public abstract class BaseViewModel : ObservableObject, IQueryAttributable
     {
+        protected char[] restrictedChars = new char[]
+        {
+            '\\',
+            '/',
+            '?',
+            '<',
+            '>',
+            ';',
+            '"'
+        };
+
         public INavigation Navigation { get; set; }
 
         public virtual async void ApplyQueryAttributes( IDictionary<string, string> query )
@@ -22,10 +33,23 @@ namespace Maintain_it.ViewModels
             foreach( KeyValuePair<string, string> kvp in query )
             {
                 await EvaluateQueryParams( kvp );
+                EvaluateQueryParams(kvp.Key, kvp.Value );
             }
         }
 
-        private protected abstract Task EvaluateQueryParams( KeyValuePair<string, string> kvp );
+        /// <summary>
+        /// Asyncronously evaluate query parameters and do work when arriving at a new view. Returns null unless overridden.
+        /// </summary>
+        /// <param name="kvp">A <see cref="KeyValuePair"/> representing the query parameter name with the key, and the value in the value. Good for evaluating query parameters with switch statements.</param>
+        /// <returns><see cref="Task"/> representing whatever work the passed in parameter triggers.</returns>
+        private protected virtual Task EvaluateQueryParams( KeyValuePair<string, string> kvp ) { return null; }
+
+        /// <summary>
+        /// Synchronously evaluate query parameters when arriving at a new view. Empty unless overriden.
+        /// </summary>
+        /// <param name="key">The parameter name</param>
+        /// <param name="value">The parameter value</param>
+        private protected virtual void EvaluateQueryParams( string key, string value ) { }
 
 
         public int ScreenWidth => (int)DeviceDisplay.MainDisplayInfo.Width;
@@ -45,6 +69,19 @@ namespace Maintain_it.ViewModels
         private protected async Task<List<T>> ConvertToListAsync<T>(IEnumerable<T> target )
         {
             return await Task.Run( () => ConvertToList( target ) );
+        }
+
+        protected virtual bool ValidateString( string _, string target )
+        {
+            foreach( char c in restrictedChars )
+            {
+                if( target.Contains( c ) )
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
     }

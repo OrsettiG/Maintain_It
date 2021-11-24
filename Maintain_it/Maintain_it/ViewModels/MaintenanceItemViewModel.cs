@@ -235,6 +235,11 @@ namespace Maintain_it.ViewModels
             await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}" );
         }
 
+        private protected override void EvaluateQueryParams( string key, string value )
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

@@ -58,7 +58,7 @@ namespace Maintain_it.Services
         {
             Name = "Default",
             StepMaterials = new List<StepMaterial>(),
-            RetailerMaterials = new List<Retailer>()
+            RetailerMaterials = new List<RetailerMaterial>()
         };
 
         public static Step defaultStep = new Step()

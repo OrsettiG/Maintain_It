@@ -4,10 +4,13 @@
              x:Class="Maintain_it.Views.AddStepMaterialsToStepView"
              xmlns:models="clr-namespace:Maintain_it.Models"
              xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
-             BindingContext="viewmodels:AddStepMaterialToStepViewModel">
+             x:DataType="viewmodels:AddStepMaterialToStepViewModel">
+    <ContentPage.BindingContext>
+        <viewmodels:AddStepMaterialToStepViewModel/>
+    </ContentPage.BindingContext>
     <ContentPage.Content>
         <StackLayout>
-            <Frame BackgroundColor="LightGray" BorderColor="Black" Margin="5" HeightRequest="150">
+            <Frame BackgroundColor="LightGray" BorderColor="Black" Margin="5" HeightRequest="125">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -18,28 +21,129 @@
                     </Grid.RowDefinitions>
 
                     <Entry Grid.Column="0" Grid.Row="0"
-                           Placeholder="Search..."
+                           Text="{Binding MaterialNameSearch}" Placeholder="Search..."
                            HorizontalOptions="Fill" VerticalOptions="Center"
                            BackgroundColor="White"/>
                     <Button Text="Create New"
                             Grid.Column="0" Grid.Row="1"
+                            Command="{Binding CreateNewMaterialCommand}"
                             BackgroundColor="CadetBlue" 
                             TextColor="White" 
                             BorderColor="CadetBlue"  BorderWidth="3"/>
                 </Grid>
             </Frame>
-            
-            <CollectionView>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame>
-                            <Grid>
+<!--
+    TODO: Finish CollectionView layout work
+          Add Delete buttons to all cards and items etc.
+-->
+            <Frame BackgroundColor="LightGray" HeightRequest="300">
+                <CollectionView SelectionMode="Multiple" 
+                                ItemsSource="{Binding DisplayedMaterials}"
+                                SelectedItems="{Binding DisplayedMaterialSelections}"
+                                SelectionChangedCommand="{Binding MaterialSelectionChangedCommand}"
+                                SelectionChangedCommandParameter="string"
                                 
-                            </Grid>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                                EmptyView="Looks like you haven't created any Materials yet."
+                                BackgroundColor="Gray">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="3" HorizontalItemSpacing="3" Span="3"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Material">
+                            <Frame BorderColor="Black" Padding="3" Margin="5" >
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Text="{Binding Name}"
+                                           Grid.Column="1"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                    <Label Text="{Binding Description}"
+                                           Grid.Column="1" Grid.Row="1"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Frame>
+
+            <Frame HeightRequest="200">
+                <CollectionView 
+                    ItemsSource="{Binding SelectedMaterials}"
+                    EmptyView="No Materials Selected Yet..."
+                    BackgroundColor="Pink"
+                    ItemSizingStrategy="MeasureAllItems">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="1"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodels:StepMaterialViewModel">
+                            <Frame Padding="5">
+                                <Frame BackgroundColor="White" BorderColor="Black">
+                                    <Grid BackgroundColor="White">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition Height="1.5*"/>
+                                            <RowDefinition Height="1.5*"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Text="{Binding StepMaterial.Name}"
+                                               FontSize="Large"
+                                               Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="2"
+                                               VerticalOptions="Center" HorizontalOptions="FillAndExpand"
+                                               BackgroundColor="Green"
+                                               HorizontalTextAlignment="Center"/>
+
+                                        <Label Text="Quantity Required:"
+                                               FontSize="Medium"
+                                               Grid.Column="0" Grid.Row="2" Grid.RowSpan="2"
+                                               HorizontalOptions="FillAndExpand" VerticalOptions="Start"/>
+
+                                        <Button Text="-"
+                                                HeightRequest="25" WidthRequest="50"
+                                                Grid.Column="1" Grid.Row="2" Grid.RowSpan="2"
+                                                HorizontalOptions="End"
+                                                CornerRadius="45"
+                                                Command="{Binding DecrementQuantityCommand}"/>
+
+                                        <Label Text="{Binding Quantity}"
+                                               Margin="5" Padding="5"
+                                               Grid.Column="2" Grid.Row="2" Grid.RowSpan="2"
+                                               HorizontalOptions="Center" VerticalOptions="Center"/>
+
+                                        <Button Text="+"
+                                                HeightRequest="25" WidthRequest="50"
+                                                Grid.Column="3" Grid.Row="2" Grid.RowSpan="2"
+                                                HorizontalOptions="Start"
+                                                CornerRadius="45"
+                                                Command="{Binding IncrementQuantityCommand}"/>
+
+                                    </Grid>
+                                </Frame>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Frame>
+            
+            <Button Text="Save Selection(s)" Command="{Binding AddStepMaterialsCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

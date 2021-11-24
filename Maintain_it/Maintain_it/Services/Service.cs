@@ -17,15 +17,15 @@ namespace Maintain_it.Services
 {
     public class Service<T> : IDataStore<T> where T : IStorableObject, new()
     {
-        private protected static SQLiteAsyncConnection db = AsyncDatabaseConnection.Db;
+        private protected static SQLiteAsyncConnection db;
 
         private readonly string _SQLiteCommandString_last_insert_rowid = "select last_insert_rowid()";
         private readonly string _SQLiteCommandString_last_insert_rowid_per_table = $"select seq from sqlite_sequence where name = \"{typeof(T).Name}\"";
 
         public virtual async Task Init()
         {
-            //Create Table
-            _ = await db.CreateTableAsync<T>();
+            //Create connection to db
+            db = await AsyncDatabaseConnection.Db();
         }
 
         public virtual bool IsInitialized()
@@ -37,7 +37,6 @@ namespace Maintain_it.Services
         {
             await Init();
             await db.InsertWithChildrenAsync( item );
-            int id = await db.ExecuteScalarAsync<int>( _SQLiteCommandString_last_insert_rowid );
             List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
             
             return lastIds[0];
@@ -69,11 +68,19 @@ namespace Maintain_it.Services
             return await db.GetWithChildrenAsync<T>( id );
         }
 
-        public virtual async Task<IEnumerable<T>> GetItemRangeAsync( List<int> ids )
+        public virtual async Task<IEnumerable<T>> GetItemRangeAsync( IEnumerable<int> ids )
         {
             await Init();
 
             List<T> data = await db.Table<T>().Where(x => ids.Contains(x.Id) ).ToListAsync();
+            return data;
+        }
+        
+        public virtual async Task<IEnumerable<T>> GetItemRangeBasedOnSearchTermAsync( string searchTerm )
+        {
+            await Init();
+
+            List<T> data = await db.Table<T>().Where(x => x.Name.StartsWith(searchTerm) ).ToListAsync();
             return data;
         }
         
@@ -91,7 +98,7 @@ namespace Maintain_it.Services
         public virtual async Task UpdateItemAsync( T item )
         {
             await Init();
-            await db.InsertWithChildrenAsync( item ); //db.InsertOrReplaceAsync( item );
+            await db.InsertWithChildrenAsync( item );
         }
 
         public virtual async Task<int> DeleteAllAsync<T>()

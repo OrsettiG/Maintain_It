@@ -30,7 +30,7 @@ namespace Maintain_it.Models
         public List<StepMaterial> StepMaterials { get; set; }
 
         [OneToMany( CascadeOperations = CascadeOperation.All )]
-        public List<Retailer> RetailerMaterials { get; set; }
+        public List<RetailerMaterial> RetailerMaterials { get; set; }
 
         [OneToMany(CascadeOperations = CascadeOperation.All )]
         public List<ShoppingListMaterial> ShoppingListMaterials { get; set; }
@@ -38,10 +38,15 @@ namespace Maintain_it.Models
         #endregion
 
         #region Properties
+        public string Name { get; set; }
 
 #nullable enable
-        public string? Name { get; set; }
+        public double? Size { get; set; }
+        public string? Tag { get; set; }
+        public string? Units { get; set; }
+        public string? Description { get; set; }
 #nullable disable
+
         public int QuantityOwned { get; set; }
         public DateTime CreatedOn { get; set; }
         #endregion

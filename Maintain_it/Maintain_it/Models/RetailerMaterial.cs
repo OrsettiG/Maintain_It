@@ -4,12 +4,17 @@ using System.Text;
 
 using Maintain_it.Services;
 
+using SQLite;
+
 using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
     public class RetailerMaterial : IStorableObject
     {
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+
         #region ManyToOne Relationships
         
         [ForeignKey( typeof( Material ) )]
@@ -25,7 +30,6 @@ namespace Maintain_it.Models
         #endregion
 
         #region Properties
-        public int Id { get; set; }
         public string Name { get; set; }
         public DateTime CreatedOn { get; set; }
         #endregion

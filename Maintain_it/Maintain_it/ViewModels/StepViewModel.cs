@@ -14,6 +14,8 @@ using MvvmHelpers.Commands;
 using Command = MvvmHelpers.Commands.Command;
 
 using Xamarin.Forms;
+using System.Linq;
+using System.Web;
 
 namespace Maintain_it.ViewModels
 {
@@ -23,6 +25,8 @@ namespace Maintain_it.ViewModels
         {
             _ = Task.Run( async () => await DbServiceLocator.Init<Step>() );
         }
+
+        #region Parameters
 
         private string _name;
         public string Name { get => _name; set => SetProperty( ref _name, value ); }
@@ -42,7 +46,7 @@ namespace Maintain_it.ViewModels
         public FileImageSource NoteImagePath { get => _noteImagePath; set => SetProperty( ref _noteImagePath, value.File ); }
 
         private int _stepMatCounter;
-        public int StepMatCounter { get => _stepMatCounter; set => SetProperty( ref _stepMatCounter, value >= 0 ? value : 0); }
+        public int StepMatCounter { get => _stepMatCounter; set => SetProperty( ref _stepMatCounter, value >= 0 ? value : 0 ); }
 
         private ObservableRangeCollection<StepMaterial> _stepMaterials;
         public ObservableRangeCollection<StepMaterial> StepMaterials => _stepMaterials ??= new ObservableRangeCollection<StepMaterial>();
@@ -53,12 +57,17 @@ namespace Maintain_it.ViewModels
 
         private Step step;
 
+        #region Query Parameters
+        HashSet<int> stepMaterialIds = new HashSet<int>();
+        #endregion
+
+        #endregion
 
         #region COMMANDS
 
         AsyncCommand addStepCommand;
         public ICommand AddStepCommand => addStepCommand ??= new AsyncCommand( AddStep );
-        
+
         AsyncCommand selectMaterialsCommand;
         public ICommand SelectMaterialsCommand => selectMaterialsCommand ??= new AsyncCommand( SelectMaterials );
 
@@ -104,13 +113,20 @@ namespace Maintain_it.ViewModels
             };
 
             int stepId = await DbServiceLocator.AddItemAndReturnIdAsync( step );
-            Console.WriteLine( $"StepId returned: {stepId}" );
             await Shell.Current.GoToAsync( $"..?newStepId={stepId}" );
         }
 
         private async Task SelectMaterials()
         {
-            await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}" );
+            if(stepMaterialIds.Count > 0 )
+            {
+                string encodedIds = HttpUtility.UrlEncode( string.Join( ',', stepMaterialIds ) );
+                await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?preselectedStepMaterialIds={encodedIds}" );
+            }
+            else
+            {
+                await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}" );
+            }
         }
 
         private async Task AddNote()
@@ -126,7 +142,7 @@ namespace Maintain_it.ViewModels
             int id = await DbServiceLocator.AddItemAndReturnIdAsync( n );
 
             Notes.Add( await DbServiceLocator.GetItemAsync<Note>( id ) );
-            
+
             NoteText = string.Empty;
             NoteImagePath = string.Empty;
         }
@@ -136,11 +152,42 @@ namespace Maintain_it.ViewModels
             // TODO
         }
 
-        private protected override Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
+        #endregion
+
+        #region Query Handling
+        private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
         {
-            throw new NotImplementedException();
+            switch( kvp.Key )
+            {
+                case nameof( stepMaterialIds ):
+                    ParseStepMaterialIds( kvp.Value );
+                    await RetrieveStepMaterialsFromDb();
+                    break;
+                default:
+                    break;
+            }
         }
 
+        private void ParseStepMaterialIds( string encodedValue )
+        {
+            string decodedValue = HttpUtility.UrlDecode( encodedValue );
+            string[] ids = decodedValue.Split(',');
+            stepMaterialIds = new HashSet<int>( ids.Length );
+            foreach( string id in ids )
+            {
+                if( int.TryParse( id, out int result ) )
+                {
+                    _ = stepMaterialIds.Add( result );
+                }
+            }
+        }
+
+        private async Task RetrieveStepMaterialsFromDb()
+        {
+            List<StepMaterial> stepMats = await DbServiceLocator.GetItemRangeAsync<StepMaterial>( stepMaterialIds ) as List<StepMaterial>;
+            StepMaterials.Clear();
+            StepMaterials.AddRange( stepMats );
+        }
         #endregion
     }
 }
