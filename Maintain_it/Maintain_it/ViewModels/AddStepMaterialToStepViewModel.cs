@@ -12,10 +12,10 @@ using Maintain_it.Views;
 
 using MvvmHelpers;
 using MvvmHelpers.Commands;
+using Command = MvvmHelpers.Commands.Command;
 
 using Xamarin.Forms;
 
-using Command = MvvmHelpers.Commands.Command;
 
 namespace Maintain_it.ViewModels
 {
@@ -38,7 +38,7 @@ namespace Maintain_it.ViewModels
                     if( value != string.Empty || value != null )
                     {
                         DisplayedMaterials.Clear();
-                        DisplayedMaterials.AddRange( _materials.Where( x => x.Name.ToLower().StartsWith( MaterialNameSearch ) || x.Tag.ToLower().StartsWith( MaterialNameSearch ) ) );
+                        DisplayedMaterials.AddRange( _materials.Where( x => FilterMaterials( x ) ) );
                     }
                     else
                     {
@@ -58,7 +58,7 @@ namespace Maintain_it.ViewModels
         public ObservableRangeCollection<Material> DisplayedMaterials { get => _displayedMaterials ??= new ObservableRangeCollection<Material>(); set => SetProperty( ref _displayedMaterials, value ); }
 
         private HashSet<int> selectedMaterialIds;
-        public HashSet<int> SelectedMaterialIds { get => selectedMaterialIds ??= new HashSet<int>(100); set => SetProperty( ref selectedMaterialIds, value ); }
+        public HashSet<int> SelectedMaterialIds { get => selectedMaterialIds ??= new HashSet<int>( 100 ); set => SetProperty( ref selectedMaterialIds, value ); }
 
         private ObservableRangeCollection<StepMaterialViewModel> selectedMaterials;
         public ObservableRangeCollection<StepMaterialViewModel> SelectedMaterials { get => selectedMaterials ??= new ObservableRangeCollection<StepMaterialViewModel>(); set => SetProperty( ref selectedMaterials, value ); }
@@ -85,7 +85,7 @@ namespace Maintain_it.ViewModels
         public ICommand MaterialSelectionChangedCommand => materialSelectionChangedCommand ??= new Command( MaterialSelectionChanged );
 
         private AsyncCommand addStepMaterialsCommand;
-        public ICommand AddStepMaterialsCommand => addStepMaterialsCommand ??= new AsyncCommand( AddStepMaterials );
+        public ICommand AddStepMaterialsCommand => addStepMaterialsCommand ??= new AsyncCommand( AddSelectedStepMaterials );
 
         #endregion
 
@@ -109,7 +109,35 @@ namespace Maintain_it.ViewModels
             }
         }
 
-        private async Task AddStepMaterials()
+        internal void RemoveStepMaterialFromSelectedMaterials( int id )
+        {
+            if( SelectedMaterialIds.Remove( id ) )
+            {
+                foreach( StepMaterialViewModel smvm in SelectedMaterials.ToList() )
+                {
+                    if( smvm.MaterialId == id )
+                    {
+                        _ = SelectedMaterials.Remove( smvm );
+                    }
+                }
+
+                foreach( Material mat in DisplayedMaterialSelections.ToList() )
+                {
+                    if( mat.Id == id )
+                    {
+                        _ = DisplayedMaterialSelections.Remove( mat );
+                    }
+                }
+            }
+        }
+
+        private bool FilterMaterials( Material material )
+        {
+            return ( material.Name != null && material.Name.StartsWith( MaterialNameSearch ) ) ||
+                   ( material.Tag != null && material.Tag.StartsWith( MaterialNameSearch ) );
+        }
+
+        private async Task AddSelectedStepMaterials()
         {
             throw new NotImplementedException();
         }
@@ -125,7 +153,8 @@ namespace Maintain_it.ViewModels
         {
             StepMaterialViewModel viewModel = new StepMaterialViewModel( mat )
             {
-                Quantity = 1
+                Quantity = 1,
+                AddStepMaterialToStepViewModel = this
             };
 
             SelectedMaterials.Add( viewModel );
@@ -136,20 +165,39 @@ namespace Maintain_it.ViewModels
 
         private async void MaterialSelectionChanged( object obj )
         {
-            foreach( Material material in DisplayedMaterialSelections )
+            if( DisplayedMaterialSelections.Count >= SelectedMaterialIds.Count )
             {
-                if( SelectedMaterialIds.Add( material.Id ) )
+                foreach( Material material in DisplayedMaterialSelections.ToList() )
                 {
-                    int stepMaterialId = await CreateNewStepMaterial( material ).ConfigureAwait( false );
-                    _stepMaterials.Add( await DbServiceLocator.GetItemAsync<StepMaterial>( stepMaterialId ).ConfigureAwait( false ) );
+                    if( SelectedMaterialIds.Add( material.Id ) )
+                    {
+                        int stepMaterialId = await CreateNewStepMaterial( material ).ConfigureAwait( false );
+                        _stepMaterials.Add( await DbServiceLocator.GetItemAsync<StepMaterial>( stepMaterialId ).ConfigureAwait( false ) );
+                    }
                 }
             }
+            else if( SelectedMaterialIds.Count > DisplayedMaterialSelections.Count )
+            {
+                List<int> temp = new List<int>();
 
+                foreach( Material mat in DisplayedMaterialSelections.ToList() )
+                {
+                    temp.Add( mat.Id );
+                }
+
+                IEnumerable<int> diff = SelectedMaterialIds.Except(temp);
+
+                foreach( int id in diff.ToList() )
+                {
+                    RemoveStepMaterialFromSelectedMaterials( id );
+                }
+            }
         }
 
         private async Task CreateNewMaterial()
         {
-            await Shell.Current.GoToAsync( $"/{nameof( CreateNewMaterialView )}?materialName={MaterialNameSearch}" );
+            string encodedName = HttpUtility.UrlEncode( MaterialNameSearch );
+            await Shell.Current.GoToAsync( $"/{nameof( CreateNewMaterialView )}?materialName={encodedName}" );
         }
 
         #region Query Handling
@@ -169,7 +217,10 @@ namespace Maintain_it.ViewModels
                         await Refresh();
                         if( SelectedMaterialIds.Add( addMaterialId ) )
                         {
-                            SelectedMaterials.Add( new StepMaterialViewModel( _materials.Where( x => x.Id == addMaterialId ).FirstOrDefault() ) );
+                            SelectedMaterials.Add( new StepMaterialViewModel( _materials.Where( x => x.Id == addMaterialId ).FirstOrDefault() )
+                            {
+                                Quantity = 1
+                            } );
                         }
                     }
 
@@ -195,7 +246,6 @@ namespace Maintain_it.ViewModels
                     break;
 
                 case "refresh":
-                    Console.WriteLine( "Awaiting Refresh" );
                     await Refresh();
                     break;
             }

@@ -77,6 +77,7 @@ namespace Maintain_it.ViewModels
                 Size = size,
                 Description = materialDescription,
                 Tag = materialTag,
+                Units = materialUnits,
                 CreatedOn = createdOn,
                 StepMaterials = new List<StepMaterial>(),
                 RetailerMaterials = new List<RetailerMaterial>(),
@@ -116,7 +117,7 @@ namespace Maintain_it.ViewModels
             switch( key )
             {
                 case nameof( materialName ):
-                    MaterialName = value;
+                    MaterialName = HttpUtility.UrlDecode(value);
                     break;
             }
         }

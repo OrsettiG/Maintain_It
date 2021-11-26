@@ -52,53 +52,11 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                         </Frame>
-
-
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Entry  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4"
-                                    Placeholder="Search Materials" 
-                                    VerticalOptions="End" HorizontalOptions="Fill" 
-                                    BackgroundColor="White"/>
-                            <Label Grid.Column="0" Grid.Row="1"
-                                   Text="Quantity:" FontSize="Medium"
-                                   HorizontalOptions="Start" VerticalOptions="Center"/>
-                            <Entry Grid.Column="1" Grid.Row="1"
-                                   FontSize="Medium" Keyboard="Numeric"
-                                   HorizontalOptions="Fill" VerticalOptions="Center" 
-                                   Text="{Binding StepMatCounter}"/>
-
-                            <Button Text="-" TextColor="DarkOliveGreen"
-                                    Grid.Column="2" Grid.Row="1"
-                                    VerticalOptions="End"
-                                    BorderColor="DarkOliveGreen" BorderWidth="3" 
-                                    BackgroundColor="White"
-                                    Command="{Binding DecrementStepMatQuantityCommand}" 
-                                    />
-                            <Button Text="+" TextColor="DarkOliveGreen"
-                                    Grid.Column="3" Grid.Row="1"
-                                    BorderColor="DarkOliveGreen" BorderWidth="3" 
-                                    BackgroundColor="White"
-                                    Command="{Binding IncrementStepMatQuantityCommand}" 
-                                    />
-
-                            <Button Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="2"
+                        <Button Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="2"
                                     Text="Select Materials" TextColor="CadetBlue"
                                     BorderColor="CadetBlue" BorderWidth="3"
                                     BackgroundColor="White"
                                     Command="{Binding SelectMaterialsCommand}"/>
-                        </Grid>
-
                     </StackLayout>
                 </Frame>
 

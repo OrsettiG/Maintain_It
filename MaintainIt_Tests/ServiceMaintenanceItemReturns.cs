@@ -28,13 +28,7 @@ namespace MaintainIt_Tests
         [Test]
         public async Task SuccessfulInsert()
         {
-            //Arrange
-            await service.Init();
-            MaintenanceItem item = FakeData.defaultMaintenanceItem;
-            //Act
-            await service.AddItemAsync( item );
-            //Assert
-            Assert.That( await service.GetItemAsync( item.Id ) != null );
+
         }
     }
 }

@@ -34,6 +34,8 @@ namespace Maintain_it.ViewModels
         #region PROPERTIES
         private const int maxQuantity = 1000001;
 
+        public AddStepMaterialToStepViewModel AddStepMaterialToStepViewModel { get; set; }
+
         private StepMaterial stepMaterial;
         public StepMaterial StepMaterial { get => stepMaterial; set => SetProperty( ref stepMaterial, value ); }
 
@@ -66,6 +68,9 @@ namespace Maintain_it.ViewModels
         private Command incrementQuantityCommand;
         public ICommand IncrementQuantityCommand => incrementQuantityCommand ??= new Command( IncrementQuantity );
 
+        private Command deleteCommand;
+        public ICommand DeleteCommand => deleteCommand ??= new Command( Delete );
+
         #endregion
 
         #region METHODS
@@ -79,6 +84,10 @@ namespace Maintain_it.ViewModels
 
         }
 
+        private void Delete()
+        {
+            AddStepMaterialToStepViewModel.RemoveStepMaterialFromSelectedMaterials( MaterialId );
+        }
 
         private void DecrementQuantity()
         {
