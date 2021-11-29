@@ -73,7 +73,7 @@
                     Command="{Binding IncrementCommand}" CommandParameter="{Binding QuantityOwned}"
                     Grid.Row="7" Grid.Column="2"/>
 
-            <Button Text="Save" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Command="{Binding AddMaterialCommand}"/>
+            <Button Text="Save" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Command="{Binding SaveMaterialCommand}"/>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

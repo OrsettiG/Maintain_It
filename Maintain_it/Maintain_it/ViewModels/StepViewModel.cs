@@ -120,13 +120,11 @@ namespace Maintain_it.ViewModels
         {
             if(stepMaterialIds.Count > 0 )
             {
-                Console.WriteLine( "Sending Encoded Ids to AddStepMaterialsToStepViewModel" );
                 string encodedIds = HttpUtility.UrlEncode( string.Join( ',', stepMaterialIds ) );
                 await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?preselectedStepMaterialIds={encodedIds}" );
             }
             else
             {
-                Console.WriteLine("Refreshing AddStepMaterialsToStepViewModel upon creation");
                 await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?refresh=true" );
             }
         }

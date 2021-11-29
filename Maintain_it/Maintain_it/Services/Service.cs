@@ -38,7 +38,7 @@ namespace Maintain_it.Services
             await Init();
             await db.InsertWithChildrenAsync( item );
             List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
-            
+
             return lastIds[0];
         }
 
@@ -65,7 +65,7 @@ namespace Maintain_it.Services
         {
             await Init();
 
-            return await db.GetWithChildrenAsync<T>( id );
+            return await db.GetWithChildrenAsync<T>( id ).ConfigureAwait( false );
         }
 
         public virtual async Task<IEnumerable<T>> GetItemRangeAsync( IEnumerable<int> ids )
@@ -75,7 +75,7 @@ namespace Maintain_it.Services
             List<T> data = await db.Table<T>().Where(x => ids.Contains(x.Id) ).ToListAsync();
             return data;
         }
-        
+
         public virtual async Task<IEnumerable<T>> GetItemRangeBasedOnSearchTermAsync( string searchTerm )
         {
             await Init();
@@ -83,13 +83,13 @@ namespace Maintain_it.Services
             List<T> data = await db.Table<T>().Where(x => x.Name.StartsWith(searchTerm) ).ToListAsync();
             return data;
         }
-        
+
         public virtual async Task<IEnumerable<T>> GetItemsInDateRangeAsync( DateTime newestDateCreated, DateTime oldestDateCreated, bool returnAll = true, int returnCount = 0 )
         {
             await Init();
             List<T> data;
-            
-            data = await db.Table<T>().Where(x => x.CreatedOn <= newestDateCreated && x.CreatedOn >= oldestDateCreated ).ToListAsync();
+
+            data = await db.Table<T>().Where( x => x.CreatedOn <= newestDateCreated && x.CreatedOn >= oldestDateCreated ).ToListAsync();
 
 
             return !returnAll && returnCount > 0 ? data.Take( returnCount ) : data;
@@ -98,7 +98,7 @@ namespace Maintain_it.Services
         public virtual async Task UpdateItemAsync( T item )
         {
             await Init();
-            await db.InsertWithChildrenAsync( item );
+            await db.UpdateWithChildrenAsync( item );
         }
 
         public virtual async Task<int> DeleteAllAsync<T>()

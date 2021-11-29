@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Input;
@@ -44,6 +43,12 @@ namespace Maintain_it.ViewModels
 
         private Material material;
 
+        #region Query Parameters
+#nullable enable
+        private int? editMaterialId = null;
+#nullable disable
+        #endregion
+
         // Not in use
         // Use to allow users to pick alternative materials
         private ObservableRangeCollection<Material> materials;
@@ -56,8 +61,8 @@ namespace Maintain_it.ViewModels
 
         #region Commands
 
-        private AsyncCommand addMaterialCommand;
-        public ICommand AddMaterialCommand => addMaterialCommand ??= new AsyncCommand( AddMaterial );
+        private AsyncCommand saveMaterialCommand;
+        public ICommand SaveMaterialCommand => saveMaterialCommand ??= new AsyncCommand( SaveMaterial );
 
         private Command incrementCommand;
         public ICommand IncrementCommand => incrementCommand ??= new Command( Increment );
@@ -65,12 +70,31 @@ namespace Maintain_it.ViewModels
         private Command decrementCommand;
         public ICommand DecrementCommand => decrementCommand ??= new Command( Decrement );
 
+
         #endregion
 
         #region Methods
 
+        private async Task SaveMaterial()
+        {
+            if( editMaterialId != null )
+            {
+                await UpdateMaterial();
+            }
+            else
+            {
+                Console.WriteLine( "Adding New Material" );
+                await AddMaterial();
+            }
+        }
+
         private async Task AddMaterial()
         {
+            if( material != null )
+            {
+                Console.WriteLine( $"Adding New Material: {material.Name}" );
+            }
+
             material = new Material()
             {
                 Name = materialName,
@@ -87,7 +111,23 @@ namespace Maintain_it.ViewModels
             int id = await DbServiceLocator.AddItemAndReturnIdAsync( material );
 
             string encodedId = HttpUtility.UrlEncode( id.ToString() );
+            Console.WriteLine( "Sending Page back to AddStepMaterialView" );
             await Shell.Current.GoToAsync( $"..?addMaterialId={encodedId}" ); // This goes to AddStepMaterialViewModel
+        }
+
+        private async Task UpdateMaterial()
+        {
+            Console.WriteLine( $"Updating Material with id: {material.Id}" );
+
+            material.Name = materialName;
+            material.Size = size;
+            material.Description = materialDescription;
+            material.Tag = materialTag;
+            material.Units = materialUnits;
+
+            await DbServiceLocator.UpdateItemAsync( material );
+
+            await Shell.Current.GoToAsync( $"..?refresh=true" ); // This goes to AddStepMaterialViewModel
         }
 
         private void Increment()
@@ -100,24 +140,44 @@ namespace Maintain_it.ViewModels
             QuantityOwned--;
         }
 
+        private async Task AsyncInit( int id )
+        {
+            Console.WriteLine( $"AsycnInit Material id: {id} and editMaterialId of: {editMaterialId}" );
+
+            material = await DbServiceLocator.GetItemAsync<Material>( id );
+
+            MaterialName = material.Name;
+            MaterialDescription = material.Description;
+            MaterialTag = material.Tag;
+            MaterialUnits = material.Units;
+            Size = material.Size;
+            QuantityOwned = material.QuantityOwned;
+
+            editMaterialId = id;
+        }
+
         #endregion
 
         #region Query Handling
 
-        public override void ApplyQueryAttributes( IDictionary<string, string> query )
+        public async override void ApplyQueryAttributes( IDictionary<string, string> query )
         {
-            foreach( KeyValuePair<string, string> kvp in query )
-            {
-                EvaluateQueryParams( kvp.Key, kvp.Value );
-            }
+            _ = Parallel.ForEach( query, kvp => EvaluateQueryParams( kvp.Key, kvp.Value ) );
         }
 
-        private protected override void EvaluateQueryParams( string key, string value )
+        private protected override async void EvaluateQueryParams( string key, string value )
         {
             switch( key )
             {
                 case nameof( materialName ):
-                    MaterialName = HttpUtility.UrlDecode(value);
+                    MaterialName = HttpUtility.UrlDecode( value );
+                    break;
+                case nameof( editMaterialId ):
+                    if( int.TryParse( HttpUtility.UrlDecode( value ), out int _materialId ) )
+                    {
+                        editMaterialId = _materialId;
+                        await AsyncInit( _materialId );
+                    }
                     break;
             }
         }

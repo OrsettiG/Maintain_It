@@ -71,6 +71,9 @@ namespace Maintain_it.ViewModels
         private Command deleteCommand;
         public ICommand DeleteCommand => deleteCommand ??= new Command( Delete );
 
+        private AsyncCommand editMaterialCommand;
+        public ICommand EditMaterialCommand => editMaterialCommand ??= new AsyncCommand( EditMaterial );
+
         #endregion
 
         #region METHODS
@@ -78,10 +81,37 @@ namespace Maintain_it.ViewModels
         public async Task AsyncInit( int stepMatId )
         {
             StepMaterial = await DbServiceLocator.GetItemAsync<StepMaterial>( stepMatId ).ConfigureAwait( false );
+            if( StepMaterial != null )
+            {
+                StepMaterial.Name = StepMaterial.Material.Name;
+                Quantity = StepMaterial.Quantity;
+                MaterialId = StepMaterial.MaterialId;
+            }
+        }
+        
+        public async Task AsyncInit( int stepMatId, AddStepMaterialToStepViewModel viewModel )
+        {
+            StepMaterial = await DbServiceLocator.GetItemAsync<StepMaterial>( stepMatId ).ConfigureAwait( false );
+            if( StepMaterial != null )
+            {
+                StepMaterial.Name = StepMaterial.Material.Name;
+                Quantity = StepMaterial.Quantity;
+                MaterialId = StepMaterial.MaterialId;
+            }
 
-            Quantity = StepMaterial.Quantity;
-            MaterialId = StepMaterial.MaterialId;
+            AddStepMaterialToStepViewModel = viewModel;
+        }
 
+        public async Task Update()
+        {
+            stepMaterial.Quantity = quantity;
+
+            await DbServiceLocator.UpdateItemAsync( stepMaterial ).ConfigureAwait(false);
+        }
+
+        private async Task EditMaterial()
+        {
+            await AddStepMaterialToStepViewModel.EditStepMaterial( MaterialId );
         }
 
         private void Delete()

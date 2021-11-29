@@ -51,10 +51,9 @@
                                 BorderColor="CadetBlue"  BorderWidth="3"/>
                     </Grid>
                 </Frame>
-                <!--
-        TODO: Finish CollectionView layout work
-              Add Delete buttons to all cards and items etc.
-    -->
+                
+<!--Available Materials Display-->
+                
                 <Frame HeightRequest="310">
                     <CollectionView SelectionMode="Multiple" 
                                     ItemsSource="{Binding DisplayedMaterials}"
@@ -99,6 +98,8 @@
                     </CollectionView>
                 </Frame>
 
+<!--Available Materials Display-->
+
                 <Frame HeightRequest="250">
                     <CollectionView 
                         ItemsSource="{Binding SelectedMaterials}"
@@ -107,7 +108,7 @@
                         BackgroundColor="LightGray"
                         ItemSizingStrategy="MeasureAllItems">
                         <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5"/>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5" SnapPointsAlignment="Start" SnapPointsType="Mandatory"/>
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="viewmodels:StepMaterialViewModel">
@@ -155,7 +156,8 @@
                                                 Grid.Column="3" Grid.Row="0" Grid.RowSpan="2"
                                                 HeightRequest="40" WidthRequest="40"
                                                 HorizontalOptions="Center" VerticalOptions="Center"
-                                                CornerRadius="20"/>
+                                                CornerRadius="20"
+                                                Command="{Binding EditMaterialCommand}"/>
 
                                         <Label Text="Size:"
                                                Grid.Column="0" Grid.Row="2"
