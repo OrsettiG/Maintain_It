@@ -17,7 +17,6 @@ namespace Maintain_it.Views
         public HomeView()
         {
             InitializeComponent();
-            BindingContext = new HomeViewModel();
         }
     }
 }

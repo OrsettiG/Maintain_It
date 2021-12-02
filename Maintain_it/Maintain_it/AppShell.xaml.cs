@@ -13,7 +13,6 @@ namespace Maintain_it
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute( nameof( TestItemView ), typeof( TestItemView ) );
             Routing.RegisterRoute( nameof( MaintenanceView ), typeof( MaintenanceView ) );
             Routing.RegisterRoute( nameof( SettingsView ), typeof( SettingsView ) );
             Routing.RegisterRoute( nameof( AboutView ), typeof( AboutView ) );

@@ -2,78 +2,99 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
+             xmlns:fontAwesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
              x:Class="Maintain_it.Views.CreateNewMaterialView"
-             x:DataType="viewmodels:CreateNewMaterialViewModel">
+             x:DataType="viewmodels:CreateNewMaterialViewModel"
+             Title="Create New Material">
     <ContentPage.Content>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Entry Placeholder="Material Name" Text="{Binding MaterialName}"
-                   Grid.Row="0" Grid.Column="1"
-                   HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
-            <Frame HeightRequest="200" WidthRequest="120" BackgroundColor="LightGray"
+        <ScrollView>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="1.5*"/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Entry Placeholder="Material Name" Text="{Binding MaterialName}"
+                       Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                       HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       WidthRequest="250"
+                       MaxLength="25"/>
+
+                <!--<Frame HeightRequest="200" WidthRequest="120" BackgroundColor="LightGray"
                    Grid.Row="1" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2">
 
-            </Frame>
+            </Frame>-->
 
-<!--Description-->
-            <Label Text="Description:" 
-                   Grid.Row="1" Grid.Column="2"/>
-            <Editor Placeholder="Enter Description..." Text="{Binding MaterialDescription}"
-                    Grid.Row="2" Grid.RowSpan="2" Grid.Column="2"/>
-<!--Tag-->
-            <Label Text="Tag:"
-                   Padding="5"
-                   FontSize="Medium"
-                   Grid.Row="4" Grid.Column="0" 
-                   HorizontalOptions="Fill" VerticalOptions="Center"/>
-            <Entry Placeholder="Enter Tag..." Text="{Binding MaterialTag}"
-                   Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"/>
-<!--Size-->
-            <Label Text="Unit Size:"
-                   Padding="5"
-                   FontSize="Medium"
-                   Grid.Row="5" Grid.Column="0" 
-                   HorizontalOptions="Fill" VerticalOptions="Center"/>
-            <Entry Text="{Binding Size}" Placeholder="ex. 0.5, 1, 50"
-                   Keyboard="Numeric"
-                   Grid.Row="5" Grid.Column="1"/>
-            <Entry Text="{Binding MaterialUnits}" Placeholder="Ex. Gauge, Inch, mm, lb etc."
+                <!--Description-->
+                <Label Text="Description:"
+                       FontSize="Medium"
+                       Grid.Row="1" Grid.Column="0" Margin="2, 0"
+                       VerticalOptions="End"/>
+                <Editor Placeholder="Enter Description..." Text="{Binding MaterialDescription}"
+                        Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" 
+                        VerticalOptions="FillAndExpand"
+                        Margin="2"
+                        MaxLength="125"/>
+                <Label Text="&#xf129; 125 character limit"
+                       FontFamily="FA-Solid" FontSize="Small"
+                       Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3"
+                       VerticalOptions="Start"
+                       Margin="5,0"/>
+                <!--Tag-->
+                <Label Text="Tag:"
+                       Padding="5"
+                       FontSize="Medium"
+                       Grid.Row="4" Grid.Column="0" 
+                       HorizontalOptions="Fill" VerticalOptions="Center"/>
+                <Entry Placeholder="Enter Tag..." Text="{Binding MaterialTag}"
+                       Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                       MaxLength="25"/>
+                <!--Size-->
+                <Label Text="Unit Size:"
+                       Padding="5"
+                       FontSize="Medium"
+                       Grid.Row="5" Grid.Column="0" 
+                       HorizontalOptions="Fill" VerticalOptions="Center"/>
+                <Entry Text="{Binding Size}" Placeholder="ex. 0.5, 1, 50"
+                       MaxLength="7"
+                       Keyboard="Numeric"
+                       Grid.Row="5" Grid.Column="1"/>
+                <Entry Text="{Binding MaterialUnits}" Placeholder="Ex. Gauge, Inch, mm, lb etc."
                    Grid.Row="5" Grid.Column="2"/>
-<!--Quantity-->
-            <Label Text="Quanity:"
+                <!--Quantity-->
+                <Label Text="Quanity:"
                    FontSize="Medium"
                    Grid.Row="6" Grid.Column="0"
                    HorizontalOptions="Fill" VerticalOptions="Center"
                    Padding="5"/>
-            <Button Text="-"
+                <Button Text="-"
                     Margin="5"
                     FontSize="Large"
                     Command="{Binding DecrementCommand}" CommandParameter="{Binding QuantityOwned}"
                     Grid.Row="7" Grid.Column="0"/>
-            <Entry  Text="{Binding QuantityOwned}" Keyboard="Numeric"
-                    Grid.Row="7" Grid.Column="1"
-                    HorizontalTextAlignment="Center"/>
-            <Button Text="+"
+                <Entry  Text="{Binding QuantityOwned}" Keyboard="Numeric"
+                        Grid.Row="7" Grid.Column="1"
+                        MaxLength="8"
+                        HorizontalTextAlignment="Center"/>
+                <Button Text="+"
                     Margin="5"
                     FontSize="Large"
                     Command="{Binding IncrementCommand}" CommandParameter="{Binding QuantityOwned}"
                     Grid.Row="7" Grid.Column="2"/>
 
-            <Button Text="Save" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Command="{Binding SaveMaterialCommand}"/>
-        </Grid>
+                <Button Text="Save" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Command="{Binding SaveMaterialCommand}"/>
+            </Grid>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

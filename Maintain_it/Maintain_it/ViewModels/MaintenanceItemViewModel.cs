@@ -24,8 +24,25 @@ namespace Maintain_it.ViewModels
         #region Constructors
         public MaintenanceItemViewModel()
         {
-            _steps = new ObservableRangeCollection<Step>();
-            newStepId = new List<int>();
+        }
+
+        public MaintenanceItemViewModel( MaintenanceItem maintenanceItem, HomeViewModel homeViewModel )
+        {
+            item = maintenanceItem;
+            Name = maintenanceItem.Name;
+            Comment = maintenanceItem.Comment;
+            FirstServiceDate = maintenanceItem.FirstServiceDate;
+            PreviousServiceDate = maintenanceItem.PreviousServiceDate;
+            NextServiceDate = maintenanceItem.NextServiceDate;
+            IsRecurring = maintenanceItem.IsRecurring;
+            RecursEvery = maintenanceItem.RecursEvery;
+            Frequency = (Timeframe)maintenanceItem.Frequency;
+            TimesServiced = maintenanceItem.TimesServiced;
+            PreviousServiceCompleted = maintenanceItem.PreviousServiceCompleted;
+            NotifyOfNextServiceDate = maintenanceItem.NotifyOfNextServiceDate;
+            Steps.AddRange( maintenanceItem.Steps );
+
+            _homeViewModel = homeViewModel;
         }
 
         //public MaintenanceItemViewModel( MaintenanceItem item ) => Item = item;
@@ -38,7 +55,7 @@ namespace Maintain_it.ViewModels
 
         public bool IsBusy { get; private set; }
 
-        private string name = "New Maintenance Item";
+        private string name = string.Empty;
         public string Name { get => name; set => SetProperty( ref name, value ); }
 
         private string comment;
@@ -72,13 +89,15 @@ namespace Maintain_it.ViewModels
         public bool NotifyOfNextServiceDate { get => notifyOfNextServiceDate; set => SetProperty( ref notifyOfNextServiceDate, value ); }
 
         #region QUERY PARAMS
-        private readonly List<int> newStepId;
+        private readonly List<int> newStepId = new List<int>();
         private readonly int maintenanceItemId;
         #endregion
 
         private ObservableRangeCollection<Step> _steps;
-        public ObservableRangeCollection<Step> Steps { get => _steps; set => SetProperty( ref _steps, value ); }
+        public ObservableRangeCollection<Step> Steps { get => _steps ??= new ObservableRangeCollection<Step>(); set => SetProperty( ref _steps, value ); }
 
+
+        private HomeViewModel _homeViewModel;
         #endregion
 
         #region COMMANDS
@@ -176,7 +195,7 @@ namespace Maintain_it.ViewModels
             {
                 IsBusy = true;
 
-                Name = "New Maintenance Item";
+                Name = string.Empty;
                 Comment = string.Empty;
                 FirstServiceDate = DateTime.Now;
                 PreviousServiceDate = DateTime.Now;
@@ -212,9 +231,11 @@ namespace Maintain_it.ViewModels
 
         private async Task Delete()
         {
+
             if( item != null )
             {
-                await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
+                await _homeViewModel.ItemDeleted( maintenanceItemId );
+                //await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
             }
         }
 

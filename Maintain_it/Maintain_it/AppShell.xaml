@@ -2,6 +2,7 @@
 <Shell xmlns="http://xamarin.com/schemas/2014/forms" 
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:local="clr-namespace:Maintain_it.Views"
+       xmlns:fontAwesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
        Title="Maintain_it"
        x:Class="Maintain_it.AppShell">
 
@@ -72,26 +73,42 @@
             </Style>
         </ResourceDictionary>
     </Shell.Resources>
-
     <!-- 
         When the Flyout is visible this defines the content to display in the flyout.
         FlyoutDisplayOptions="AsMultipleItems" will create a separate flyout item for each child element    
         https://docs.microsoft.com/dotnet/api/xamarin.forms.shellgroupitem.flyoutdisplayoptions?view=xamarin-forms
     -->
-    <FlyoutItem Title="Test View" Icon="icon_feed.png">
-        <ShellContent Route="TestView" ContentTemplate="{DataTemplate local:TestItemView}" />
-        <!--<ShellContent Route="MaintenanceItemView" FlyoutItemIsVisible="False" ContentTemplate="{DataTemplate local:MaintenanceItemView}"/>-->
-    </FlyoutItem>
-    <FlyoutItem Title="Home" Icon="icon_feed.png">
+    <FlyoutItem Title="Home">
+        <FlyoutItem.Icon>
+            <FontImageSource
+                FontFamily="FA-Solid"
+                Glyph="{Static fontAwesome:FontAwesomeIcons.Home}"
+                Color="LightGray"
+                Size="12"/>
+        </FlyoutItem.Icon>
         <ShellContent Route="HomeView" ContentTemplate="{DataTemplate local:HomeView}" />
     </FlyoutItem>
     <FlyoutItem Title="Maintenance" Icon="icon_feed.png">
         <!--<ShellContent Route="MaintenanceItemDetailView" ContentTemplate="{DataTemplate local:MaintenanceItemDetailView}" />-->
     </FlyoutItem>
-    <FlyoutItem Title="Settings" Icon="icon_feed.png">
+    <FlyoutItem Title="Settings">
+        <FlyoutItem.Icon>
+            <FontImageSource
+                FontFamily="FA-Solid"
+                Glyph="{Static fontAwesome:FontAwesomeIcons.Cog}"
+                Color="LightGray"
+                Size="15"/>
+        </FlyoutItem.Icon>
         <ShellContent Route="SettingsView" ContentTemplate="{DataTemplate local:SettingsView}" />
     </FlyoutItem>
-    <FlyoutItem Title="About" Icon="icon_about.png">
+    <FlyoutItem Title="About">
+        <FlyoutItem.Icon>
+            <FontImageSource
+                FontFamily="FA-Solid"
+                Glyph="{Static fontAwesome:FontAwesomeIcons.InfoCircle}"
+                Color="LightGray"
+                Size="20"/>
+        </FlyoutItem.Icon>
         <ShellContent Route="AboutView" ContentTemplate="{DataTemplate local:AboutView}" />
     </FlyoutItem>
 
