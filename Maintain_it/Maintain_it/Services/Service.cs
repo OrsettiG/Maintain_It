@@ -75,6 +75,15 @@ namespace Maintain_it.Services
             List<T> data = await db.Table<T>().Where(x => ids.Contains(x.Id) ).ToListAsync();
             return data;
         }
+        //Not currently in use
+        public virtual async Task<IEnumerable<T>> GetItemRangeRecursiveAsync( IEnumerable<int> ids )
+        {
+            await Init();
+
+            List<T> filteredData = await db.GetAllWithChildrenAsync<T>( x => ids.Contains(x.Id) , recursive: true ).ConfigureAwait( false );
+
+            return filteredData;
+        }
 
         public virtual async Task<IEnumerable<T>> GetItemRangeBasedOnSearchTermAsync( string searchTerm )
         {

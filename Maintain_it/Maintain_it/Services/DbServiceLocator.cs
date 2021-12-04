@@ -115,6 +115,20 @@ namespace Maintain_it.Services
         }
 
         /// <summary>
+        /// Get only items with Ids matching the passed in List<T> from the appropriate Table and recursively loads their children.
+        /// </summary>
+        /// <typeparam name="T">Service Type</typeparam>
+        /// <param name="ids">List of Ids to get</param>
+        /// <returns>IEnumerable<T></returns>
+        public static async Task<IEnumerable<T>> GetItemRangeRecursiveAsync<T>( IEnumerable<int> ids ) where T : IStorableObject, new()
+        {
+            Service<T> instance = await GetService<T>();
+
+            IEnumerable<T> data = await instance.GetItemRangeRecursiveAsync( ids );
+            return data;
+        }
+
+        /// <summary>
         /// Get only items with Ids matching the passed in List<T> from the appropriate Table
         /// </summary>
         /// <typeparam name="T">Service Type</typeparam>

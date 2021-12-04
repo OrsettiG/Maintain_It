@@ -18,13 +18,13 @@
             <BoxView BackgroundColor="LightGray" 
                          WidthRequest="600" HeightRequest="1"
                          HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>
-            <StackLayout>
+            <StackLayout x:DataType="viewmodel:HomeViewModel">
                 <Label Text="Upcoming Maintenance" 
                                     FontSize="Medium" TextDecorations="Underline" 
                                     HorizontalOptions="Center" VerticalOptions="Start" 
                                     HeightRequest="35"/>
                 <CollectionView x:Name="Items" 
-                                    ItemsSource="{Binding MaintenanceItems, Mode=TwoWay}" 
+                                    ItemsSource="{Binding DisplayedMaintenanceItems}"
                                     VerticalOptions="Start" HorizontalOptions="CenterAndExpand" 
                                     Margin="10"
                                     HeightRequest="400"
@@ -33,7 +33,7 @@
                         <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="{x:Type viewmodel:MaintenanceItemViewModel}">
                             <Frame BorderColor="Gray" WidthRequest="350">
                                 <Grid Padding="5">
                                     <Grid.RowDefinitions>
@@ -67,7 +67,6 @@
                                               HorizontalOptions="Center" VerticalOptions="Center"
                                               BackgroundColor="LightGray"
                                               Command="{Binding DeleteCommand}"
-                                              CommandParameter="{Binding Id}"
                                               />
                                     <!--Name-->
                                     <Label  Text="{Binding Name}"
@@ -100,7 +99,7 @@
                                     </Grid>
 
                                     <!--Step CollectionView-->
-                                    <CollectionView ItemsSource="{Binding Steps, Mode=OneWay}" 
+                                    <CollectionView ItemsSource="{Binding StepViewModels, Mode=OneWay}" 
                                                     ItemSizingStrategy="MeasureFirstItem" 
                                                     HorizontalOptions="Center" 
                                                     VerticalOptions="Start" 
@@ -114,11 +113,11 @@
                                                 HorizontalItemSpacing="0" 
                                                 SnapPointsType="MandatorySingle" 
                                                 SnapPointsAlignment="Start" 
-                                                BindingContext="{Binding Steps}"/>
+                                                BindingContext="{Binding StepViewModels}"/>
                                         </CollectionView.ItemsLayout>
 
                                         <CollectionView.ItemTemplate>
-                                            <DataTemplate>
+                                            <DataTemplate x:DataType="{x:Type viewmodel:StepViewModel}">
                                                 <Grid HeightRequest="40">
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="40"/>
@@ -131,7 +130,6 @@
                                                         <ColumnDefinition Width="80"/>
                                                     </Grid.ColumnDefinitions>
 
-                                                    <!--<CheckBox Grid.Column="1" IsChecked="{Binding Quantity, Mode=TwoWay}" HorizontalOptions="End" VerticalOptions="Center"/>-->
                                                     <Label Grid.Column="2" Text="{Binding Name}" HorizontalOptions="Start" VerticalOptions="Center" Margin="5" BackgroundColor="Aquamarine"/>
                                                     <Label Grid.Column="3" Text="{Binding Description}" VerticalOptions="Center" HorizontalOptions="Center"/>
                                                 </Grid>
@@ -165,7 +163,7 @@
 
                 <Button Grid.Column="0" Text="Add New" Command="{Binding AddCommand}" HorizontalOptions="Center" HeightRequest="50"/>
                 <Button Grid.Column="1" Text="Refresh" Command="{Binding RefreshCommand}" HorizontalOptions="Center"/>
-                <Button Grid.Column="2" Text="Delete All" Command="{Binding DeleteCommand}" HorizontalOptions="Center"/>
+                <Button Grid.Column="2" Text="Delete All" Command="{Binding DeleteAllCommand}" HorizontalOptions="Center"/>
                 <Button Grid.Column="3" Text="Update All" Command="{Binding UpdateCommand}" HorizontalOptions="Center"/>
             </Grid>
         </StackLayout>

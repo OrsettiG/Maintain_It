@@ -21,21 +21,25 @@ namespace Maintain_it.ViewModels
 {
     public class StepViewModel : BaseViewModel
     {
-        public StepViewModel()
-        {
-            _ = Task.Run( async () => await DbServiceLocator.Init<Step>() );
-        }
+        public StepViewModel() { }
 
         #region Parameters
 
         private string _name;
         public string Name { get => _name; set => SetProperty( ref _name, value ); }
+
+        private int stepNum;
+        public int StepNum { get => stepNum; set => SetProperty( ref stepNum, value ); }
+
         private string _description;
         public string Description { get => _description; set => SetProperty( ref _description, value ); }
+
         private bool _isCompleted;
         public bool IsCompleted { get => _isCompleted; set => SetProperty( ref _isCompleted, value ); }
+
         private double _timeRequired;
         public double TimeRequired { get => _timeRequired; set => SetProperty( ref _timeRequired, value ); }
+
         private Timeframe _timeframe;
         public Timeframe Timeframe { get => _timeframe; set => SetProperty( ref _timeframe, value ); }
 
@@ -49,13 +53,14 @@ namespace Maintain_it.ViewModels
         public int StepMatCounter { get => _stepMatCounter; set => SetProperty( ref _stepMatCounter, value >= 0 ? value : 0 ); }
 
         private ObservableRangeCollection<StepMaterial> _stepMaterials;
-        public ObservableRangeCollection<StepMaterial> StepMaterials => _stepMaterials ??= new ObservableRangeCollection<StepMaterial>();
+        public ObservableRangeCollection<StepMaterial> StepMaterials { get => _stepMaterials ??= new ObservableRangeCollection<StepMaterial>(); set => SetProperty( ref _stepMaterials, value ); }
         private ObservableRangeCollection<Note> notes;
         public ObservableRangeCollection<Note> Notes => notes ??= new ObservableRangeCollection<Note>();
 
         public List<Timeframe> timeframes => Options.timeframes;
 
         private Step step;
+        public Step Step { get => step; set => step = value; }
 
         #region Query Parameters
         HashSet<int> stepMaterialIds = new HashSet<int>();
@@ -87,6 +92,18 @@ namespace Maintain_it.ViewModels
 
         #region METHODS
 
+        public void Init()
+        {
+            Name = step.Name;
+            Description = step.Description;
+            TimeRequired = step.TimeRequired;
+            Timeframe = (Timeframe)step.Timeframe;
+            IsCompleted = step.IsCompleted;
+            StepNum = step.StepNumber;
+            StepMaterials.AddRange( step.StepMaterials );
+            Notes.AddRange( step.Notes );
+        }
+
         private void DecrementStepMatCounter()
         {
             StepMatCounter--;
@@ -107,13 +124,15 @@ namespace Maintain_it.ViewModels
                 Timeframe = (int)Timeframe.Minutes,
                 IsCompleted = false,
                 CreatedOn = DateTime.Now,
+                StepNumber = 0,
 
-                StepMaterials = StepMaterials.Count < 1 ? null : await ConvertToListAsync( StepMaterials ),
+                StepMaterials = StepMaterials.Count < 1 ? new List<StepMaterial>() : await ConvertToListAsync( StepMaterials ),
                 Notes = await ConvertToListAsync( Notes )
             };
-
             int stepId = await DbServiceLocator.AddItemAndReturnIdAsync( step );
-            await Shell.Current.GoToAsync( $"..?newStepId={stepId}" );
+
+            string encodedId = HttpUtility.UrlEncode( stepId.ToString());
+            await Shell.Current.GoToAsync( $"..?stepIds={encodedId}" );
         }
 
         private async Task SelectMaterials()

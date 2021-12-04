@@ -43,7 +43,7 @@
                             Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" 
                             MaxLength="250"
                             HeightRequest="125"
-                            BackgroundColor="Green"/>
+                            />
 
                     <!-- First Service Date Label and Picker -->
                     <Label Text="First Service Date:" Grid.Column="0" Grid.Row="2"/>
@@ -91,7 +91,8 @@
                     <Frame Grid.ColumnSpan="3" Grid.Row="9"
                            BackgroundColor="LightGray"
                            Padding=" 10">
-                        <CollectionView ItemsSource="{Binding Steps}"
+                        <CollectionView
+                                        ItemsSource="{Binding StepViewModels}"
                                         ItemSizingStrategy="MeasureFirstItem"
                                         HorizontalOptions="Center"
                                         Margin="5"
@@ -100,22 +101,24 @@
                             <CollectionView.ItemsLayout>
                                 <GridItemsLayout 
                                     Orientation="Horizontal" 
-                                    HorizontalItemSpacing="15" 
-                                    VerticalItemSpacing="10" 
+                                    HorizontalItemSpacing="15"
                                     SnapPointsAlignment="End"
                                     SnapPointsType="None"
-                                    Span="4"/>
+                                    Span="1"/>
                             </CollectionView.ItemsLayout>
                             <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="models:Step">
-                                    <Frame BackgroundColor="DarkGray" Padding="5">
+                                <DataTemplate x:DataType="{x:Type viewmodels:StepViewModel}">
+                                    <Frame BackgroundColor="DarkGray" WidthRequest="250" Padding="5">
                                         <Grid BackgroundColor="Gray" Padding="3">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
-                                            <Label Text="{Binding Id}" Grid.Row="0" WidthRequest="50" BackgroundColor="Aquamarine"/>
-                                            <Label Text="{Binding Name}" Grid.Row="1"/>
+                                            <Label Text="{Binding Name}" HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand"
+                                                   Grid.Row="0" 
+                                                   WidthRequest="50" 
+                                                   BackgroundColor="Aquamarine"/>
+                                            <Label Text="{Binding Description}" Grid.Row="1"/>
                                         </Grid>
                                     </Frame>
                                 </DataTemplate>

@@ -21,7 +21,7 @@ namespace Maintain_it.Models
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<Note> Notes { get; set; }
 
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        [OneToMany( CascadeOperations = CascadeOperation.All ), NotNull]
         public List<StepMaterial> StepMaterials { get; set; }
 
         #endregion
@@ -40,6 +40,7 @@ namespace Maintain_it.Models
 #nullable enable
         public string? Name { get; set; }
 #nullable disable
+        public int StepNumber { get; set; }
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
         public double TimeRequired { get; set; }

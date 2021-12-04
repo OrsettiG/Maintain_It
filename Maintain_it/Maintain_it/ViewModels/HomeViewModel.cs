@@ -36,9 +36,13 @@ namespace Maintain_it.ViewModels
         private ObservableRangeCollection<MaintenanceItem> _maintenanceItems = new ObservableRangeCollection<MaintenanceItem>();
 
         private ObservableRangeCollection<MaintenanceItemViewModel> displayedMaintenanceItems;
-        public ObservableRangeCollection<MaintenanceItemViewModel> DisplayedMaintenanceItems { get => displayedMaintenanceItems ??= new ObservableRangeCollection<MaintenanceItemViewModel>(); set => SetProperty( ref displayedMaintenanceItems, value ); }
+        public ObservableRangeCollection<MaintenanceItemViewModel> DisplayedMaintenanceItems
+        {
+            get => displayedMaintenanceItems ??= new ObservableRangeCollection<MaintenanceItemViewModel>();
+            set => SetProperty( ref displayedMaintenanceItems, value );
+        }
 
-        private bool locked { get; set; }
+        private bool locked { get; set; } = false;
         private int _deletedRows;
         public int DeletedRows { get => _deletedRows; set => SetProperty( ref _deletedRows, value ); }
 
@@ -51,8 +55,6 @@ namespace Maintain_it.ViewModels
         public ICommand AddCommand => addCommand ??= new AsyncCommand( Add );
         private AsyncCommand deleteAllCommand;
         public ICommand DeleteAllCommand => deleteAllCommand ??= new AsyncCommand( DeleteAll );
-        private AsyncCommand<int> deleteCommand;
-        public ICommand DeleteCommand => deleteCommand ??= new AsyncCommand<int>( x => ItemDeleted(x) );
         private AsyncCommand refreshCommand;
         public ICommand RefreshCommand => refreshCommand ??= new AsyncCommand( Refresh );
         private AsyncCommand updateCommand;
@@ -102,13 +104,17 @@ namespace Maintain_it.ViewModels
             ConcurrentBag<MaintenanceItemViewModel> vms = new ConcurrentBag<MaintenanceItemViewModel>();
             _ = Parallel.ForEach( items, x => vms.Add( new MaintenanceItemViewModel( x, this ) ) );
             
-            return vms.ToList();
+            List<MaintenanceItemViewModel> result = vms.OrderBy(x => x.FirstServiceDate).ToList();
+            
+            return result;
         }
 
         internal async Task ItemDeleted( int id )
         {
             // This should basically just call Refresh() on the view so that the item gets correctly removed from the UI.
             Console.WriteLine( $"Maintenance Item Delete Button pushed on item with id: {id}" );
+            
+            await Refresh();
         }
 
         private async Task DeleteAll()
