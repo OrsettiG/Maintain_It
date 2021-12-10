@@ -41,15 +41,15 @@ namespace Maintain_it.Services
         /// </summary>
         public static async Task DropAllTablesAsync()
         {
-            _ = await db.DropTableAsync<MaintenanceItem>();
-            _ = await db.DropTableAsync<Step>();
-            _ = await db.DropTableAsync<StepMaterial>();
-            _ = await db.DropTableAsync<Note>();
-            _ = await db.DropTableAsync<Retailer>();
-            _ = await db.DropTableAsync<RetailerMaterial>();
-            _ = await db.DropTableAsync<ShoppingList>();
-            _ = await db.DropTableAsync<ShoppingListMaterial>();
-            _ = await db.DropTableAsync<Material>();
+            _ = await db.DropTableAsync<MaintenanceItem>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<Step>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<StepMaterial>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<Note>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<Retailer>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<RetailerMaterial>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<ShoppingList>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<ShoppingListMaterial>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<Material>().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -76,15 +76,15 @@ namespace Maintain_it.Services
             public static readonly AsyncLazy<Database> Instance = new AsyncLazy<Database>( async () =>
             {
                 Database instance = new Database();
-                _ = await database.CreateTableAsync<MaintenanceItem>();
-                _ = await database.CreateTableAsync<Material>();
-                _ = await database.CreateTableAsync<Step>();
-                _ = await database.CreateTableAsync<StepMaterial>();
-                _ = await database.CreateTableAsync<Note>();
-                _ = await database.CreateTableAsync<ShoppingList>();
-                _ = await database.CreateTableAsync<ShoppingListMaterial>();
-                _ = await database.CreateTableAsync<Retailer>();
-                _ = await database.CreateTableAsync<RetailerMaterial>();
+                _ = await database.CreateTableAsync<MaintenanceItem>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<Material>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<Step>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<StepMaterial>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<Note>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<ShoppingList>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<ShoppingListMaterial>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<Retailer>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<RetailerMaterial>().ConfigureAwait(false);
 
                 return instance;
             });
@@ -97,8 +97,6 @@ namespace Maintain_it.Services
 
         private class AsyncLazy<T> : Lazy<Task<T>>
         {
-            //public AsyncLazy( Func<T> valueFactory ) : base( () => Task.Factory.StartNew( valueFactory ) ) { }
-
             public AsyncLazy( Func<Task<T>> taskFactory ) : base( () => Task.Factory.StartNew( () => taskFactory() ).Unwrap() ) { }
 
             public TaskAwaiter<T> GetAwaiter() { return Value.GetAwaiter(); }

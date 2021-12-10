@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Input;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.Views;
 
 using MvvmHelpers.Commands;
+using Command = MvvmHelpers.Commands.Command;
+
+using Xamarin.Forms;
+
 
 namespace Maintain_it.ViewModels
 {
@@ -91,7 +97,7 @@ namespace Maintain_it.ViewModels
         
         public async Task AsyncInit( int stepMatId, AddStepMaterialToStepViewModel viewModel )
         {
-            StepMaterial = await DbServiceLocator.GetItemAsync<StepMaterial>( stepMatId ).ConfigureAwait( false );
+            StepMaterial = await DbServiceLocator.GetItemRecursiveAsync<StepMaterial>( stepMatId ).ConfigureAwait( false );
             if( StepMaterial != null )
             {
                 StepMaterial.Name = StepMaterial.Material.Name;
@@ -109,14 +115,18 @@ namespace Maintain_it.ViewModels
             await DbServiceLocator.UpdateItemAsync( stepMaterial ).ConfigureAwait(false);
         }
 
-        private async Task EditMaterial()
+        /// <summary>
+        /// Sends the user to the CreateNewMaterialView and pre-loads the view with the details of the Material that this StepMaterial is based on.
+        /// </summary>
+        internal async Task EditMaterial()
         {
-            await AddStepMaterialToStepViewModel.EditStepMaterial( MaterialId );
+            string encodedId = HttpUtility.UrlEncode( MaterialId.ToString() );
+            await Shell.Current.GoToAsync( $"/{nameof( CreateNewMaterialView )}?editMaterialId={encodedId}" );
         }
 
         private void Delete()
         {
-            AddStepMaterialToStepViewModel.RemoveStepMaterialFromSelectedMaterials( MaterialId );
+            AddStepMaterialToStepViewModel.RemoveMaterialFromSelectedMaterials( MaterialId );
         }
 
         private void DecrementQuantity()

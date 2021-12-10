@@ -90,20 +90,29 @@ namespace Maintain_it.ViewModels
                 _maintenanceItems.Clear();
                 DisplayedMaintenanceItems.Clear();
 
-                List<MaintenanceItem> items = await DbServiceLocator.GetAllItemsAsync<MaintenanceItem>() as List<MaintenanceItem>;
+                List<MaintenanceItem> items = await DbServiceLocator.GetAllItemsRecursiveAsync<MaintenanceItem>() as List<MaintenanceItem>;
 
-                DisplayedMaintenanceItems.AddRange( CreateRange( items ) );
+                List<MaintenanceItemViewModel> vms = CreateRange( items );
+                DisplayedMaintenanceItems.AddRange( vms );
                 _maintenanceItems.AddRange( items );
 
-                locked = false;
             }
+
+            locked = false;
         }
 
         private List<MaintenanceItemViewModel> CreateRange( List<MaintenanceItem> items )
         {
             ConcurrentBag<MaintenanceItemViewModel> vms = new ConcurrentBag<MaintenanceItemViewModel>();
-            _ = Parallel.ForEach( items, x => vms.Add( new MaintenanceItemViewModel( x, this ) ) );
+            ParallelLoopResult output = Parallel.ForEach( items, x =>
+            {
+                MaintenanceItemViewModel item = new MaintenanceItemViewModel( x, this );
+                vms.Add( item );
+                Console.WriteLine($"Item {item.Name} Added");
+            });
             
+            Console.WriteLine( $"Output is equal to: {output.IsCompleted}" );
+
             List<MaintenanceItemViewModel> result = vms.OrderBy(x => x.FirstServiceDate).ToList();
             
             return result;

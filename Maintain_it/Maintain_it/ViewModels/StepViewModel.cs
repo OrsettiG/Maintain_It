@@ -64,6 +64,7 @@ namespace Maintain_it.ViewModels
 
         #region Query Parameters
         HashSet<int> stepMaterialIds = new HashSet<int>();
+        int lastStepNumber;
         #endregion
 
         #endregion
@@ -182,6 +183,9 @@ namespace Maintain_it.ViewModels
                     ParseStepMaterialIds( kvp.Value );
                     await RetrieveStepMaterialsFromDb();
                     break;
+                case nameof( lastStepNumber ):
+                    ParseStepNumber( kvp.Value );
+                    break;
                 default:
                     break;
             }
@@ -198,6 +202,15 @@ namespace Maintain_it.ViewModels
                 {
                     _ = stepMaterialIds.Add( result );
                 }
+            }
+        }
+
+        private void ParseStepNumber( string value )
+        {
+            string num = HttpUtility.UrlDecode( value );
+            if(int.TryParse(num, out lastStepNumber ) )
+            {
+                stepNum = ++lastStepNumber;
             }
         }
 

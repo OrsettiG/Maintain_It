@@ -151,8 +151,6 @@ namespace Maintain_it.ViewModels
                 item.Steps = CreateStepList();
 
                 await DbServiceLocator.UpdateItemAsync( item );
-                ClearData();
-                await Shell.Current.GoToAsync( $"//{nameof( HomeView )}?Refresh=true" );
             }
             else
             {
@@ -171,10 +169,12 @@ namespace Maintain_it.ViewModels
                     NotifyOfNextServiceDate = notifyOfNextServiceDate,
                     Steps = CreateStepList()
                 };
+
                 await DbServiceLocator.AddItemAsync( item );
-                ClearData();
-                await Shell.Current.GoToAsync( $"//{nameof( HomeView )}?Refresh=true" );
             }
+
+            ClearData();
+            await Shell.Current.GoToAsync( $"//{nameof( HomeView )}?Refresh=true" );
         }
 
         private List<Step> CreateStepList()
@@ -325,7 +325,7 @@ namespace Maintain_it.ViewModels
 
         private async Task NewStep()
         {
-            await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}" );
+            await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?lastStepNumber={StepViewModels.Count}" );
         }
 
         #endregion
@@ -353,7 +353,7 @@ namespace Maintain_it.ViewModels
                 case nameof( maintenanceItemId ):
                     if( int.TryParse( HttpUtility.UrlDecode( kvp.Value ), out maintenanceItemId ) )
                     {
-                        item = await DbServiceLocator.GetItemAsync<MaintenanceItem>( maintenanceItemId ).ConfigureAwait( false );
+                        item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( maintenanceItemId ).ConfigureAwait( false );
 
                         InitData( item, true );
                     }

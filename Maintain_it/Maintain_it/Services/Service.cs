@@ -42,6 +42,15 @@ namespace Maintain_it.Services
             return lastIds[0];
         }
 
+        public virtual async Task<int> AddItemAndReturnRowIdRecursiveAsync( T item )
+        {
+            await Init();
+            await db.InsertWithChildrenAsync( item, recursive: true );
+            List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
+
+            return lastIds[0];
+        }
+
         public virtual async Task AddItemAsync( T item )
         {
             await Init();
@@ -61,11 +70,26 @@ namespace Maintain_it.Services
             return data;
         }
 
+        public virtual async Task<IEnumerable<T>> GetAllItemsRecursiveAsync( bool forceRefresh = false )
+        {
+            await Init();
+            List<T> data = await db.GetAllWithChildrenAsync<T>(recursive: true).ConfigureAwait(false);
+
+            return data;
+        }
+
         public virtual async Task<T> GetItemAsync( int id )
         {
             await Init();
 
             return await db.GetWithChildrenAsync<T>( id ).ConfigureAwait( false );
+        }
+
+        public virtual async Task<T> GetItemRecursiveAsync( int id )
+        {
+            await Init();
+
+            return await db.GetWithChildrenAsync<T>( id, recursive: true ).ConfigureAwait( false );
         }
 
         public virtual async Task<IEnumerable<T>> GetItemRangeAsync( IEnumerable<int> ids )
@@ -75,7 +99,7 @@ namespace Maintain_it.Services
             List<T> data = await db.Table<T>().Where(x => ids.Contains(x.Id) ).ToListAsync();
             return data;
         }
-        //Not currently in use
+
         public virtual async Task<IEnumerable<T>> GetItemRangeRecursiveAsync( IEnumerable<int> ids )
         {
             await Init();
@@ -93,13 +117,27 @@ namespace Maintain_it.Services
             return data;
         }
 
+        public virtual async Task<IEnumerable<T>> GetItemRangeBasedOnSearchTermRecursiveAsync( string searchTerm )
+        {
+            await Init();
+
+            List<T> data = await db.GetAllWithChildrenAsync<T>(x => x.Name.StartsWith(searchTerm), recursive: true).ConfigureAwait(false);
+            return data;
+        }
+
         public virtual async Task<IEnumerable<T>> GetItemsInDateRangeAsync( DateTime newestDateCreated, DateTime oldestDateCreated, bool returnAll = true, int returnCount = 0 )
         {
             await Init();
-            List<T> data;
+            
+            List<T> data = await db.Table<T>().Where( x => x.CreatedOn <= newestDateCreated && x.CreatedOn >= oldestDateCreated ).ToListAsync();
 
-            data = await db.Table<T>().Where( x => x.CreatedOn <= newestDateCreated && x.CreatedOn >= oldestDateCreated ).ToListAsync();
+            return !returnAll && returnCount > 0 ? data.Take( returnCount ) : data;
+        }
 
+        public virtual async Task<IEnumerable<T>> GetItemsInDateRangeRecursiveAsync( DateTime newestDateCreated, DateTime oldestDateCreated, bool returnAll = true, int returnCount = 0 )
+        {
+            await Init();
+            List<T> data = await db.GetAllWithChildrenAsync<T>( x => x.CreatedOn <= newestDateCreated && x.CreatedOn >= oldestDateCreated ).ConfigureAwait(false);
 
             return !returnAll && returnCount > 0 ? data.Take( returnCount ) : data;
         }

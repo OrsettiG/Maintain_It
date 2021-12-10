@@ -114,11 +114,25 @@
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
-                                            <Label Text="{Binding Name}" HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand"
-                                                   Grid.Row="0" 
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <Label Text="{Binding StepNum}" 
+                                                   Grid.Row="0" Grid.Column="0"
+                                                   HorizontalOptions="Start" VerticalOptions="Start"
+                                                   Padding="5"/>
+                                            
+                                            <Label Text="{Binding Name}" 
+                                                   HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand"
+                                                   Grid.Row="0" Grid.Column="1"
                                                    WidthRequest="50" 
                                                    BackgroundColor="Aquamarine"/>
-                                            <Label Text="{Binding Description}" Grid.Row="1"/>
+                                            
+                                            <Label Text="{Binding Description}" 
+                                                   Grid.Row="1" Grid.ColumnSpan="3"/>
                                         </Grid>
                                     </Frame>
                                 </DataTemplate>
