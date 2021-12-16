@@ -19,6 +19,10 @@
                          WidthRequest="600" HeightRequest="1"
                          HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>
             <StackLayout x:DataType="viewmodel:HomeViewModel">
+                <Button Text="TEST"
+                        Command="{Binding AddTestCommand}"
+                        BackgroundColor="Red"/>
+
                 <Label Text="Upcoming Maintenance" 
                                     FontSize="Medium" TextDecorations="Underline" 
                                     HorizontalOptions="Center" VerticalOptions="Start" 
@@ -138,11 +142,23 @@
                                     </CollectionView>
 
                                     <!--Add to Shopping list Button-->
+                                    <!--<Label Text="Add to Shopping List"
+                                           Grid.Row="4" Grid.Column="3"
+                                           VerticalOptions="Start"
+                                           WidthRequest="60"/>-->
                                     <Button 
-                                        Grid.Row="4" Grid.Column="1"  Grid.ColumnSpan="2" 
-                                        Text="Add to Shopping List" 
-                                        VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand" 
-                                        BackgroundColor="Green" WidthRequest="300"/>
+                                        Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" 
+                                        Text="{Static fontAwesome:FontAwesomeIcons.CartPlus}" 
+                                        FontFamily="FA-Solid" TextColor="Green"
+                                        VerticalOptions="Start" HorizontalOptions="FillAndExpand" 
+                                        BackgroundColor="LightGray" HeightRequest="45"/>
+                                    
+                                    <!--Start Maintenance Button-->
+                                    <Button 
+                                        Grid.Row="4" Grid.Column="0"  Grid.ColumnSpan="4" 
+                                        Text="Start Maintenance" 
+                                        VerticalOptions="End" HorizontalOptions="FillAndExpand" 
+                                        BackgroundColor="Green"/>
                                 </Grid>
                             </Frame>
                         </DataTemplate>

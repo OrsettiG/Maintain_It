@@ -120,7 +120,7 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
                                             
-                                            <Label Text="{Binding StepNum}" 
+                                            <Label Text="{Binding StepNum}" BackgroundColor="Green"
                                                    Grid.Row="0" Grid.Column="0"
                                                    HorizontalOptions="Start" VerticalOptions="Start"
                                                    Padding="5"/>

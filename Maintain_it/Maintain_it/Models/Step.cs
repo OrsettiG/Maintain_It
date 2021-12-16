@@ -35,9 +35,25 @@ namespace Maintain_it.Models
 
         #endregion
 
-        #region Properties
+        #region One to One Relationships
 
 #nullable enable
+
+
+        [ForeignKey( typeof( Step ) )]
+        public int? NextStepId { get; set; }
+        [OneToOne]
+        public Step? NextStep { get; set; }
+
+        [ForeignKey( typeof( Step ) )]
+        public int? PreviousStepId { get; set; }
+        [OneToOne]
+        public Step? PreviousStep { get; set; }
+
+        #endregion
+
+        #region Properties
+
         public string? Name { get; set; }
 #nullable disable
         public int StepNumber { get; set; }

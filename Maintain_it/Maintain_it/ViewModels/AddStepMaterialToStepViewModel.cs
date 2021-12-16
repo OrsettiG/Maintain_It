@@ -211,6 +211,9 @@ namespace Maintain_it.ViewModels
                    ( material.Tag != null && material.Tag.ToLowerInvariant().StartsWith( MaterialNameSearch.ToLowerInvariant() ) );
         }
 
+        /// <summary>
+        /// Builds a string that contains all the selected StepMaterial Ids, Encodes it and sends it back up one view using the query parameter "stepMaterialIds".
+        /// </summary>
         private async Task AddSelectedStepMaterials()
         {
             StringBuilder queryStringBuilder = new StringBuilder();
@@ -222,15 +225,11 @@ namespace Maintain_it.ViewModels
                     await smvm.Update();
                     _ = count < 1 ? queryStringBuilder.Append( $"{smvm.StepMaterial.Id}" ) : queryStringBuilder.Append( $",{smvm.StepMaterial.Id}" );
 
+                    //This is just here for confirmation that everything is being tracked right. It can be removed before shipping.
                     Console.WriteLine( $"Step Material {smvm.StepMaterial.Name} id = {smvm.StepMaterial.Id} | Material {smvm.StepMaterial.Material.Name} id = {smvm.StepMaterial.Material.Id} | Registered Material ID = {smvm.MaterialId}" );
 
                     count++;
                 }
-                else
-                {
-                    throw new Exception( "Something went wrong, you have SelectedMaterials that are not showing up in the SelectedMaterialIds HashSet" );
-                }
-
             }
 
             string encodedQuery = HttpUtility.UrlEncode( queryStringBuilder.ToString() );
@@ -238,13 +237,11 @@ namespace Maintain_it.ViewModels
             await Shell.Current.GoToAsync( $"..?stepMaterialIds={encodedQuery}" );
         }
 
-        private async Task AddNewStepMaterials()
-        {
-            string ids = string.Join( ',', SelectedMaterialIds );
-            string encodedIds = HttpUtility.UrlEncode( ids );
-            await Shell.Current.GoToAsync( $"..?stepMaterialIds={encodedIds}" ); // This goes to StepViewModel
-        }
-
+        /// <summary>
+        /// Ensures that a StepMaterial is created for the the passed in material and that everything gets added to the database.
+        /// </summary>
+        /// <param name="material"></param>
+        /// <returns></returns>
         private async Task UpdateStepMaterials( Material material )
         {
             if( SelectedMaterialIds.Add( material.Id ) )
@@ -254,6 +251,11 @@ namespace Maintain_it.ViewModels
             }
         }
 
+        /// <summary>
+        /// Creates a new StepMaterial and adds it to the database.
+        /// </summary>
+        /// <param name="mat"></param>
+        /// <returns></returns>
         private async Task<int> CreateNewStepMaterial( Material mat )
         {
             StepMaterialViewModel viewModel = new StepMaterialViewModel( mat )
@@ -268,6 +270,10 @@ namespace Maintain_it.ViewModels
             return id;
         }
 
+        /// <summary>
+        /// Sends the view to the CreateNewMaterialView after encoding and passing the search term to the material name field using the query parameter "materialName"
+        /// </summary>
+        /// <returns></returns>
         private async Task CreateNewMaterial()
         {
             string encodedName = HttpUtility.UrlEncode( MaterialNameSearch );
@@ -283,6 +289,8 @@ namespace Maintain_it.ViewModels
                 // Used when coming from CreateNewMaterialViewModel to add the Material the user just created and save them having to find it in the list of Materials.
                 case nameof( addMaterialId ):
                     MaterialNameSearch = string.Empty;
+                    
+                    // We have to do this Refresh() in because it caches the materials/selected StepMaterials. If we don't then any methods called before the next refresh that rely on cached data will throw an error.
                     await Refresh();
 
                     string decodedValue = HttpUtility.UrlDecode(kvp.Value);
@@ -292,15 +300,17 @@ namespace Maintain_it.ViewModels
                         await UpdateStepMaterials( _materials.Where( x => x.Id == addMaterialId ).SingleOrDefault() ).ConfigureAwait( false );
                     }
 
+                    // We have to do the double Refresh() in order to get all the materials/selections to show up correctly. This can probably be optimized eventually.
                     await Refresh();
                     break;
 
                 // Used when coming from StepViewModel when some StepMaterials have already been added to the step, such as when a user wants to edit the materials used in a step they have already created.
                 case nameof( preselectedStepMaterialIds ):
-
+                    // We have to do this Refresh() in because it caches the materials/selected StepMaterials. If we don't then any methods called before the next Refresh() that rely on cached data will throw an error.
                     await Refresh();
 
                     string decodedIds = HttpUtility.UrlDecode(kvp.Value);
+                    // The data comes in as a comma separated string of values. No json here yet.
                     string[] ids = decodedIds.Split(',');
 
                     preselectedStepMaterialIds = new int[ids.Length];

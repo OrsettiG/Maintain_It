@@ -227,7 +227,7 @@ namespace Maintain_it.Services
         }
 
         /// <summary>
-        /// Gets the item with the passed in id from the approprate table
+        /// Gets the item with the passed in id from the approprate table and recursively retrieves its children 
         /// </summary>
         /// <typeparam name="T"> The Service type to use </typeparam>
         /// <param name="id"> The id of the item to return </param>

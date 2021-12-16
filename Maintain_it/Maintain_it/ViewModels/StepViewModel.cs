@@ -62,31 +62,41 @@ namespace Maintain_it.ViewModels
         private Step step;
         public Step Step { get => step; set => step = value; }
 
+        private Step nextStep;
+        public Step NextStep { get => nextStep; set => SetProperty( ref nextStep, value ); }
+
+        private Step previousStep;
+        public Step PreviousStep { get => previousStep; set => SetProperty( ref previousStep, value ); }
+
         #region Query Parameters
-        HashSet<int> stepMaterialIds = new HashSet<int>();
-        int lastStepNumber;
+        private HashSet<int> stepMaterialIds = new HashSet<int>();
+        private int previousStepId;
+        private bool isFirstStep = false;
         #endregion
 
         #endregion
 
         #region COMMANDS
 
-        AsyncCommand addStepCommand;
+        private AsyncCommand addStepCommand;
         public ICommand AddStepCommand => addStepCommand ??= new AsyncCommand( AddStep );
 
-        AsyncCommand selectMaterialsCommand;
+        private AsyncCommand saveStepCommand;
+        public ICommand SaveStepCommand => saveStepCommand ??= new AsyncCommand( SaveStep );
+
+        private AsyncCommand selectMaterialsCommand;
         public ICommand SelectMaterialsCommand => selectMaterialsCommand ??= new AsyncCommand( SelectMaterials );
 
-        AsyncCommand addNoteCommand;
+        private AsyncCommand addNoteCommand;
         public ICommand AddNoteCommand => addNoteCommand ??= new AsyncCommand( AddNote );
 
-        AsyncCommand takePhotoCommand;
+        private AsyncCommand takePhotoCommand;
         public ICommand TakePhotoCommand => takePhotoCommand ??= new AsyncCommand( TakePhoto );
 
-        Command decrementStepMatQuantityCommand;
+        private Command decrementStepMatQuantityCommand;
         public ICommand DecrementStepMatQuantityCommand => decrementStepMatQuantityCommand ??= new Command( DecrementStepMatCounter );
 
-        Command incrementStepMatQuantityCommand;
+        private Command incrementStepMatQuantityCommand;
         public ICommand IncrementStepMatQuantityCommand => incrementStepMatQuantityCommand ??= new Command( IncrementStepMatCounter );
 
         #endregion
@@ -103,6 +113,23 @@ namespace Maintain_it.ViewModels
             StepNum = step.StepNumber;
             StepMaterials.AddRange( step.StepMaterials );
             Notes.AddRange( step.Notes );
+        }
+
+        public async Task InitAsync()
+        {
+            Task[] tasks = new Task[]
+            {
+                new Task( () => Name = step.Name ),
+                new Task( () => Description = step.Description ),
+                new Task( () => TimeRequired = step.TimeRequired ),
+                new Task( () => Timeframe = (Timeframe)step.Timeframe ),
+                new Task( () => IsCompleted = step.IsCompleted ),
+                new Task( () => StepNum = step.StepNumber ),
+                new Task( () => StepMaterials.AddRange( step.StepMaterials ) ),
+                new Task( () => Notes.AddRange( step.Notes ) )
+            };
+
+            await Task.WhenAll( tasks ).ConfigureAwait( false );
         }
 
         private void DecrementStepMatCounter()
@@ -125,20 +152,32 @@ namespace Maintain_it.ViewModels
                 Timeframe = (int)Timeframe.Minutes,
                 IsCompleted = false,
                 CreatedOn = DateTime.Now,
-                StepNumber = 0,
-
+                StepNumber = StepNum,
+                PreviousStep = PreviousStep,
+                NextStep = NextStep,
                 StepMaterials = StepMaterials.Count < 1 ? new List<StepMaterial>() : await ConvertToListAsync( StepMaterials ),
                 Notes = await ConvertToListAsync( Notes )
             };
+
             int stepId = await DbServiceLocator.AddItemAndReturnIdAsync( step );
+
+            if( StepNum > 1 )
+            {
+                step.PreviousStep.NextStep = await DbServiceLocator.GetItemAsync<Step>( stepId ).ConfigureAwait( false );
+            }
 
             string encodedId = HttpUtility.UrlEncode( stepId.ToString());
             await Shell.Current.GoToAsync( $"..?stepIds={encodedId}" );
         }
 
+        private async Task SaveStep()
+        {
+            await DbServiceLocator.UpdateItemAsync( step ).ConfigureAwait( false );
+        }
+
         private async Task SelectMaterials()
         {
-            if(stepMaterialIds.Count > 0 )
+            if( stepMaterialIds.Count > 0 )
             {
                 string encodedIds = HttpUtility.UrlEncode( string.Join( ',', stepMaterialIds ) );
                 await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?preselectedStepMaterialIds={encodedIds}" );
@@ -183,8 +222,14 @@ namespace Maintain_it.ViewModels
                     ParseStepMaterialIds( kvp.Value );
                     await RetrieveStepMaterialsFromDb();
                     break;
-                case nameof( lastStepNumber ):
-                    ParseStepNumber( kvp.Value );
+                case nameof( previousStepId ):
+                    await ParseStepNumber( kvp.Value );
+                    break;
+                case nameof( isFirstStep ):
+                    isFirstStep = true;
+                    StepNum = 1;
+                    PreviousStep = null;
+                    NextStep = null;
                     break;
                 default:
                     break;
@@ -205,12 +250,17 @@ namespace Maintain_it.ViewModels
             }
         }
 
-        private void ParseStepNumber( string value )
+        private async Task ParseStepNumber( string value )
         {
             string num = HttpUtility.UrlDecode( value );
-            if(int.TryParse(num, out lastStepNumber ) )
+
+
+            if( int.TryParse( num, out previousStepId ) )
             {
-                stepNum = ++lastStepNumber;
+                PreviousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( previousStepId ).ConfigureAwait( false );
+                stepNum = PreviousStep.StepNumber + 1;
+
+                NextStep = null;
             }
         }
 

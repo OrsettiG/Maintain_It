@@ -61,10 +61,57 @@ namespace Maintain_it.ViewModels
         public ICommand UpdateCommand => updateCommand ??= new AsyncCommand( Update );
         private AsyncCommand addAndReturnIdCommand;
         public ICommand AddAndReturnIdCommand => addAndReturnIdCommand ??= new AsyncCommand( AddAndReturnId );
-
+        private AsyncCommand startMaintenanceCommand;
+        public ICommand StartMaintenanceCommand => startMaintenanceCommand ??= new AsyncCommand( StartMaintenance );
         private AsyncCommand _deleteAllCommand;
         public ICommand DeleteAllDbsAsyncCommand => _deleteAllCommand ??= new AsyncCommand( DeleteAllAsync );
         #endregion
+
+        #region Methods
+
+        NodeList<NodeTest> Origin { get; set; }
+
+        private AsyncCommand addTestCommand;
+        public ICommand AddTestCommand => addTestCommand ??= new AsyncCommand( AddTest );
+
+        int countAhead = 1;
+        int countBehind = 1;
+        Random random = new Random();
+
+        private async Task AddTest()
+        {
+            if( Origin == null )
+            {
+                Origin = new NodeList<NodeTest>( new NodeTest( $"TestNode0" ) );
+            }
+            else
+            {
+                int place = random.Next(0,2);
+
+                if(place == 0 )
+                {
+                    _ = Origin.InsertNewNodeBehind( new NodeList<NodeTest>( new NodeTest( $"BehindNode{countBehind}" ) ) );
+                    countBehind++;
+                }
+
+                if(place == 1 )
+                {
+
+                    _ = Origin.InsertNewNodeAhead( new NodeList<NodeTest>( new NodeTest( $"AheadNode{countAhead}" ) ) );
+                    countAhead++;
+                }
+            }
+
+            NodeList<NodeTest> item = Origin.GetFirstNode();
+            
+            while( item.HasNextNode() )
+            {
+                Console.WriteLine( item.GetValue().Name );
+                item = item.GetNextNode();
+            }
+
+            Console.WriteLine( item.GetValue().Name );
+        }
 
         private async Task Add()
         {
@@ -101,6 +148,11 @@ namespace Maintain_it.ViewModels
             locked = false;
         }
 
+        private async Task StartMaintenance()
+        {
+
+        }
+
         private List<MaintenanceItemViewModel> CreateRange( List<MaintenanceItem> items )
         {
             ConcurrentBag<MaintenanceItemViewModel> vms = new ConcurrentBag<MaintenanceItemViewModel>();
@@ -110,11 +162,11 @@ namespace Maintain_it.ViewModels
                 vms.Add( item );
                 Console.WriteLine($"Item {item.Name} Added");
             });
-            
+
             Console.WriteLine( $"Output is equal to: {output.IsCompleted}" );
 
             List<MaintenanceItemViewModel> result = vms.OrderBy(x => x.FirstServiceDate).ToList();
-            
+
             return result;
         }
 
@@ -122,7 +174,7 @@ namespace Maintain_it.ViewModels
         {
             // This should basically just call Refresh() on the view so that the item gets correctly removed from the UI.
             Console.WriteLine( $"Maintenance Item Delete Button pushed on item with id: {id}" );
-            
+
             await Refresh();
         }
 
@@ -180,5 +232,7 @@ namespace Maintain_it.ViewModels
                     break;
             }
         }
+
+        #endregion
     }
 }

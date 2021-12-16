@@ -192,18 +192,21 @@ namespace Maintain_it.ViewModels
         private List<StepViewModel> CreateStepViewModelList( List<Step> stepList )
         {
             ConcurrentBag<StepViewModel> bag = new ConcurrentBag<StepViewModel>();
+            StepViewModel[] vms = new StepViewModel[stepList.Count];
 
-            _ = Parallel.ForEach( stepList, step =>
+            for( int i = 0; i < stepList.Count; i++ )
+            {
+                vms[i] = new StepViewModel()
+                {
+                    Step = stepList[i] 
+                };
+            }
+
+            _ = Parallel.ForEach( vms, vm =>
              {
-                 StepViewModel vm = new StepViewModel()
-                 {
-                     Step = step
-                 };
-
                  vm.Init();
 
                  bag.Add( vm );
-
              } );
 
             return bag.OrderBy(x => x.StepNum).ToList();
@@ -266,7 +269,6 @@ namespace Maintain_it.ViewModels
                 StepViewModels.Clear();
 
                 List<Step> stepList = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ) as List<Step>;
-                _ = StepViewModels.Count();
 
                 List<StepViewModel> data = CreateStepViewModelList( stepList );
                 
@@ -325,7 +327,18 @@ namespace Maintain_it.ViewModels
 
         private async Task NewStep()
         {
-            await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?lastStepNumber={StepViewModels.Count}" );
+            if( StepViewModels.Count > 0 )
+            {
+                string encodedQuery = HttpUtility.UrlEncode(StepViewModels[^1].Step.Id.ToString());
+                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?previousStepId={encodedQuery}" );
+            }
+
+            if( StepViewModels.Count < 1 )
+            {
+                string encodedQuery = HttpUtility.UrlEncode(true.ToString());
+                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?isFirstStep={encodedQuery}" );
+            }
+
         }
 
         #endregion
