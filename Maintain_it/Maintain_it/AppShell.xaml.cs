@@ -14,6 +14,7 @@ namespace Maintain_it
         {
             InitializeComponent();
             Routing.RegisterRoute( nameof( MaintenanceView ), typeof( MaintenanceView ) );
+            Routing.RegisterRoute( nameof( TestView ), typeof( TestView ) );
             Routing.RegisterRoute( nameof( SettingsView ), typeof( SettingsView ) );
             Routing.RegisterRoute( nameof( AboutView ), typeof( AboutView ) );
             Routing.RegisterRoute( nameof( CreateNewMaterialView ), typeof( CreateNewMaterialView ) );

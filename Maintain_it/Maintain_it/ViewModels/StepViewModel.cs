@@ -68,6 +68,9 @@ namespace Maintain_it.ViewModels
         private Step previousStep;
         public Step PreviousStep { get => previousStep; set => SetProperty( ref previousStep, value ); }
 
+        private NodeList<Step> node;
+        public NodeList<Step> Node { get => node ??= new NodeList<Step>(Step); set => SetProperty( ref node, value ); } 
+
         #region Query Parameters
         private HashSet<int> stepMaterialIds = new HashSet<int>();
         private int previousStepId;
@@ -113,6 +116,7 @@ namespace Maintain_it.ViewModels
             StepNum = step.StepNumber;
             StepMaterials.AddRange( step.StepMaterials );
             Notes.AddRange( step.Notes );
+            //Node.InsertNewNodeAhead( Step.NextStep );
         }
 
         public async Task InitAsync()

@@ -78,6 +78,41 @@ namespace Maintain_it.ViewModels
         int countBehind = 1;
         Random random = new Random();
 
+        //private async Task AddTest()
+        //{
+        //    if( Origin == null )
+        //    {
+        //        Origin = new NodeList<NodeTest>( new NodeTest( $"TestNode0" ) );
+        //    }
+        //    else
+        //    {
+        //        int place = random.Next(0,2);
+
+        //        if(place == 0 )
+        //        {
+        //            _ = Origin.AddNewNodeAtEnd( new NodeTest( $"BehindNode{countBehind}" ) );
+        //            countBehind++;
+        //        }
+
+        //        if(place == 1 )
+        //        {
+
+        //            _ = Origin.AddNewNodeAtStart( new NodeTest( $"AheadNode{countAhead}" ) );
+        //            countAhead++;
+        //        }
+        //    }
+
+        //    NodeList<NodeTest> item = Origin.GetFirstNode();
+            
+        //    while( item.HasNextNode() )
+        //    {
+        //        Console.WriteLine( item.GetValue().Name );
+        //        item = item.GetNextNode();
+        //    }
+
+        //    Console.WriteLine( item.GetValue().Name );
+        //}
+        
         private async Task AddTest()
         {
             if( Origin == null )
@@ -90,33 +125,25 @@ namespace Maintain_it.ViewModels
 
                 if(place == 0 )
                 {
-                    _ = Origin.InsertNewNodeBehind( new NodeList<NodeTest>( new NodeTest( $"BehindNode{countBehind}" ) ) );
+                    _ = Origin.AddNewNodeAtEnd( new NodeTest( $"BehindNode{countBehind}" ) );
                     countBehind++;
                 }
 
                 if(place == 1 )
                 {
 
-                    _ = Origin.InsertNewNodeAhead( new NodeList<NodeTest>( new NodeTest( $"AheadNode{countAhead}" ) ) );
+                    _ = Origin.AddNewNodeAtStart( new NodeTest( $"AheadNode{countAhead}" ) );
                     countAhead++;
                 }
             }
-
-            NodeList<NodeTest> item = Origin.GetFirstNode();
-            
-            while( item.HasNextNode() )
-            {
-                Console.WriteLine( item.GetValue().Name );
-                item = item.GetNextNode();
-            }
-
-            Console.WriteLine( item.GetValue().Name );
         }
 
         private async Task Add()
         {
             await Shell.Current.GoToAsync( nameof( MaintenanceItemDetailView ) );
         }
+        
+        
 
         private async Task AddAndReturnId()
         {

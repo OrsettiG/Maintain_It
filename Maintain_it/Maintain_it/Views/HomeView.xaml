@@ -19,10 +19,6 @@
                          WidthRequest="600" HeightRequest="1"
                          HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>
             <StackLayout x:DataType="viewmodel:HomeViewModel">
-                <Button Text="TEST"
-                        Command="{Binding AddTestCommand}"
-                        BackgroundColor="Red"/>
-
                 <Label Text="Upcoming Maintenance" 
                                     FontSize="Medium" TextDecorations="Underline" 
                                     HorizontalOptions="Center" VerticalOptions="Start" 

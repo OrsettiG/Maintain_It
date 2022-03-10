@@ -91,6 +91,17 @@
     <FlyoutItem Title="Maintenance" Icon="icon_feed.png">
         <!--<ShellContent Route="MaintenanceItemDetailView" ContentTemplate="{DataTemplate local:MaintenanceItemDetailView}" />-->
     </FlyoutItem>
+    <FlyoutItem Title="CollectionView Drag &amp; Drop Tests">
+        <FlyoutItem.Icon>
+            <FontImageSource
+                FontFamily="FA-Solid"
+                Glyph="{Static fontAwesome:FontAwesomeIcons.StickyNote}"
+                Color="Red"
+                Size="12">
+            </FontImageSource>
+        </FlyoutItem.Icon>
+        <ShellContent Route="TestView" ContentTemplate="{DataTemplate local:TestView}"/>
+    </FlyoutItem>
     <FlyoutItem Title="Settings">
         <FlyoutItem.Icon>
             <FontImageSource
