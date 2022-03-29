@@ -109,6 +109,16 @@
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="{x:Type viewmodels:StepViewModel}">
                                     <Frame BackgroundColor="DarkGray" WidthRequest="250" Padding="5">
+                                        <Frame.GestureRecognizers>
+                                            <DragGestureRecognizer DragStartingCommand="{Binding DragStartingCommand}"
+                                                           DragStartingCommandParameter="{Binding .}"
+                                                           DropCompletedCommand="{Binding DropCompleteCommand}"
+                                                           DropCompletedCommandParameter="{Binding .}"/>
+                                            <DropGestureRecognizer DropCommand="{Binding DropCommand}"
+                                                           DropCommandParameter="{Binding .}"
+                                                           DragOverCommand="{Binding DragOverCommand}"
+                                                           DragOverCommandParameter="{Binding .}"/>
+                                        </Frame.GestureRecognizers>
                                         <Grid BackgroundColor="Gray" Padding="3">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition/>
@@ -119,18 +129,18 @@
                                                 <ColumnDefinition/>
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
-                                            
+
                                             <Label Text="{Binding StepNum}" BackgroundColor="Green"
                                                    Grid.Row="0" Grid.Column="0"
                                                    HorizontalOptions="Start" VerticalOptions="Start"
                                                    Padding="5"/>
-                                            
+
                                             <Label Text="{Binding Name}" 
                                                    HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand"
                                                    Grid.Row="0" Grid.Column="1"
                                                    WidthRequest="50" 
                                                    BackgroundColor="Aquamarine"/>
-                                            
+
                                             <Label Text="{Binding Description}" 
                                                    Grid.Row="1" Grid.ColumnSpan="3"/>
                                         </Grid>
@@ -139,7 +149,7 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                     </Frame>
-                    
+
                     <Button Text="Add New Step" Command="{Binding NewStepCommand}"
                             Grid.Column="0" Grid.ColumnSpan="3"
                             Grid.Row="10"/>

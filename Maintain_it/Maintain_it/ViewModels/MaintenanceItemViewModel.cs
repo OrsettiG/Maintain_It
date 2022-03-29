@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web;
 using System.Text;
+using System.Linq;
 using System.Windows.Input;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -16,9 +17,9 @@ using MvvmHelpers;
 
 using Xamarin.Forms;
 using Command = MvvmHelpers.Commands.Command;
-using System.Collections.Concurrent;
-using System.Linq;
+//using System.Collections.Concurrent;
 using NUnit.Framework;
+using Xamarin.Essentials;
 
 namespace Maintain_it.ViewModels
 {
@@ -47,37 +48,81 @@ namespace Maintain_it.ViewModels
         public bool locked { get; private set; }
 
         private string name = string.Empty;
-        public string Name { get => name; set => SetProperty( ref name, value ); }
+        public string Name
+        {
+            get => name;
+            set => SetProperty( ref name, value );
+        }
 
         private string comment;
-        public string Comment { get => comment; set => SetProperty( ref comment, value ); }
+        public string Comment
+        {
+            get => comment;
+            set => SetProperty( ref comment, value );
+        }
 
         private DateTime firstServiceDate = DateTime.Now;
-        public DateTime FirstServiceDate { get => firstServiceDate; set => SetProperty( ref firstServiceDate, value ); }
+        public DateTime FirstServiceDate
+        {
+            get => firstServiceDate;
+            set => SetProperty( ref firstServiceDate, value );
+        }
 
         private DateTime previousServiceDate;
-        public DateTime PreviousServiceDate { get => previousServiceDate; set => SetProperty( ref previousServiceDate, value ); }
+        public DateTime PreviousServiceDate
+        {
+            get => previousServiceDate;
+            set => SetProperty( ref previousServiceDate, value );
+        }
 
         private DateTime nextServiceDate = DateTime.Now;
-        public DateTime NextServiceDate { get => nextServiceDate; set => SetProperty( ref nextServiceDate, value ); }
+        public DateTime NextServiceDate
+        {
+            get => nextServiceDate;
+            set => SetProperty( ref nextServiceDate, value );
+        }
 
         private bool isRecurring = false;
-        public bool IsRecurring { get => isRecurring; set => SetProperty( ref isRecurring, value ); }
+        public bool IsRecurring
+        {
+            get => isRecurring;
+            set => SetProperty( ref isRecurring, value );
+        }
 
         private int recursEvery = 1;
-        public int RecursEvery { get => recursEvery; set => SetProperty( ref recursEvery, ( value! < 0 && value! > 1000 ) ? value : 1 ); }
+        public int RecursEvery
+        {
+            get => recursEvery;
+            set => SetProperty( ref recursEvery, ( value! < 0 && value! > 1000 ) ? value : 1 );
+        }
 
         private Timeframe frequency = Timeframe.Months;
-        public Timeframe Frequency { get => frequency; set => SetProperty( ref frequency, value ); }
+        public Timeframe Frequency
+        {
+            get => frequency;
+            set => SetProperty( ref frequency, value );
+        }
 
         private int timesServiced;
-        public int TimesServiced { get => timesServiced; set => SetProperty( ref timesServiced, value ); }
+        public int TimesServiced
+        {
+            get => timesServiced;
+            set => SetProperty( ref timesServiced, value );
+        }
 
         private bool previousServiceCompleted;
-        public bool PreviousServiceCompleted { get => previousServiceCompleted; set => SetProperty( ref previousServiceCompleted, value ); }
+        public bool PreviousServiceCompleted
+        {
+            get => previousServiceCompleted;
+            set => SetProperty( ref previousServiceCompleted, value );
+        }
 
         private bool notifyOfNextServiceDate = true;
-        public bool NotifyOfNextServiceDate { get => notifyOfNextServiceDate; set => SetProperty( ref notifyOfNextServiceDate, value ); }
+        public bool NotifyOfNextServiceDate
+        {
+            get => notifyOfNextServiceDate;
+            set => SetProperty( ref notifyOfNextServiceDate, value );
+        }
 
         #region QUERY PARAMS
         private readonly List<int> stepIds = new List<int>();
@@ -86,7 +131,11 @@ namespace Maintain_it.ViewModels
         #endregion
 
         private ObservableRangeCollection<StepViewModel> _stepViewModels;
-        public ObservableRangeCollection<StepViewModel> StepViewModels { get => _stepViewModels ??= new ObservableRangeCollection<StepViewModel>(); set => SetProperty( ref _stepViewModels, value ); }
+        public ObservableRangeCollection<StepViewModel> StepViewModels
+        {
+            get => _stepViewModels ??= new ObservableRangeCollection<StepViewModel>();
+            set => SetProperty( ref _stepViewModels, value.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel> );
+        }
 
 
         private HomeViewModel _homeViewModel;
@@ -148,7 +197,7 @@ namespace Maintain_it.ViewModels
                 item.TimesServiced = timesServiced;
                 item.PreviousServiceCompleted = previousServiceCompleted;
                 item.NotifyOfNextServiceDate = notifyOfNextServiceDate;
-                item.Steps = CreateStepList();
+                item.Steps = await CreateStepList();
 
                 await DbServiceLocator.UpdateItemAsync( item );
             }
@@ -167,7 +216,7 @@ namespace Maintain_it.ViewModels
                     TimesServiced = timesServiced,
                     PreviousServiceCompleted = previousServiceCompleted,
                     NotifyOfNextServiceDate = notifyOfNextServiceDate,
-                    Steps = CreateStepList()
+                    Steps = await CreateStepList()
                 };
 
                 await DbServiceLocator.AddItemAsync( item );
@@ -177,39 +226,52 @@ namespace Maintain_it.ViewModels
             await Shell.Current.GoToAsync( $"//{nameof( HomeView )}?Refresh=true" );
         }
 
-        private List<Step> CreateStepList()
+        private async Task<List<Step>> CreateStepList()
         {
-            ConcurrentBag<Step> bag = new ConcurrentBag<Step>();
+            List<Step> list = new List<Step>();
 
-            _ = Parallel.ForEach( StepViewModels, step =>
-             {
-                 bag.Add( step.Step );
-             } );
+            foreach( StepViewModel model in StepViewModels )
+            {
+                await MainThread.InvokeOnMainThreadAsync( () =>
+                  model.SaveStep() );
 
-            return bag.ToList();
+                list.Add( model.Step );
+            };
+
+            return list.ToList();
         }
 
         private List<StepViewModel> CreateStepViewModelList( List<Step> stepList )
         {
-            ConcurrentBag<StepViewModel> bag = new ConcurrentBag<StepViewModel>();
             StepViewModel[] vms = new StepViewModel[stepList.Count];
 
             for( int i = 0; i < stepList.Count; i++ )
             {
-                vms[i] = new StepViewModel()
+                StepViewModel vm = new StepViewModel( this )
                 {
-                    Step = stepList[i] 
+                    Step = stepList[i]
                 };
-            }
 
-            _ = Parallel.ForEach( vms, vm =>
-             {
-                 vm.Init();
+                vm.Init();
 
-                 bag.Add( vm );
-             } );
+                vms[i] = vm;
+            };
 
-            return bag.OrderBy(x => x.StepNum).ToList();
+            return vms.OrderBy( x => x.StepNum ).ToList();
+        }
+
+        private async Task<StepViewModel> CreateNewStepViewModel( Step step )
+        {
+            StepViewModel vm = await MainThread.InvokeOnMainThreadAsync(() =>
+                new StepViewModel(this)
+                {
+                    Step = step
+                }
+            );
+
+            vm.Init();
+
+            return vm;
         }
 
         private void InitData( MaintenanceItem maintenanceItem, bool _update = false )
@@ -228,12 +290,24 @@ namespace Maintain_it.ViewModels
             NextServiceDate = maintenanceItem.NextServiceDate;
             IsRecurring = maintenanceItem.IsRecurring;
             RecursEvery = maintenanceItem.RecursEvery;
+
             Frequency = (Timeframe)maintenanceItem.Frequency;
             TimesServiced = maintenanceItem.TimesServiced;
             PreviousServiceCompleted = maintenanceItem.PreviousServiceCompleted;
             NotifyOfNextServiceDate = maintenanceItem.NotifyOfNextServiceDate;
-            
+
+            stepIds.AddRange( GetStepIds() );
             RefreshSteps();
+        }
+
+        private IEnumerable<int> GetStepIds()
+        {
+            List<int> ids = new List<int>();
+            foreach( Step step in item.Steps )
+            {
+                ids.Add( step.Id );
+            }
+            return ids;
         }
 
         private void ClearData()
@@ -268,17 +342,31 @@ namespace Maintain_it.ViewModels
 
                 StepViewModels.Clear();
 
-                List<Step> stepList = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ) as List<Step>;
+                List<Step> newStepList = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ) as List<Step>;
 
-                List<StepViewModel> data = CreateStepViewModelList( stepList );
-                
-                StepViewModels.AddRange( data );
+                List<StepViewModel> data = new List<StepViewModel>();
+                foreach( Step step in newStepList )
+                {
+
+                    try
+                    {
+                        Task<StepViewModel> task = CreateNewStepViewModel( step );
+                        data.Add( task.Result );
+                    }
+                    catch( AggregateException ex )
+                    {
+                        Console.WriteLine( $"EXEPTION: {ex.InnerExceptions}" );
+                    }
+
+                }
+
+                StepViewModels.AddRange( data.OrderBy( x => x.StepNum ) );
 
                 locked = false;
             }
         }
 
-        private void RefreshSteps()
+        private async Task RefreshSteps()
         {
             if( !locked )
             {
@@ -286,9 +374,14 @@ namespace Maintain_it.ViewModels
 
                 StepViewModels.Clear();
 
-                List<StepViewModel> svm = CreateStepViewModelList( item.Steps );
+                List<StepViewModel> data = new List<StepViewModel>();
 
-                StepViewModels.AddRange( svm );
+                foreach( Step step in item.Steps )
+                {
+                    data.Add( await CreateNewStepViewModel( step ) );
+                }
+
+                StepViewModels.AddRange( data.OrderBy( x => x.StepNum ) );
 
                 locked = false;
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -8,6 +9,8 @@ using System.Windows.Input;
 
 using MvvmHelpers;
 using MvvmHelpers.Commands;
+
+using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
 {
@@ -17,118 +20,93 @@ namespace Maintain_it.ViewModels
         {
             testData = new ObservableRangeCollection<TestItemViewModel>()
             {
-                new TestItemViewModel( "Item 1", 1 ),
-                new TestItemViewModel( "Item 2", 2 ),
-                new TestItemViewModel( "Item 3", 3 ),
-                new TestItemViewModel( "Item 4", 4 ),
-                new TestItemViewModel( "Item 5", 5 ),
-                new TestItemViewModel( "Item 6", 6 ),
-                new TestItemViewModel( "Item 7", 7 ),
-                new TestItemViewModel( "Item 8", 8 ),
-                new TestItemViewModel( "Item 9", 9 ),
-                new TestItemViewModel( "Item 10", 10 )
+                new TestItemViewModel( "Item 1", this ),
+                new TestItemViewModel( "Item 2", this ),
+                new TestItemViewModel( "Item 3", this ),
+                new TestItemViewModel( "Item 4", this ),
+                new TestItemViewModel( "Item 5", this ),
+                new TestItemViewModel( "Item 6", this ),
+                new TestItemViewModel( "Item 7", this ),
+                new TestItemViewModel( "Item 8", this ),
+                new TestItemViewModel( "Item 9", this ),
+                new TestItemViewModel( "Item 10", this )
             };
+
+            TestNum = 1;
         }
 
         private ObservableRangeCollection<TestItemViewModel> testData;
         public ObservableRangeCollection<TestItemViewModel> TestData { get => testData ??= new ObservableRangeCollection<TestItemViewModel>(); set => SetProperty( ref testData, value ); }
 
-        //#region Commands
-        //private AsyncCommand<string> dragStartingCommand;
-        //public AsyncCommand<string> DragStartingCommand => dragStartingCommand ??= new AsyncCommand<string>( x => DragStarting( x ) );
+        private int testNum;
+        public int TestNum { get => testNum; set => SetProperty( ref testNum, value ); }
 
-        //private AsyncCommand<string> dropCompleteCommand;
-        //public AsyncCommand<string> DropCompleteCommand => dropCompleteCommand ??= new AsyncCommand<string>( x => DropComplete( x ) );
-
-        //private AsyncCommand<string> dragOverCommand;
-        //public AsyncCommand<string> DragOverCommand => dragOverCommand ??= new AsyncCommand<string>( x => DragOver( x ) );
-
-        //private AsyncCommand<string> dragLeaveCommand;
-        //public AsyncCommand<string> DragLeaveCommand => dragLeaveCommand ??= new AsyncCommand<string>( x => DragLeave( x ) );
-
-        //private AsyncCommand<string> dropCommand;
-        //public AsyncCommand<string> DropCommand => dropCommand ??= new AsyncCommand<string>( x => Drop( x ) );
-
-        //#endregion
-
-        //private Task Drop( string x )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //private Task DragLeave( string x )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //private Task DragOver( string x )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
-        //private Task DragStarting( string x )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //private Task DropComplete( string x )
-        //{
-        //    throw new NotImplementedException();
-        //}
+        
     }
 
     public class TestItemViewModel : BaseViewModel
     {
-        public TestItemViewModel( string name, int index )
+        public TestItemViewModel( string name, TestViewModel vm )
         {
             Name = name;
-            Index = index;
+            viewModel = vm;
         }
         public string Name { get; set; }
-        public int Index { get; set; }
+        public bool Dragging = false;
+
+        private TestViewModel viewModel { get; }
+
 
         #region Commands
-        private ICommand dragStartingCommand;
-        public ICommand DragStartingCommand => dragStartingCommand ??= new AsyncCommand<string>( x => DragStarting( x ) ) ;
 
         private ICommand dropCompleteCommand;
-        public ICommand DropCompleteCommand => dropCompleteCommand ??= new AsyncCommand<string>( x => DropComplete( x ) );
+        public ICommand DropCompleteCommand => dropCompleteCommand ??= new AsyncCommand<TestItemViewModel>( x => DropComplete( x ) );
 
         private ICommand dragOverCommand;
-        public ICommand DragOverCommand => dragOverCommand ??= new AsyncCommand<string>( x => DragOver( x ) );
+        public ICommand DragOverCommand => dragOverCommand ??= new AsyncCommand<TestItemViewModel>( x => DragOver( x ) );
 
         private ICommand dragLeaveCommand;
-        public ICommand DragLeaveCommand => dragLeaveCommand ??= new AsyncCommand<string>( x => DragLeave( x ) );
+        public ICommand DragLeaveCommand => dragLeaveCommand ??= new AsyncCommand<TestItemViewModel>( x => DragLeave( x ) );
 
         private ICommand dropCommand;
-        public ICommand DropCommand => dropCommand ??= new AsyncCommand<string>( x => Drop( x ) );
+        public ICommand DropCommand => dropCommand ??= new AsyncCommand<TestItemViewModel>( x => Drop( x ) );
+
+        private ICommand dragStartingCommand;
+        public ICommand DragStartingCommand => dragStartingCommand ??= new AsyncCommand<TestItemViewModel>( x => DragStarting( x ) );
 
         #endregion
 
-        private async Task Drop( string x )
+        private async Task DragStarting( TestItemViewModel item )
         {
-            Console.WriteLine( $"{x} Drop" );
+            Dragging = true;
+            Console.WriteLine( $"TestViewModel DragStarting on {item.Name}" );
         }
 
-        private async Task DragLeave( string x )
+        private async Task Drop( TestItemViewModel itemDroppedOn )
         {
-            Console.WriteLine( $"{x} Drag Leave" );
+            TestItemViewModel itemDropping = viewModel.TestData.First(i => i.Dragging);
+            int index1 = viewModel.TestData.IndexOf(itemDropping);
+            int index2 = viewModel.TestData.IndexOf(itemDroppedOn);
+
+            viewModel.TestData.Move( index1, index2 );
+            
+            Console.WriteLine( $"TestViewModel Dropping {itemDroppedOn.Name}" );
         }
 
-        private async Task DragOver( string x )
+        private async Task DragLeave( TestItemViewModel item )
         {
-            Console.WriteLine( $"{x} Drag Over" );
+            Console.WriteLine( $"TestViewModel DragLeave {item.Name}" );
         }
 
-        private async Task DragStarting( string x )
+        private async Task DragOver( TestItemViewModel item )
         {
-            Console.WriteLine( $"{x} Drag Starting" );
+            Console.WriteLine( $"TestViewModel DragOver {item.Name}" );
         }
 
-        private async Task DropComplete( string x )
+        private async Task DropComplete( TestItemViewModel item )
         {
-            Console.WriteLine( $"{x} Drag Complete" );
+            Dragging = false;
+            Console.WriteLine( $"TestViewModel DropComplete {item.Name}" );
         }
     }
 }

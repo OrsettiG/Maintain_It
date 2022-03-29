@@ -13,41 +13,58 @@
                    FontSize="Title" TextColor="Red"
                    HorizontalOptions="Center"/>
             <Frame BackgroundColor="Gray">
-                
-                <CollectionView ItemsSource="{Binding TestData}" BackgroundColor="LightGray">
+
+                <CollectionView x:Name="collectionView" ItemsSource="{Binding TestData}" BackgroundColor="Azure">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid BackgroundColor="LightBlue">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="4*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.GestureRecognizers>
-                                    <DragGestureRecognizer
-                                        DragStartingCommand="{Binding DragStartingCommand}"
-                                        DragStartingCommandParameter="{Binding Name}"/>
-                                    <DropGestureRecognizer
-                                        DragLeaveCommand="{Binding DragLeaveCommand}"
-                                        DragLeaveCommandParameter="{Binding Name}"
-                                        DragOverCommand="{Binding DragOverCommand}"
-                                        DragOverCommandParameter="{Binding Name}"
-                                        DropCommand="{Binding DropCommand}"
-                                        DropCommandParameter="{Binding Name}"/>
-                                </Grid.GestureRecognizers>
-                                <Label Grid.Column="0" WidthRequest="50" 
-                                       Text="{Static fontawesome:FontAwesomeIcons.GripLines}" FontFamily="FA-Solid"
-                                       FontSize="Large"
-                                       HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                <Label Grid.Column="1" Text="{Binding Name}" FontSize="Large"/>
-                            </Grid>
+                            <StackLayout x:DataType="viewmodel:TestItemViewModel" Margin="2" x:Name="stackLayout">
+                                <StackLayout.GestureRecognizers>
+                                    <DragGestureRecognizer DragStartingCommand="{Binding DragStartingCommand}"
+                                                           DragStartingCommandParameter="{Binding .}"
+                                                           DropCompletedCommand="{Binding DropCompleteCommand}"
+                                                           DropCompletedCommandParameter="{Binding .}"/>
+                                    <DropGestureRecognizer DropCommand="{Binding DropCommand}"
+                                                           DropCommandParameter="{Binding .}"
+                                                           DragOverCommand="{Binding DragOverCommand}"
+                                                           DragOverCommandParameter="{Binding .}"/>
+                                </StackLayout.GestureRecognizers>
+                                <Label Text="{Binding Name}" FontSize="20"/>
+                                <Frame BorderColor="Gray" HeightRequest="2" VerticalOptions="End" IsClippedToBounds="True" Margin="0" Padding="0"/>
+                            </StackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            
+
             </Frame>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
+
+<!--<StackLayout
+                                Padding="2">
+    <StackLayout.GestureRecognizers>
+        <DropGestureRecognizer
+                                        AllowDrop="True"
+                                        DropCommand="{Binding BindingContext.DropCommand, Source={x:Reference TestCollection}}"
+                                        DropCommandParameter="{Binding}"/>
+    </StackLayout.GestureRecognizers>
+    <Grid BackgroundColor="LightBlue">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.GestureRecognizers>
+            <DragGestureRecognizer 
+                                            DragStartingCommand="{Binding DragStartingCommand}"
+                                                               DragStartingCommandParameter="{Binding}"/>
+        </Grid.GestureRecognizers>
+        <Label Grid.Column="0" WidthRequest="50" 
+                                       Text="{Static fontawesome:FontAwesomeIcons.GripLines}" FontFamily="FA-Solid"
+                                       FontSize="Large"
+                                       HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+        <Label Grid.Column="1" Text="{Binding Name}" FontSize="Large"/>
+    </Grid>
+</StackLayout>-->

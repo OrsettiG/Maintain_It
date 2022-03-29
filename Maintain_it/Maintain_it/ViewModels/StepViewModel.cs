@@ -16,12 +16,18 @@ using Command = MvvmHelpers.Commands.Command;
 using Xamarin.Forms;
 using System.Linq;
 using System.Web;
+using Xamarin.Essentials;
 
 namespace Maintain_it.ViewModels
 {
     public class StepViewModel : BaseViewModel
     {
         public StepViewModel() { }
+
+        public StepViewModel( MaintenanceItemViewModel maintenanceItemViewModel )
+        {
+            maintenanceItemVM = maintenanceItemViewModel;
+        }
 
         #region Parameters
 
@@ -69,7 +75,10 @@ namespace Maintain_it.ViewModels
         public Step PreviousStep { get => previousStep; set => SetProperty( ref previousStep, value ); }
 
         private NodeList<Step> node;
-        public NodeList<Step> Node { get => node ??= new NodeList<Step>(Step); set => SetProperty( ref node, value ); } 
+        public NodeList<Step> Node { get => node ??= new NodeList<Step>( Step ); set => SetProperty( ref node, value ); }
+
+        public MaintenanceItemViewModel maintenanceItemVM { get; }
+        private bool Dragging = false;
 
         #region Query Parameters
         private HashSet<int> stepMaterialIds = new HashSet<int>();
@@ -102,6 +111,79 @@ namespace Maintain_it.ViewModels
         private Command incrementStepMatQuantityCommand;
         public ICommand IncrementStepMatQuantityCommand => incrementStepMatQuantityCommand ??= new Command( IncrementStepMatCounter );
 
+
+        #region Drag and Drop Commands
+
+        private ICommand dropCompleteCommand;
+        public ICommand DropCompleteCommand => dropCompleteCommand ??= new AsyncCommand<StepViewModel>( x => DropComplete( x ) );
+
+        private ICommand dragOverCommand;
+        public ICommand DragOverCommand => dragOverCommand ??= new AsyncCommand<StepViewModel>( x => DragOver( x ) );
+
+        private ICommand dragLeaveCommand;
+        public ICommand DragLeaveCommand => dragLeaveCommand ??= new AsyncCommand<StepViewModel>( x => DragLeave( x ) );
+
+        private ICommand dropCommand;
+        public ICommand DropCommand => dropCommand ??= new AsyncCommand<StepViewModel>( x => Drop( x ) );
+
+        private ICommand dragStartingCommand;
+        public ICommand DragStartingCommand => dragStartingCommand ??= new AsyncCommand<StepViewModel>( x => DragStarting( x ) );
+
+        #endregion
+
+        private async Task DragStarting( StepViewModel item )
+        {
+            Dragging = true;
+        }
+
+        private async Task Drop( StepViewModel itemDroppedOn )
+        {
+            StepViewModel itemDropping = maintenanceItemVM.StepViewModels.First(i => i.Dragging);
+            if( itemDropping != null )
+            {
+                int index1 = maintenanceItemVM.StepViewModels.IndexOf(itemDropping);
+                int index2 = maintenanceItemVM.StepViewModels.IndexOf(itemDroppedOn);
+
+                maintenanceItemVM.StepViewModels.Move( index1, index2 );
+
+                int droppedOnStepNum = itemDroppedOn.StepNum;
+
+                if( droppedOnStepNum > itemDropping.StepNum )
+                {
+                    foreach( StepViewModel item in maintenanceItemVM.StepViewModels.Where( x => x.StepNum <= droppedOnStepNum && x.StepNum >= itemDropping.StepNum && x.Step.Id != itemDropping.Step.Id ) )
+                    {
+                        item.Step.StepNumber--;
+                        item.StepNum--;
+                    }
+                }
+                else if( droppedOnStepNum < itemDropping.StepNum )
+                {
+                    foreach( StepViewModel item in maintenanceItemVM.StepViewModels.Where( x => x.StepNum >= droppedOnStepNum && x.StepNum <= itemDropping.StepNum && x.Step.Id != itemDropping.Step.Id ) )
+                    {
+                        item.Step.StepNumber++;
+                        item.StepNum++;
+                    }
+                }
+
+                itemDropping.StepNum = droppedOnStepNum;
+                itemDropping.Step.StepNumber = droppedOnStepNum;
+            }
+
+        }
+
+        private async Task DragLeave( StepViewModel item )
+        {
+        }
+
+        private async Task DragOver( StepViewModel item )
+        {
+        }
+
+        private async Task DropComplete( StepViewModel item )
+        {
+            Dragging = false;
+        }
+
         #endregion
 
         #region METHODS
@@ -115,8 +197,7 @@ namespace Maintain_it.ViewModels
             IsCompleted = step.IsCompleted;
             StepNum = step.StepNumber;
             StepMaterials.AddRange( step.StepMaterials );
-            Notes.AddRange( step.Notes );
-            //Node.InsertNewNodeAhead( Step.NextStep );
+            Notes.AddRange( step.Notes );            
         }
 
         public async Task InitAsync()
@@ -171,10 +252,19 @@ namespace Maintain_it.ViewModels
             }
 
             string encodedId = HttpUtility.UrlEncode( stepId.ToString());
-            await Shell.Current.GoToAsync( $"..?stepIds={encodedId}" );
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync( async () =>
+                    await Shell.Current.GoToAsync( $"..?stepIds={encodedId}" )
+                );
+            }
+            catch( Exception ex )
+            {
+                Console.WriteLine( $"EXCEPTION: {ex}" );
+            }
         }
 
-        private async Task SaveStep()
+        internal async Task SaveStep()
         {
             await DbServiceLocator.UpdateItemAsync( step ).ConfigureAwait( false );
         }

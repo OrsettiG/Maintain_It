@@ -22,10 +22,5 @@ namespace Maintain_it
             Routing.RegisterRoute( $"{nameof( MaintenanceItemDetailView )}/{nameof( AddNewStepView )}", typeof( AddNewStepView ) );
             Routing.RegisterRoute( $"{nameof( MaintenanceItemDetailView )}/{nameof( AddNewStepView )}/{nameof( AddStepMaterialsToStepView )}", typeof( AddStepMaterialsToStepView ) );
         }
-
-        //private async void OnMenuItemClicked( object sender, EventArgs e )
-        //{
-        //    await Current.GoToAsync( "//MaintenanceItemDetailView" );
-        //}
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+//using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -182,19 +182,14 @@ namespace Maintain_it.ViewModels
 
         private List<MaintenanceItemViewModel> CreateRange( List<MaintenanceItem> items )
         {
-            ConcurrentBag<MaintenanceItemViewModel> vms = new ConcurrentBag<MaintenanceItemViewModel>();
-            ParallelLoopResult output = Parallel.ForEach( items, x =>
+            List<MaintenanceItemViewModel> vms = new List<MaintenanceItemViewModel>();
+            foreach( MaintenanceItem item in items )
             {
-                MaintenanceItemViewModel item = new MaintenanceItemViewModel( x, this );
-                vms.Add( item );
-                Console.WriteLine($"Item {item.Name} Added");
-            });
+                MaintenanceItemViewModel i = new MaintenanceItemViewModel( item, this );
+                vms.Add( i );
+            }
 
-            Console.WriteLine( $"Output is equal to: {output.IsCompleted}" );
-
-            List<MaintenanceItemViewModel> result = vms.OrderBy(x => x.FirstServiceDate).ToList();
-
-            return result;
+            return vms.OrderBy(x => x.FirstServiceDate).ToList();
         }
 
         internal async Task ItemDeleted( int id )
