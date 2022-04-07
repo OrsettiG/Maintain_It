@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Input;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 
 using Maintain_it.Views;
@@ -17,9 +18,9 @@ using MvvmHelpers;
 
 using Xamarin.Forms;
 using Command = MvvmHelpers.Commands.Command;
-//using System.Collections.Concurrent;
 using NUnit.Framework;
 using Xamarin.Essentials;
+using Maintain_it.Helpers;
 
 namespace Maintain_it.ViewModels
 {
@@ -89,11 +90,11 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref isRecurring, value );
         }
 
-        private int recursEvery = 1;
+        private int recursEvery;
         public int RecursEvery
         {
             get => recursEvery;
-            set => SetProperty( ref recursEvery, ( value! < 0 && value! > 1000 ) ? value : 1 );
+            set => SetProperty( ref recursEvery, ( value! > 0 && value! < 1000 ) ? value : 1 );
         }
 
         private Timeframe frequency = Timeframe.Months;
@@ -145,6 +146,9 @@ namespace Maintain_it.ViewModels
         private AsyncCommand addCommand;
         public AsyncCommand AddCommand => addCommand ??= new AsyncCommand( Add );
 
+        private AsyncCommand addMaterialsToShoppingCartCommand;
+        public ICommand AddMaterialsToShoppingCartCommand => addMaterialsToShoppingCartCommand ??= new AsyncCommand( GoToAddMaterialsToShoppingList );
+
         private AsyncCommand deleteCommand;
         public AsyncCommand DeleteCommand => deleteCommand ??= new AsyncCommand( Delete );
 
@@ -178,6 +182,16 @@ namespace Maintain_it.ViewModels
         {
             if( RecursEvery > 0 )
                 RecursEvery -= 1;
+        }
+
+        private async Task GoToAddMaterialsToShoppingList()
+        {
+            if( item != null )
+            {
+                string encodedQuery = HttpUtility.UrlEncode( maintenanceItemId.ToString() );
+
+                await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{nameof( maintenanceItemId )}={encodedQuery}" );
+            }
         }
 
         private async Task Add()
@@ -309,7 +323,7 @@ namespace Maintain_it.ViewModels
             }
             return ids;
         }
-
+        
         private void ClearData()
         {
             if( !locked )

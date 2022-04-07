@@ -146,13 +146,14 @@
                                         Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" 
                                         Text="{Static fontAwesome:FontAwesomeIcons.CartPlus}" 
                                         FontFamily="FA-Solid" TextColor="Green"
+                                        Command="{Binding AddMaterialsToShoppingCartCommand}"
                                         VerticalOptions="Start" HorizontalOptions="FillAndExpand" 
                                         BackgroundColor="LightGray" HeightRequest="45"/>
                                     
                                     <!--Start Maintenance Button-->
                                     <Button 
                                         Grid.Row="4" Grid.Column="0"  Grid.ColumnSpan="4" 
-                                        Text="Start Maintenance" 
+                                        Text="Start Maintenance"
                                         VerticalOptions="End" HorizontalOptions="FillAndExpand" 
                                         BackgroundColor="Green"/>
                                 </Grid>

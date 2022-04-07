@@ -112,6 +112,11 @@ namespace Maintain_it.ViewModels
         public ICommand IncrementStepMatQuantityCommand => incrementStepMatQuantityCommand ??= new Command( IncrementStepMatCounter );
 
 
+
+        #endregion
+
+        #region Drag and Drop
+
         #region Drag and Drop Commands
 
         private ICommand dropCompleteCommand;
@@ -130,6 +135,8 @@ namespace Maintain_it.ViewModels
         public ICommand DragStartingCommand => dragStartingCommand ??= new AsyncCommand<StepViewModel>( x => DragStarting( x ) );
 
         #endregion
+
+        #region Drag and Drop Methods
 
         private async Task DragStarting( StepViewModel item )
         {
@@ -183,8 +190,9 @@ namespace Maintain_it.ViewModels
         {
             Dragging = false;
         }
-
         #endregion
+        #endregion
+
 
         #region METHODS
 

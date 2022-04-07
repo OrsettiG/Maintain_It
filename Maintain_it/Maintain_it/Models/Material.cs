@@ -50,5 +50,9 @@ namespace Maintain_it.Models
         public int QuantityOwned { get; set; }
         public DateTime CreatedOn { get; set; }
         #endregion
+
+        #region Methods
+        
+        #endregion
     }
 }

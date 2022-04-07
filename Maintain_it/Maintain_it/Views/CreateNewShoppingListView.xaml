@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
+             x:Class="Maintain_it.Views.CreateNewShoppingListView"
+             Title="New Shopping List">
+    <ContentPage.BindingContext>
+        <viewmodels:CreateNewShoppingListViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Name:"
+                   FontSize="Large"
+                VerticalOptions="Center" 
+                HorizontalOptions="Start" />
+            <Entry Text="{Binding Name}"
+                   Placeholder="My New Shopping List"
+                   HorizontalOptions="CenterAndExpand"/>
+
+            <Label Text="Select Materials:"/>
+            <CollectionView ItemsSource="{Binding Materials}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Horizontal"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <!--DisplayStuff-->
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
