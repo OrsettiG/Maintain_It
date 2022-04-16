@@ -190,7 +190,7 @@ namespace Maintain_it.ViewModels
             {
                 string encodedQuery = HttpUtility.UrlEncode( maintenanceItemId.ToString() );
 
-                await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{nameof( maintenanceItemId )}={encodedQuery}" );
+                //await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListFromMaintenanceItemView )}?{nameof( maintenanceItemId )}={encodedQuery}" );
             }
         }
 

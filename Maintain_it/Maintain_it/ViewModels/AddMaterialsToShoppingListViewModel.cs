@@ -1,114 +1,190 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using System.Web;
 
 using Maintain_it.Helpers;
 using Maintain_it.Models;
-
 using Maintain_it.Services;
-using Maintain_it.Views;
 
-using MvvmHelpers.Commands;
-
-using Xamarin.Forms;
+using MvvmHelpers;
 
 namespace Maintain_it.ViewModels
 {
-    internal class AddMaterialsToShoppingListViewModel : BaseViewModel
+    public class AddMaterialsToShoppingListViewModel : AddMaterialsViewModel
     {
-        public AddMaterialsToShoppingListViewModel()
+        #region Properties
+        private ShoppingList shoppingList;
+
+        private List<Material> materials;
+
+        private ConcurrentDictionary<int, MaterialViewModel> materialVMs = new ConcurrentDictionary<int, MaterialViewModel>();
+        private ObservableRangeCollection<MaterialViewModel> materialViewModels;
+        public ObservableRangeCollection<MaterialViewModel> MaterialViewModels
         {
+            get => materialViewModels ??= new ObservableRangeCollection<MaterialViewModel>();
+            set => SetProperty( ref materialViewModels, value );
         }
 
+        private ConcurrentDictionary<int, ShoppingListMaterial> selectedMaterials = new ConcurrentDictionary<int, ShoppingListMaterial>();
+        private ObservableRangeCollection<object> selectedMaterialViewModels;
+        public ObservableRangeCollection<object> SelectedMaterialViewModels
+        {
+            get => selectedMaterialViewModels ??= new ObservableRangeCollection<object>();
+            set => SetProperty( ref selectedMaterialViewModels, value );
+        }
 
-        #region Properties
+        private HashSet<ShoppingListMaterialViewModel> cache = new HashSet<ShoppingListMaterialViewModel>();
 
-        private int maintenanceItemId;
-
-        private MaintenanceItem selectedMaintenanceItem;
-        public MaintenanceItem SelectedMaintenanceItem { get => selectedMaintenanceItem; set => SetProperty( ref selectedMaintenanceItem, value ); }
-
-        private List<ShoppingList> shoppingLists;
-        public List<ShoppingList> ShoppingLists { get => shoppingLists ??= new List<ShoppingList>(); set => SetProperty( ref shoppingLists, value ); }
-
-        private List<ShoppingListViewModel> shoppingListViewModels;
-        public List<ShoppingListViewModel> ShoppingListViewModels { get => shoppingListViewModels ??= new List<ShoppingListViewModel>(); set => SetProperty( ref shoppingListViewModels, value ); }
-
-        private ShoppingListViewModel selectedShoppingList;
-        public ShoppingListViewModel SelectedShoppingList { get => selectedShoppingList; set => SetProperty( ref selectedShoppingList, value ); }
-
+        private HashSet<int> displayedMaterialIds = new HashSet<int>();
+        private ObservableRangeCollection<ShoppingListMaterialViewModel> displayedShoppingListMaterials;
+        public ObservableRangeCollection<ShoppingListMaterialViewModel> DisplayedShoppingListMaterials
+        {
+            get => displayedShoppingListMaterials ??= new ObservableRangeCollection<ShoppingListMaterialViewModel>();
+            set => SetProperty( ref displayedShoppingListMaterials, value );
+        }
         #endregion
 
         #region Commands
-
-        private AsyncCommand createNewShoppingListCommand;
-        public ICommand CreateNewShoppingListCommand => createNewShoppingListCommand ??= new AsyncCommand( CreateNewShoppingList );
-
         #endregion
 
         #region Methods
 
-        public async Task Init()
+        /// <summary>
+        /// Check the passed in obj against the current selections to see what has changed, and remove it from the selectedMaterials. 
+        /// </summary>
+        /// <param name="obj"></param>
+        private protected override async void MaterialSelectionChanged( object obj )
         {
-            ShoppingLists = await DbServiceLocator.GetAllItemsAsync<ShoppingList>() as List<ShoppingList>;
+            if( locked )
+                return;
 
-            foreach( ShoppingList sList in ShoppingLists )
+            if( obj is IEnumerable<object> items )
             {
-                ShoppingListViewModel model = new ShoppingListViewModel( sList );
-                ShoppingListViewModels.Add( model );
+
+                if( items.ToListWithCast( out List<MaterialViewModel> list ) )
+                {
+                    List<int> temp = new List<int>();
+
+                    foreach( MaterialViewModel mVM in list )
+                    {
+                        temp.Add( mVM.Material.Id );
+                    }
+
+                    displayedMaterialIds.Align( displayedMaterialIds.Except( temp ), out List<int> added, out List<int> removed );
+
+                    foreach( ShoppingListMaterialViewModel vm in cache.ToList() )
+                    {
+                        if( added.Contains( vm.Material.Id ) )
+                        {
+                            DisplayedShoppingListMaterials.Add( vm );
+                            _ = selectedMaterials.GetOrAdd( vm.ShoppingListMaterial.Id, vm.ShoppingListMaterial );
+                            _ = cache.Remove( vm );
+                        }
+                    }
+
+                    foreach( ShoppingListMaterialViewModel vm in DisplayedShoppingListMaterials.ToList() )
+                    {
+                        if( removed.Contains( vm.Material.Id ) )
+                        {
+                            _ = cache.Add( vm );
+                            _ = DisplayedShoppingListMaterials.Remove( vm );
+                            _ = selectedMaterials.Remove( vm.ShoppingListMaterial.Id, out ShoppingListMaterial _ );
+                        }
+                    }
+
+                    if( DisplayedShoppingListMaterials.Count < displayedMaterialIds.Count )
+                    {
+                        foreach( int id in added )
+                        {
+                            ShoppingListMaterialViewModel vm = new ShoppingListMaterialViewModel( await DbServiceLocator.GetItemAsync<Material>(id), shoppingList);
+
+                            DisplayedShoppingListMaterials.Add( vm );
+                        }
+                    }
+                }
             }
         }
 
-        /// <summary>
-        /// Converts all the StepMaterials from the selected MaintenanceItem into ShoppingListMaterials and adds them to the selected ShoppingList
-        /// </summary>
-        /// <returns></returns>
-        private async Task AddMaterialsToShoppingList()
+        private protected override async Task Refresh()
         {
-            ConcurrentBag<Step> steps = new ConcurrentBag<Step>( selectedMaintenanceItem.Steps );
-            ConcurrentBag<StepMaterial> stepMaterials = new ConcurrentBag<StepMaterial>();
-            ConcurrentBag<ShoppingListMaterial> shoppingListMaterials = new ConcurrentBag<ShoppingListMaterial>();
+            if( locked )
+                return;
 
-            _ = Parallel.ForEach( steps, step =>
-            {
-                foreach( StepMaterial mat in step.StepMaterials )
-                {
-                    stepMaterials.Add( mat );
-                }
-            } );
 
-            _ = Parallel.ForEach( stepMaterials, mat =>
-            {
-                //TODO: Re-work this into a proper MVVM format.
-                SelectedShoppingList.ShoppingList.Materials.Add( MaterialConverter.ConvertToShoppingListMaterial( mat, SelectedShoppingList.ShoppingList ) );
-            } );
+            locked = true;
+
+
+            // All we really care about in this collection is the Id, Name, Description, Size, Units, and CreatedOn properties so we don't need to call recursive. If we want the Tags we will need to either call recursive on each individual material, or get things from the Tag side and filter by material id. Not sure which to do yet.
+            materials = await DbServiceLocator.GetAllItemsAsync<Material>() as List<Material>;
+
+            _ = Parallel.ForEach( materials, material =>
+             {
+                 if( !materialVMs.ContainsKey( material.Id ) )
+                 {
+                     // If we want to get the recursive data we can do that from within the MaterialViewModel instead of this one. We should try to keep the data loaded here to only what we need.
+                     _ = materialVMs.GetOrAdd( material.Id, new MaterialViewModel( material ) );
+                 }
+             } );
+
+            MaterialViewModels.Clear();
+
+            MaterialViewModels.AddRange( materialVMs.Values );
+
+            locked = false;
         }
 
-        private async Task CreateNewShoppingList()
+        //TODO: Finish Save Method
+        private async Task Save()
         {
-            await Shell.Current.GoToAsync( $"/{nameof( CreateNewShoppingListView )}" );
+            foreach( ShoppingListMaterialViewModel mat in DisplayedShoppingListMaterials )
+            {
+                await mat.UpdateAndReturnIdAsync();
+            }
         }
 
-        #endregion
-
-        #region Handle Query Params
-        private protected async override Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
+        #region Query Handling
+        private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
         {
-            await Init();
+            await base.EvaluateQueryParams( kvp );
 
             switch( kvp.Key )
             {
-                case nameof( maintenanceItemId ):
-                    if( int.TryParse( kvp.Key, out maintenanceItemId ) )
+                case RoutingPath.ShoppingListId:
+                    if( int.TryParse( HttpUtility.HtmlDecode( kvp.Value ), out int id ) )
                     {
-                        selectedMaintenanceItem = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( maintenanceItemId );
+                        shoppingList = await DbServiceLocator.GetItemRecursiveAsync<ShoppingList>( id );
+                        materials = await DbServiceLocator.GetAllItemsAsync<Material>() as List<Material>;
+
+                        if( shoppingList.Materials.Count > 0 )
+                        {
+                            _ = Parallel.ForEach( shoppingList.Materials, material =>
+                            {
+                                _ = selectedMaterials.GetOrAdd( material.Id, material );
+                            } );
+                        }
+
+                        if( materials.Count > 0 )
+                        {
+                            _ = Parallel.ForEach( materials, material =>
+                            {
+                                _ = materialVMs.GetOrAdd( material.Id, new MaterialViewModel( material ) );
+                            } );
+                        }
                     }
+
+                    await Refresh();
                     break;
+
             }
         }
         #endregion
+        #endregion
+
+
+
     }
 }

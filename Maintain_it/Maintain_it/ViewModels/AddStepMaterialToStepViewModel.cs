@@ -15,56 +15,38 @@ using MvvmHelpers.Commands;
 using Command = MvvmHelpers.Commands.Command;
 
 using Xamarin.Forms;
-
+using Maintain_it.Helpers;
 
 namespace Maintain_it.ViewModels
 {
-    internal class AddStepMaterialToStepViewModel : BaseViewModel
+    internal class AddStepMaterialToStepViewModel : AddMaterialsViewModel
     {
         public AddStepMaterialToStepViewModel() { }
 
         #region Properties
 
-        private bool locked = false;
-
-        private string materialNameSearch;
-        public string MaterialNameSearch
-        {
-            get => materialNameSearch;
-            set
-            {
-                if( SetProperty( ref materialNameSearch, value, validateValue: ValidateString ) )
-                {
-                    if( value != string.Empty || value != null )
-                    {
-                        DisplayedMaterials.Clear();
-                        DisplayedMaterials.AddRange( _materials.Where( x => FilterMaterials( x ) ) );
-                    }
-                    else
-                    {
-                        DisplayedMaterials.Clear();
-                        DisplayedMaterials.AddRange( _materials );
-                    }
-
-                }
-            }
-        }
-
         private List<StepMaterial> _stepMaterials = new List<StepMaterial>();
 
-        private List<Material> _materials = new List<Material>();
-
-        private ObservableRangeCollection<Material> _displayedMaterials;
-        public ObservableRangeCollection<Material> DisplayedMaterials { get => _displayedMaterials ??= new ObservableRangeCollection<Material>(); set => SetProperty( ref _displayedMaterials, value ); }
-
         private HashSet<int> _selectedMaterialIds;
-        public HashSet<int> SelectedMaterialIds { get => _selectedMaterialIds ??= new HashSet<int>( 100 ); set => SetProperty( ref _selectedMaterialIds, value ); }
+        public HashSet<int> SelectedMaterialIds 
+        { 
+            get => _selectedMaterialIds ??= new HashSet<int>( 100 ); 
+            set => SetProperty( ref _selectedMaterialIds, value ); 
+        }
 
         private ObservableRangeCollection<StepMaterialViewModel> _selectedMaterials;
-        public ObservableRangeCollection<StepMaterialViewModel> SelectedMaterials { get => _selectedMaterials ??= new ObservableRangeCollection<StepMaterialViewModel>(); set => SetProperty( ref _selectedMaterials, value ); }
+        public ObservableRangeCollection<StepMaterialViewModel> SelectedMaterials 
+        { 
+            get => _selectedMaterials ??= new ObservableRangeCollection<StepMaterialViewModel>(); 
+            set => SetProperty( ref _selectedMaterials, value ); 
+        }
 
         private ObservableRangeCollection<object> _displayedMaterialSelections;
-        public ObservableRangeCollection<object> DisplayedMaterialSelections { get => _displayedMaterialSelections ??= new ObservableRangeCollection<object>(); set => SetProperty( ref _displayedMaterialSelections, value ); }
+        public ObservableRangeCollection<object> DisplayedMaterialSelections 
+        { 
+            get => _displayedMaterialSelections ??= new ObservableRangeCollection<object>(); 
+            set => SetProperty( ref _displayedMaterialSelections, value ); 
+        }
 
         #region Query Parameters
         private int addMaterialId;
@@ -74,15 +56,6 @@ namespace Maintain_it.ViewModels
         #endregion
 
         #region Commands
-
-        private AsyncCommand refreshCommand;
-        public ICommand RefreshCommand => refreshCommand ??= new AsyncCommand( Refresh );
-
-        private AsyncCommand createNewMaterialCommand;
-        public ICommand CreateNewMaterialCommand => createNewMaterialCommand ??= new AsyncCommand( CreateNewMaterial );
-
-        private Command materialSelectionChangedCommand;
-        public ICommand MaterialSelectionChangedCommand => materialSelectionChangedCommand ??= new Command( MaterialSelectionChanged );
 
         private AsyncCommand addStepMaterialsCommand;
         public ICommand AddStepMaterialsCommand => addStepMaterialsCommand ??= new AsyncCommand( AddSelectedStepMaterials );
@@ -94,9 +67,8 @@ namespace Maintain_it.ViewModels
         /// Refreshes all the data in the view asyncronously. Uses recursive database calls.
         /// </summary>
         /// <returns></returns>
-        private async Task Refresh()
+        private protected override async Task Refresh()
         {
-            Console.WriteLine( "Refreshed" );
             if( !locked )
             {
                 locked = true;
@@ -118,7 +90,7 @@ namespace Maintain_it.ViewModels
                 {
                     foreach( StepMaterialViewModel sMaterialVM in SelectedMaterials )
                     {
-                        // I was getting an exception that didn't make any sense but when I wrapped it in a try/catch block and did nothing with the exception it worked. Gonna have to come back and figure out what is going on here at some point
+                        //TODO: I was getting an exception that didn't make any sense but when I wrapped it in a try/catch block and did nothing with the exception it worked. Gonna have to come back and figure out what is going on here at some point
                         try
                         {
                             await sMaterialVM.AsyncInit( sMaterialVM.StepMaterial.Id );
@@ -141,10 +113,24 @@ namespace Maintain_it.ViewModels
         /// Called by Xamarin.Forms CollectionView when the user changes the selections in the DisplayedMaterials collection. We use it to either add a new StepMaterial or remove an unwanted one.
         /// </summary>
         /// <param name="obj">I think this contains all the selected objects from the the CollectionView. Not entirely sure becuase we don't use it anyways. It just has to be here to satisfy Xamarin.Forms.</param>
-        private async void MaterialSelectionChanged( object obj )
+        private protected override async void MaterialSelectionChanged( object obj )
         {
             if( !locked )
             {
+                if( obj is IEnumerable<object> cast )
+                {
+                    if( cast.ToListWithCast(out List<Material> list) )
+                    {
+                        Console.WriteLine( "list Material" );
+                        Console.WriteLine( list.Count );
+                        foreach( Material g in list )
+                        {
+                            Console.WriteLine( g.Name );
+                        }
+                    }
+                    else
+                    { Console.WriteLine( "List Casting Failed" ); }
+                }
                 // Figure out if we are adding a selection or removing one by comparing the respective collection counts.
                 if( DisplayedMaterialSelections.Count >= SelectedMaterialIds.Count )
                 {
@@ -201,17 +187,6 @@ namespace Maintain_it.ViewModels
         }
 
         /// <summary>
-        /// Converts the search term and the material name/tag to lower case and returns true if the name or tag starts with the search term
-        /// </summary>
-        /// <param name="material">The material to check</param>
-        /// <returns>True if search term matches the start of the name or tag, false otherwise.</returns>
-        private bool FilterMaterials( Material material )
-        {
-            return ( material.Name != null && material.Name.ToLowerInvariant().StartsWith( MaterialNameSearch.ToLowerInvariant() ) ) ||
-                   ( material.Tag != null && material.Tag.ToLowerInvariant().StartsWith( MaterialNameSearch.ToLowerInvariant() ) );
-        }
-
-        /// <summary>
         /// Builds a string that contains all the selected StepMaterial Ids, Encodes it and sends it back up one view using the query parameter "stepMaterialIds".
         /// </summary>
         private async Task AddSelectedStepMaterials()
@@ -265,29 +240,23 @@ namespace Maintain_it.ViewModels
             };
 
             SelectedMaterials.Add( viewModel );
-
+            //TODO: This will add hundreds of new StepMaterials to the db over time because a new one is added EVERY TIME a material is selected, even if it already exists in the db. Fix it ASAP.
             int id = await DbServiceLocator.AddItemAndReturnIdAsync(viewModel.StepMaterial);
             return id;
         }
 
-        /// <summary>
-        /// Sends the view to the CreateNewMaterialView after encoding and passing the search term to the material name field using the query parameter "materialName"
-        /// </summary>
-        /// <returns></returns>
-        private async Task CreateNewMaterial()
-        {
-            string encodedName = HttpUtility.UrlEncode( MaterialNameSearch );
-            await Shell.Current.GoToAsync( $"/{nameof( CreateNewMaterialView )}?materialName={encodedName}" );
-        }
+
 
         #region Query Handling
 
         private protected async override Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
         {
+            await base.EvaluateQueryParams( kvp );
+
             switch( kvp.Key )
             {
                 // Used when coming from CreateNewMaterialViewModel to add the Material the user just created and save them having to find it in the list of Materials.
-                case nameof( addMaterialId ):
+                case RoutingPath.MaterialID:
                     MaterialNameSearch = string.Empty;
                     
                     // We have to do this Refresh() in because it caches the materials/selected StepMaterials. If we don't then any methods called before the next refresh that rely on cached data will throw an error.
@@ -324,10 +293,6 @@ namespace Maintain_it.ViewModels
                     }
 
                     await PopulatePreselectedStepMaterials();
-                    break;
-
-                case "refresh":
-                    await Refresh();
                     break;
             }
         }

@@ -91,6 +91,15 @@
     <FlyoutItem Title="Maintenance" Icon="icon_feed.png">
         <!--<ShellContent Route="MaintenanceItemDetailView" ContentTemplate="{DataTemplate local:MaintenanceItemDetailView}" />-->
     </FlyoutItem>
+    <FlyoutItem Title="Shopping Lists">
+        <FlyoutItem.Icon>
+            <FontImageSource
+                FontFamily="FA-Solid"
+                Glyph="{Static fontAwesome:FontAwesomeIcons.ShoppingCart}"
+                Color="Green"/>
+        </FlyoutItem.Icon>
+        <ShellContent Route="DisplayAllShoppingListsView" ContentTemplate="{DataTemplate local:DisplayAllShoppingListsView}"/>
+    </FlyoutItem>
     <FlyoutItem Title="CollectionView Drag &amp; Drop Tests">
         <FlyoutItem.Icon>
             <FontImageSource

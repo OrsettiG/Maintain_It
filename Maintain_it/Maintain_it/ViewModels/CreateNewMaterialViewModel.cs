@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Input;
 
+using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
 
@@ -108,8 +109,8 @@ namespace Maintain_it.ViewModels
             int id = await DbServiceLocator.AddItemAndReturnIdAsync( material );
 
             string encodedId = HttpUtility.UrlEncode( id.ToString() );
-            Console.WriteLine( "Sending Page back to AddStepMaterialView" );
-            await Shell.Current.GoToAsync( $"..?addMaterialId={encodedId}" ); // This goes to AddStepMaterialViewModel
+            //TODO: Update this nav call with the correct constant variable
+            await Shell.Current.GoToAsync( $"..?{RoutingPath.MaterialID}={encodedId}" ); // This goes to AddStepMaterialViewModel OR AddShoppingListMaterialViewModel
         }
 
         private async Task UpdateMaterial()
@@ -122,8 +123,8 @@ namespace Maintain_it.ViewModels
             material.QuantityOwned = QuantityOwned;
 
             await DbServiceLocator.UpdateItemAsync( material );
-
-            await Shell.Current.GoToAsync( $"..?refresh=true" ); // This goes to AddStepMaterialViewModel
+            //TODO: Update this nav call with the correct constant variable
+            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" ); // This goes to AddStepMaterialViewModel
         }
 
         private void Increment()

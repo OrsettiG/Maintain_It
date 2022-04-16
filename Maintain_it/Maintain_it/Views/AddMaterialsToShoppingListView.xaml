@@ -7,16 +7,115 @@
         <viewmodel:AddMaterialsToShoppingListViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.Content>
-        <StackLayout>
-            <CollectionView ItemsSource="{Binding ShoppingListViewModels}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Label Text="{Binding ShoppingList.Name}"/>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+        <ScrollView>
+            <StackLayout>
+<!--Search and Filter-->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!--Search Entry-->
+                    <Entry Placeholder="Search..." Text="{Binding SearchTerms}"
+                           Grid.Column="0" Grid.ColumnSpan="2"
+                           Grid.Row="0"/>
+                    <!-- Search Button -->
+                    <Button Text="Search" 
+                            Command="{Binding SearchCommand}"
+                            CommandParameter="{Binding SearchTerms}"
+                            Grid.Column="2"
+                            Grid.Row="0"/>
+                    <!-- Filters Toggle Button -->
+                    <!----> <!-- Filter Option Selectors (Hidden unless toggle = true) -->
+                    <!----> <!-- Save Filters Button (Hidden unless toggle = true) -->
+                    <!----> <!-- Reset Filters Button (Hidden unless toggle = true) -->
+                    
+                </Grid>
 
-            <Button Text="New Shopping List" Command="{Binding CreateNewShoppingListCommand}"/>
-        </StackLayout>
+<!--Available Materials-->
+                <Grid BackgroundColor="LightGray">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!--Available Materials Collection-->
+                    <CollectionView ItemsSource="{Binding MaterialViewModels}"
+                                    SelectionMode="Multiple"
+                                    SelectedItems="{Binding SelectedMaterialViewModels}"
+                                    SelectionChangedCommand="{Binding MaterialSelectionChangedCommand}"
+                                    SelectionChangedCommandParameter="{Binding SelectedMaterialViewModels}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+
+                                    <Label Text="{Binding Name}" 
+                                           Grid.Column="1"
+                                           Grid.Row="0"
+                                           HorizontalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+                
+<!--Selected Materials-->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!--Selected Materials Collection-->
+                    <CollectionView ItemsSource="{Binding DisplayedShoppingListMaterials}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+
+                                    <Label Text="{Binding Name}" 
+                                           Grid.Column="1"
+                                           Grid.Row="0"
+                                           HorizontalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+                
+                <Button Text="Save" Command="{Binding SaveCommand}"/>
+            </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

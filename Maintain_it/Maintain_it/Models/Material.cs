@@ -19,7 +19,7 @@ namespace Maintain_it.Models
             this.Name = Name;
         }
 
-        
+
 
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
@@ -32,8 +32,16 @@ namespace Maintain_it.Models
         [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<RetailerMaterial> RetailerMaterials { get; set; }
 
-        [OneToMany(CascadeOperations = CascadeOperation.All )]
+        [OneToMany( CascadeOperations = CascadeOperation.All )]
         public List<ShoppingListMaterial> ShoppingListMaterials { get; set; }
+
+
+        #endregion
+
+        #region Many To Many Relationships
+
+        [ManyToMany(typeof(MaterialTag))]
+        public List<Tag> Tags { get; set; }
 
         #endregion
 
@@ -52,7 +60,7 @@ namespace Maintain_it.Models
         #endregion
 
         #region Methods
-        
+
         #endregion
     }
 }

@@ -2,32 +2,71 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
+             xmlns:fontawesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
              x:Class="Maintain_it.Views.CreateNewShoppingListView"
              Title="New Shopping List">
     <ContentPage.BindingContext>
         <viewmodels:CreateNewShoppingListViewModel/>
     </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Save"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Name:"
-                   FontSize="Large"
-                VerticalOptions="Center" 
-                HorizontalOptions="Start" />
-            <Entry Text="{Binding Name}"
-                   Placeholder="My New Shopping List"
-                   HorizontalOptions="CenterAndExpand"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="100"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <ScrollView BackgroundColor="Gray"
+                        Padding="1,1,1,5"
+                        Grid.ColumnSpan="2"
+                        Grid.RowSpan="2">
+                <Frame BackgroundColor="LightGray"
+                       Padding="5"
+                       Margin="5"
+                       CornerRadius="5">
+                    <StackLayout>
+                        <Entry Text="{Binding Name}"
+                       FontSize="Title"
+                       IsSpellCheckEnabled="True"
+                       Placeholder="My New Shopping List"
+                       HorizontalOptions="FillAndExpand"
+                       Margin="5,2"
+                       MaxLength="50"/>
 
-            <Label Text="Select Materials:"/>
-            <CollectionView ItemsSource="{Binding Materials}">
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Horizontal"/>
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <!--DisplayStuff-->
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </StackLayout>
+
+                        <CollectionView ItemsSource="{Binding ShoppingListMaterials}">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout Orientation="Horizontal"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <!--DisplayStuff-->
+                                    <Grid>
+                                        <Grid.GestureRecognizers>
+                                            <SwipeGestureRecognizer Direction="Right" 
+                                                                Command="{Binding CrossOffCommand}"/>
+                                        </Grid.GestureRecognizers>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Frame>
+            </ScrollView>
+            
+            <Button Text="{Static fontawesome:FontAwesomeIcons.Plus}"
+                    FontFamily="FA-Solid"
+                    FontSize="24"
+                    Margin="10"
+                    CornerRadius="45"
+                    Command="{Binding AddShoppingListMaterialsCommand}"
+                    Grid.Column="1"
+                    Grid.Row="1"/>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

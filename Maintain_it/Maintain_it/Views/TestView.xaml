@@ -7,6 +7,9 @@
     <ContentPage.BindingContext>
         <viewmodel:TestViewModel/>
     </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Load Items" Command="{Binding LoadDataCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <StackLayout>
             <Label Text="TESTING" 
@@ -17,24 +20,19 @@
                 <CollectionView x:Name="collectionView" ItemsSource="{Binding TestData}" BackgroundColor="Azure">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <StackLayout x:DataType="viewmodel:TestItemViewModel" Margin="2" x:Name="stackLayout">
-                                <StackLayout.GestureRecognizers>
-                                    <DragGestureRecognizer DragStartingCommand="{Binding DragStartingCommand}"
-                                                           DragStartingCommandParameter="{Binding .}"
-                                                           DropCompletedCommand="{Binding DropCompleteCommand}"
-                                                           DropCompletedCommandParameter="{Binding .}"/>
-                                    <DropGestureRecognizer DropCommand="{Binding DropCommand}"
-                                                           DropCommandParameter="{Binding .}"
-                                                           DragOverCommand="{Binding DragOverCommand}"
-                                                           DragOverCommandParameter="{Binding .}"/>
-                                </StackLayout.GestureRecognizers>
-                                <Label Text="{Binding Name}" FontSize="20"/>
-                                <Frame BorderColor="Gray" HeightRequest="2" VerticalOptions="End" IsClippedToBounds="True" Margin="0" Padding="0"/>
+                            <StackLayout Margin="2" x:Name="stackLayout">
+                                <Label Text="{Binding Name}" 
+                                       FontSize="20"/>
+                                <Frame BorderColor="Gray" 
+                                       HeightRequest="2" 
+                                       VerticalOptions="End" 
+                                       IsClippedToBounds="True" 
+                                       Margin="0" 
+                                       Padding="0"/>
                             </StackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-
             </Frame>
         </StackLayout>
     </ContentPage.Content>

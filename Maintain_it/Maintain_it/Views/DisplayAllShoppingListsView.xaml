@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
+             xmlns:fontawesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
+             x:Class="Maintain_it.Views.DisplayAllShoppingListsView"
+             Title="Shopping Lists">
+    <ContentPage.BindingContext>
+        <viewmodels:DisplayAllShoppingListsViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="New" Command="{Binding CreateNewShoppingListCommand}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView BackgroundColor="Gray" Padding="1, 1, 1, 5">
+            <Frame BackgroundColor="LightGray" 
+                   CornerRadius="5" 
+                   Padding="5" 
+                   Margin="5">
+                <StackLayout>
+                    <CollectionView ItemsSource="{Binding ShoppingListViewModels}">
+                        <CollectionView.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Text="Name"
+                                   FontSize="Title"
+                                   Grid.Column="0"
+                                   HorizontalOptions="CenterAndExpand"
+                                   VerticalOptions="End"
+                                   TextDecorations="Underline"/>
+                                <Label Text="Item Count"
+                                   FontSize="Title"
+                                   Grid.Column="1"
+                                   HorizontalOptions="CenterAndExpand"
+                                   VerticalOptions="End"
+                                   TextDecorations="Underline"/>
+                            </Grid>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Text="{Binding Name}"
+                                           Grid.Column="0"
+                                           HorizontalOptions="Start"
+                                           Margin="2"/>
+                                        <Label Text="{Binding Count}"
+                                           Grid.Column="1"
+                                           HorizontalOptions="EndAndExpand"
+                                           Margin="2"/>
+                                        <Label Text="{Static fontawesome:FontAwesomeIcons.LongArrowRight}"
+                                           FontFamily="FA-Solid"
+                                           Grid.Column="2"
+                                           HorizontalOptions="End"/>
+
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </Frame>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

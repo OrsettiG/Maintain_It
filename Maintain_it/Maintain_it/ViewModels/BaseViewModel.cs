@@ -26,6 +26,11 @@ namespace Maintain_it.ViewModels
             '"'
         };
 
+        public int ScreenWidth => (int)DeviceDisplay.MainDisplayInfo.Width;
+        public int ScreenHeight => (int)DeviceDisplay.MainDisplayInfo.Height;
+        public int ScreenDensity => (int)DeviceDisplay.MainDisplayInfo.Density;
+        public int DensityCorrectedScreenHeight => ScreenHeight / ScreenDensity;
+        public int DensityCorrectedScreenWidth => ScreenWidth / ScreenDensity;
         public INavigation Navigation { get; set; }
 
         public virtual async void ApplyQueryAttributes( IDictionary<string, string> query )
@@ -52,8 +57,6 @@ namespace Maintain_it.ViewModels
         private protected virtual void EvaluateQueryParams( string key, string value ) { }
 
 
-        public int ScreenWidth => (int)DeviceDisplay.MainDisplayInfo.Width;
-        public int ScreenHeight => (int)DeviceDisplay.MainDisplayInfo.Height;
 
         private protected List<T> ConvertToList<T>( IEnumerable<T> target )
         {

@@ -59,6 +59,7 @@
                                     ItemsSource="{Binding DisplayedMaterials}"
                                     SelectedItems="{Binding DisplayedMaterialSelections}"
                                     SelectionChangedCommand="{Binding MaterialSelectionChangedCommand}"
+                                    SelectionChangedCommandParameter="{Binding DisplayedMaterialSelections}"
                                     EmptyView="Looks like you haven't created any Materials yet."
                                     BackgroundColor="LightGray">
                         <CollectionView.ItemsLayout>

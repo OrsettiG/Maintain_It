@@ -27,6 +27,7 @@ namespace Maintain_it.Models
         public string? Name { get; set; }
 #nullable disable
         public DateTime CreatedOn { get; set; }
+        public bool Active { get; set; }
         #endregion
     }
 }
