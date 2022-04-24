@@ -35,21 +35,54 @@ namespace Maintain_it.Helpers
 
         internal static void Align<T>( this HashSet<T> set, IEnumerable<T> targets, out List<T> Added, out List<T> Removed)
         {
+            Console.WriteLine( "ALIGNING" );
             Added = new List<T>();
             Removed = new List<T>();
 
-            foreach( T target in targets )
+            foreach( T t in targets )
             {
-                if( !set.Remove( target ) )
+                if( set.Contains( t ) )
                 {
-                    _ = set.Add( target );
-                    Added.Add( target );
+                    continue;
                 }
                 else
                 {
-                    Removed.Add( target );
+                    _ = set.Add( t );
+                    Added.Add( t );
+                    Console.WriteLine( $"Added {t}" );
                 }
             }
+
+            List<T> temp = new List<T>(set);
+
+            foreach( T t in temp )
+            {
+                if( targets.Contains(t) )
+                {
+                    continue;
+                }
+                else
+                {
+                    _ = set.Remove( t );
+                    Removed.Add( t );
+                    Console.WriteLine( $"Removed {t}" );
+                }
+            }
+
+            Console.WriteLine( "ALIGNMENT COMPLETE" );
+        }
+
+        internal static bool Contains<T>(this IEnumerable<T> source, T value )
+        {
+            foreach( T t in source )
+            {
+                if( Equals( t, value ) )
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

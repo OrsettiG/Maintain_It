@@ -250,6 +250,31 @@ namespace Maintain_it.Services
         }
 
         /// <summary>
+        /// Determines if item exits in database or not. If yes the item and children are updated, otherwise the item is added.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static async Task AddOrUpdateItemAsync<T>(T item) where T : IStorableObject, new()
+        {
+            Service<T> instance = await GetService<T>();
+            await instance.AddOrUpdate( item ).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Determines if item exits in database or not. If yes the item and children are updated, otherwise the item is added.
+        /// </summary>
+        /// <typeparam name="T">Service type to use</typeparam>
+        /// <param name="item">The item to update</param>
+        /// <returns>The item id, regardless of whether is was added or updated</returns>
+        public static async Task<int> AddOrUpdateItemAndReturnIdAsync<T>(T item) where T : IStorableObject, new()
+        {
+            Service<T> instance = await GetService<T>();
+            int id = await instance.AddOrUpdateAndReturnId( item ).ConfigureAwait(false);
+            return id;
+        }
+
+        /// <summary>
         /// Deletes ALL items from the table containing the specified type. ALL of them. They will be gone forever. ALL of them. Not just one, ALL of them. Completely irretreavable. Gone. ALL I repeat ALL of them. Permanently.
         /// </summary>
         /// <typeparam name="T">The type of tableyou want to clear</typeparam>

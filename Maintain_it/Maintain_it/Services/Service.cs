@@ -128,7 +128,7 @@ namespace Maintain_it.Services
         public virtual async Task<IEnumerable<T>> GetItemsInDateRangeAsync( DateTime newestDateCreated, DateTime oldestDateCreated, bool returnAll = true, int returnCount = 0 )
         {
             await Init();
-            
+
             List<T> data = await db.Table<T>().Where( x => x.CreatedOn <= newestDateCreated && x.CreatedOn >= oldestDateCreated ).ToListAsync();
 
             return !returnAll && returnCount > 0 ? data.Take( returnCount ) : data;
@@ -146,6 +146,34 @@ namespace Maintain_it.Services
         {
             await Init();
             await db.UpdateWithChildrenAsync( item );
+        }
+
+        public virtual async Task AddOrUpdate( T item )
+        {
+            await Init();
+            if( item.Id != 0 )
+            {
+                await db.UpdateWithChildrenAsync( item );
+            }
+            else
+            {
+                await db.InsertWithChildrenAsync( item );
+            }
+        }
+        public virtual async Task<int> AddOrUpdateAndReturnId( T item )
+        {
+            await Init();
+            if( item.Id != 0 )
+            {
+                await db.UpdateWithChildrenAsync( item );
+            }
+            else
+            {
+                await db.InsertWithChildrenAsync( item );
+            }
+
+            List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
+            return lastIds[0];
         }
 
         public virtual async Task<int> DeleteAllAsync<T>()

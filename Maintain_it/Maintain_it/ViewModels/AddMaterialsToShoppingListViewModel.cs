@@ -5,12 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Windows.Input;
 
 using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
 
 using MvvmHelpers;
+using MvvmHelpers.Commands;
+
+using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
 {
@@ -49,6 +53,23 @@ namespace Maintain_it.ViewModels
         #endregion
 
         #region Commands
+        private AsyncCommand saveCommand;
+        public ICommand SaveCommand { get => saveCommand ??= new AsyncCommand( Save ); }
+        private async Task Save()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for( int i = 0; i < DisplayedShoppingListMaterials.Count; i++ )
+            {
+                DisplayedShoppingListMaterials[i].ShoppingList = shoppingList;
+                _ = i < 1 ? stringBuilder.Append( $"{await DisplayedShoppingListMaterials[i].AddOrUpdateAndReturnIdAsync()}" ) : stringBuilder.Append( $",{await DisplayedShoppingListMaterials[i].AddOrUpdateAndReturnIdAsync()}" );
+            }
+
+            string encoded = HttpUtility.UrlEncode( stringBuilder.ToString() );
+
+            await Shell.Current.GoToAsync( $"..?{RoutingPath.ShoppingListMaterialIds}={encoded}" );
+        }
+
         #endregion
 
         #region Methods
@@ -67,44 +88,86 @@ namespace Maintain_it.ViewModels
 
                 if( items.ToListWithCast( out List<MaterialViewModel> list ) )
                 {
-                    List<int> temp = new List<int>();
+                    Console.WriteLine( $"----- START -----" );
+                    HashSet<int> temp = new HashSet<int>();
 
                     foreach( MaterialViewModel mVM in list )
                     {
-                        temp.Add( mVM.Material.Id );
+                        _ = temp.Add( mVM.Material.Id );
+                        Console.WriteLine( mVM.Material.Id );
                     }
 
-                    displayedMaterialIds.Align( displayedMaterialIds.Except( temp ), out List<int> added, out List<int> removed );
 
-                    foreach( ShoppingListMaterialViewModel vm in cache.ToList() )
+                    displayedMaterialIds.Align( temp, out List<int> added, out List<int> removed );
+
+                    UpdateCache( added );
+
+                    RemoveItemsFromDisplayedList( removed );
+
+                    await AddItemsToDisplayedList( added );
+
+                    // Sense Check Logging
+                    Console.WriteLine( $"Displayed Shopping List Materials:" );
+
+                    foreach( ShoppingListMaterialViewModel vm in DisplayedShoppingListMaterials )
                     {
-                        if( added.Contains( vm.Material.Id ) )
-                        {
-                            DisplayedShoppingListMaterials.Add( vm );
-                            _ = selectedMaterials.GetOrAdd( vm.ShoppingListMaterial.Id, vm.ShoppingListMaterial );
-                            _ = cache.Remove( vm );
-                        }
+                        Console.WriteLine( $"{vm.Name} - {vm.Material.Id}" );
                     }
 
-                    foreach( ShoppingListMaterialViewModel vm in DisplayedShoppingListMaterials.ToList() )
+                    Console.WriteLine( $"Displayed Material Ids:" );
+
+                    foreach( int id in displayedMaterialIds )
                     {
-                        if( removed.Contains( vm.Material.Id ) )
-                        {
-                            _ = cache.Add( vm );
-                            _ = DisplayedShoppingListMaterials.Remove( vm );
-                            _ = selectedMaterials.Remove( vm.ShoppingListMaterial.Id, out ShoppingListMaterial _ );
-                        }
+                        Console.WriteLine( $"{id}" );
                     }
 
-                    if( DisplayedShoppingListMaterials.Count < displayedMaterialIds.Count )
+                    Console.WriteLine( "Cache:" );
+
+                    foreach( ShoppingListMaterialViewModel vm in cache )
                     {
-                        foreach( int id in added )
-                        {
-                            ShoppingListMaterialViewModel vm = new ShoppingListMaterialViewModel( await DbServiceLocator.GetItemAsync<Material>(id), shoppingList);
-
-                            DisplayedShoppingListMaterials.Add( vm );
-                        }
+                        Console.WriteLine( $"{vm.Name} - {vm.Material.Id}" );
                     }
+
+                    Console.WriteLine( "-_-_-_-_-_-_-_-_-_-_-" );
+                }
+            }
+        }
+
+        private async Task AddItemsToDisplayedList( IEnumerable<int> added )
+        {
+            if( DisplayedShoppingListMaterials.Count < displayedMaterialIds.Count )
+            {
+                foreach( int id in added )
+                {
+                    ShoppingListMaterialViewModel vm = new ShoppingListMaterialViewModel( await DbServiceLocator.GetItemAsync<Material>(id), shoppingList);
+
+                    DisplayedShoppingListMaterials.Add( vm );
+                }
+            }
+        }
+
+        private void RemoveItemsFromDisplayedList( List<int> removed )
+        {
+            foreach( ShoppingListMaterialViewModel vm in DisplayedShoppingListMaterials.ToList() )
+            {
+                if( removed.Contains( vm.Material.Id ) )
+                {
+                    _ = cache.Add( vm );
+                    _ = DisplayedShoppingListMaterials.Remove( vm );
+                    _ = selectedMaterials.Remove( vm.ShoppingListMaterial.Id, out ShoppingListMaterial _ );
+                }
+            }
+        }
+
+        private void UpdateCache( List<int> added )
+        {
+            foreach( ShoppingListMaterialViewModel vm in cache.ToList() )
+            {
+                if( added.Contains( vm.Material.Id ) )
+                {
+                    DisplayedShoppingListMaterials.Add( vm );
+                    _ = selectedMaterials.GetOrAdd( vm.ShoppingListMaterial.Id, vm.ShoppingListMaterial );
+                    _ = cache.Remove( vm );
                 }
             }
         }
@@ -137,14 +200,7 @@ namespace Maintain_it.ViewModels
             locked = false;
         }
 
-        //TODO: Finish Save Method
-        private async Task Save()
-        {
-            foreach( ShoppingListMaterialViewModel mat in DisplayedShoppingListMaterials )
-            {
-                await mat.UpdateAndReturnIdAsync();
-            }
-        }
+
 
         #region Query Handling
         private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
@@ -154,10 +210,10 @@ namespace Maintain_it.ViewModels
             switch( kvp.Key )
             {
                 case RoutingPath.ShoppingListId:
-                    if( int.TryParse( HttpUtility.HtmlDecode( kvp.Value ), out int id ) )
+                    await Refresh();
+                    if( int.TryParse( HttpUtility.HtmlDecode( kvp.Value ), out int shoppingListId ) )
                     {
-                        shoppingList = await DbServiceLocator.GetItemRecursiveAsync<ShoppingList>( id );
-                        materials = await DbServiceLocator.GetAllItemsAsync<Material>() as List<Material>;
+                        shoppingList = await DbServiceLocator.GetItemRecursiveAsync<ShoppingList>( shoppingListId );
 
                         if( shoppingList.Materials.Count > 0 )
                         {
@@ -166,19 +222,60 @@ namespace Maintain_it.ViewModels
                                 _ = selectedMaterials.GetOrAdd( material.Id, material );
                             } );
                         }
+                    }
+                    break;
 
-                        if( materials.Count > 0 )
+                case RoutingPath.ShoppingListMaterialIds:
+                    await Refresh();
+                    string[] sLMIds = HttpUtility.HtmlDecode( kvp.Value ).Split(',');
+                    List<int> shoppingListMaterialIds = new List<int>();
+                    foreach( string id in sLMIds )
+                    {
+                        if( int.TryParse( id, out int shoppingListMaterialId ) )
                         {
-                            _ = Parallel.ForEach( materials, material =>
-                            {
-                                _ = materialVMs.GetOrAdd( material.Id, new MaterialViewModel( material ) );
-                            } );
+                            shoppingListMaterialIds.Add( shoppingListMaterialId );
                         }
                     }
 
-                    await Refresh();
+                    List<ShoppingListMaterial> mats = await DbServiceLocator.GetItemRangeAsync<ShoppingListMaterial>(shoppingListMaterialIds) as List<ShoppingListMaterial>;
+
+                    _ = Parallel.ForEach( mats, mat =>
+                     {
+                         _ = selectedMaterials.GetOrAdd( mat.Id, mat );
+                     } );
                     break;
 
+                case RoutingPath.MaterialIds:
+                    await Refresh();
+                    string[] materialIds = HttpUtility.HtmlDecode(kvp.Value).Split(',');
+
+                    foreach( string id in materialIds )
+                    {
+                        if( int.TryParse( id, out int materialId ) )
+                        {
+                            _ = displayedMaterialIds.Add( materialId );
+                        }
+                    }
+
+                    AddMaterialsToSelectedMaterials( displayedMaterialIds.ToList() );
+
+                    await AddItemsToDisplayedList( displayedMaterialIds );
+
+                    break;
+
+            }
+
+            await Refresh();
+        }
+
+        private void AddMaterialsToSelectedMaterials( List<int> items )
+        {
+            foreach( int id in materialVMs.Keys )
+            {
+                if( items.Contains( id ) )
+                {
+                    SelectedMaterialViewModels.Add( materialVMs[id] );
+                }
             }
         }
         #endregion

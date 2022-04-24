@@ -2,19 +2,105 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
+             xmlns:fontawesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
              x:Class="Maintain_it.Views.ShoppingListDetailView"
              Title="{Binding Name}">
     <ContentPage.BindingContext>
         <viewmodels:ShoppingListViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Add" Command="{Binding AddNewShoppingListMaterialCommand}"/>
+        <ToolbarItem Text="Edit" Command="{Binding AddNewShoppingListMaterialCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <ScrollView>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </ScrollView>
+        <StackLayout>
+            <Frame BorderColor="Gray" Margin="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"/>
+                    </Grid.RowDefinitions>
+                    <Label Text="Remaining Items:" 
+                           FontSize="Medium"
+                           Grid.Column="1"
+                           Grid.ColumnSpan="2"/>
+                    <Label Text="{Binding Count}" 
+                           FontSize="Medium"
+                           Grid.Column="2"
+                           HorizontalOptions="End"/>
+                </Grid>
+            </Frame>
+            <CollectionView ItemsSource="{Binding Materials}">
+                <CollectionView.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                        </Grid.RowDefinitions>
+                        <Label Text="Name" FontSize="Medium"
+                               Grid.Column="1"
+                               HorizontalOptions="Start"/>
+                        <Label Text="Quantity" FontSize="Medium"
+                               Grid.Column="2"
+                               HorizontalOptions="Center"/>
+                        <Line HeightRequest="1" 
+                              Grid.Column="0" Grid.ColumnSpan="4"
+                              Grid.Row="1"
+                              BackgroundColor="Gray"
+                              VerticalOptions="Center"/>
+                    </Grid>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="0,10,5,10">
+                            <Frame.GestureRecognizers>
+                            </Frame.GestureRecognizers>
+                            <Grid>
+                                <Grid.GestureRecognizers>
+                                    <SwipeGestureRecognizer Direction="Right"
+                                                            Command="{Binding CrossOffCommand}"
+                                                            CommandParameter="Right"/>
+                                </Grid.GestureRecognizers>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Label Text="{Binding Name}"
+                                       FontSize="Medium"
+                                       Grid.Column="1"
+                                       HorizontalOptions="Start"/>
+                                <Label Text="{Binding Quantity}"
+                                       FontSize="Medium"
+                                       Grid.Column="2"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}"
+                                       FontSize="Medium"
+                                       FontFamily="FA-Solid" 
+                                       VerticalOptions="Center"
+                                       Grid.Column="3"
+                                       HorizontalOptions="End"/>
+                                <Line HeightRequest="2"
+                                      Grid.Column="1" Grid.ColumnSpan="2"
+                                      BackgroundColor="Black" 
+                                      VerticalOptions="Center"
+                                      IsVisible="{Binding Purchased}"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
     </ContentPage.Content>
 </ContentPage>

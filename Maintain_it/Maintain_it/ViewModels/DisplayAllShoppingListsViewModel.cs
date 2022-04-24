@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Input;
 
+using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
 using Maintain_it.Views;
@@ -15,11 +16,16 @@ using MvvmHelpers.Commands;
 
 using Xamarin.Forms;
 
+using Command = MvvmHelpers.Commands.Command;
+
 namespace Maintain_it.ViewModels
 {
     public class DisplayAllShoppingListsViewModel : BaseViewModel
     {
-
+        public DisplayAllShoppingListsViewModel()
+        {
+            _ = Task.Run( async () => await Refresh() );
+        }
         #region Properties
         private List<ShoppingList> shoppingLists { get; set; }
 
@@ -33,7 +39,7 @@ namespace Maintain_it.ViewModels
         #endregion
 
         #region Commands
-
+        // Create New Shopping List
         private AsyncCommand createNewShoppingListCommand;
         public ICommand CreateNewShoppingListCommand 
         { 
@@ -45,6 +51,7 @@ namespace Maintain_it.ViewModels
             await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}" );
         }
 
+        // Open ShoppingList
         private AsyncCommand<int> openShoppingListCommand;
         private ICommand OpenShoppingListCommand 
         { 
@@ -56,15 +63,13 @@ namespace Maintain_it.ViewModels
             string encodedId = HttpUtility.HtmlEncode(shoppingListId);
             await Shell.Current.GoToAsync( $"{nameof( ShoppingListDetailView )}?id={encodedId}" );
         }
-
-        #endregion
-
-        #region Methods
-        private async Task Init()
-        {
-            await Refresh();
+        
+        // Refresh
+        private AsyncCommand refreshCommand;
+        public ICommand RefreshCommand 
+        {  
+            get => refreshCommand ??= new AsyncCommand( Refresh );
         }
-
         private async Task Refresh()
         {
             shoppingLists = await DbServiceLocator.GetAllItemsAsync<ShoppingList>().ConfigureAwait( false ) as List<ShoppingList>;
@@ -74,7 +79,7 @@ namespace Maintain_it.ViewModels
 
             _ = Parallel.ForEach( shoppingLists, sList =>
             {
-                if( sList.Active )
+                if( sList.Active || !sList.Active)
                 {
                     bag.Add( new ShoppingListViewModel( sList ) );
                 }
@@ -83,14 +88,21 @@ namespace Maintain_it.ViewModels
             ShoppingListViewModels.AddRange( bag );
         }
 
+        #endregion
+
+        #region Methods
+        private async Task Init()
+        {
+            await Refresh();
+        }
+
+
         #region Query Handling
         private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
         {
-            await Init();
-
             switch( kvp.Key )
             {
-                default:
+                case RoutingPath.Refresh:
                     await Refresh();
                     break;
             }

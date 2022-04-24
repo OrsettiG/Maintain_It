@@ -9,7 +9,7 @@
         <viewmodels:CreateNewShoppingListViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Save"/>
+        <ToolbarItem Text="Save" Command="{Binding SaveCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <Grid>
@@ -40,17 +40,51 @@
 
 
                         <CollectionView ItemsSource="{Binding ShoppingListMaterials}">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Horizontal"/>
-                            </CollectionView.ItemsLayout>
+                            <CollectionView.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Text="Name"
+                                           FontSize="Medium"
+                                           Grid.Column="0"/>
+                                    <Label Text="Quantity Required" 
+                                           FontSize="Medium"
+                                           Grid.Column="1" Grid.ColumnSpan="2"/>
+                                </Grid>
+                            </CollectionView.Header>
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <!--DisplayStuff-->
-                                    <Grid>
+                                    <Grid HeightRequest="50">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
                                         <Grid.GestureRecognizers>
-                                            <SwipeGestureRecognizer Direction="Right" 
-                                                                Command="{Binding CrossOffCommand}"/>
+                                            <SwipeGestureRecognizer Direction="Right"
+                                                                    CommandParameter="Right"
+                                                                    Command="{Binding CrossOffCommand}"/>
+                                            <SwipeGestureRecognizer Direction="Left"
+                                                                    CommandParameter="Left"
+                                                                    Command="{Binding UnCrossCommand}"/>
+                                            <TapGestureRecognizer Command="{Binding OpenCommand}"/>
                                         </Grid.GestureRecognizers>
+                                        <!--<CheckBox IsChecked="{Binding Purchased}"/>-->
+                                        <Label Text="{Binding Name}" 
+                                               TextDecorations="{Binding TextDecoration}"/>
+                                        
+                                        <Label Text="{Binding Quantity}" 
+                                               TextDecorations="{Binding TextDecoration}"
+                                               Grid.Column="1"
+                                               HorizontalOptions="Center"/>
+
+                                        <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}" 
+                                               FontFamily="FA-Solid"
+                                               Grid.Column="2"
+                                               HorizontalOptions="End"/>
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>

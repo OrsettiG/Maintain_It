@@ -2,14 +2,32 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels"
+             xmlns:fontawesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
              x:Class="Maintain_it.Views.AddMaterialsToShoppingListView">
     <ContentPage.BindingContext>
         <viewmodel:AddMaterialsToShoppingListViewModel/>
     </ContentPage.BindingContext>
+    <ContentPage.Resources>
+        <Style TargetType="Frame">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="Orange" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
     <ContentPage.Content>
         <ScrollView>
             <StackLayout>
-<!--Search and Filter-->
+                <!--Search and Filter-->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -21,7 +39,7 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    
+
                     <!--Search Entry-->
                     <Entry Placeholder="Search..." Text="{Binding SearchTerms}"
                            Grid.Column="0" Grid.ColumnSpan="2"
@@ -33,13 +51,16 @@
                             Grid.Column="2"
                             Grid.Row="0"/>
                     <!-- Filters Toggle Button -->
-                    <!----> <!-- Filter Option Selectors (Hidden unless toggle = true) -->
-                    <!----> <!-- Save Filters Button (Hidden unless toggle = true) -->
-                    <!----> <!-- Reset Filters Button (Hidden unless toggle = true) -->
-                    
+                    <!---->
+                    <!-- Filter Option Selectors (Hidden unless toggle = true) -->
+                    <!---->
+                    <!-- Save Filters Button (Hidden unless toggle = true) -->
+                    <!---->
+                    <!-- Reset Filters Button (Hidden unless toggle = true) -->
+
                 </Grid>
 
-<!--Available Materials-->
+                <!--Available Materials-->
                 <Grid BackgroundColor="LightGray">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -47,40 +68,98 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    
+
                     <!--Available Materials Collection-->
                     <CollectionView ItemsSource="{Binding MaterialViewModels}"
                                     SelectionMode="Multiple"
                                     SelectedItems="{Binding SelectedMaterialViewModels}"
                                     SelectionChangedCommand="{Binding MaterialSelectionChangedCommand}"
-                                    SelectionChangedCommandParameter="{Binding SelectedMaterialViewModels}">
+                                    SelectionChangedCommandParameter="{Binding SelectedMaterialViewModels}"
+                                    Margin="5"
+                                    ItemSizingStrategy="MeasureAllItems"
+                                    MinimumHeightRequest="300"
+                                    HeightRequest="300">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Horizontal" 
+                                             HorizontalItemSpacing="10"
+                                             Span="1"/>
+                        </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
+                                <Frame BorderColor="Black" 
+                                       Margin="10" Padding="10"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       WidthRequest="325"
+                                       HeightRequest="275">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition Height="25"/>
+                                            <RowDefinition Height="25"/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
 
-                                    <Label Text="{Binding Name}" 
+                                        <!--Name-->
+                                        <Label Text="{Binding Name}" 
                                            Grid.Column="1"
                                            Grid.Row="0"
                                            HorizontalOptions="Center"/>
-                                </Grid>
+
+                                        <!--Image-->
+                                        <Frame Grid.Column="0" Grid.ColumnSpan="2"
+                                               Grid.Row="1" Grid.RowSpan="3"
+                                               BorderColor="Black"
+                                               HorizontalOptions="Start"
+                                               VerticalOptions="Start"
+                                               WidthRequest="75"
+                                               HeightRequest="75">
+
+                                            <!--Put the image here-->
+                                        </Frame>
+
+                                        <!--Owned-->
+                                        <Label Text="Owned:" 
+                                               Grid.Column="1" Grid.Row="1"
+                                               HorizontalOptions="End"/>
+                                        <Label Text="{Binding QuantityOwned}" 
+                                               Grid.Column="2" Grid.Row="1"
+                                               HorizontalOptions="Start"/>
+
+                                        <!--Size-->
+                                        <Label Text="Size:" 
+                                               Grid.Column="1" Grid.Row="2"
+                                               HorizontalOptions="End"/>
+                                        <Label Text="{Binding Size}" 
+                                               Grid.Column="2" Grid.Row="2"
+                                               HorizontalOptions="Start"/>
+
+                                        <!--Description-->
+                                        <Label Text="Description:" 
+                                               Grid.Column="0" Grid.Row="4"
+                                               VerticalOptions="End"/>
+                                        <Label Text="{Binding Description}" 
+                                               Grid.Column="0" Grid.ColumnSpan="3"
+                                               Grid.Row="5" Grid.RowSpan="2"
+                                               HorizontalOptions="Start"/>
+
+                                    </Grid>
+                                </Frame>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </Grid>
-                
-<!--Selected Materials-->
-                <Grid>
+
+                <!--Selected Materials-->
+                <Grid BackgroundColor="#ABC9BA">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
@@ -88,32 +167,127 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <!--Selected Materials Collection-->
-                    <CollectionView ItemsSource="{Binding DisplayedShoppingListMaterials}">
+                    <CollectionView ItemsSource="{Binding DisplayedShoppingListMaterials}"
+                                    Margin="5"
+                                    ItemSizingStrategy="MeasureAllItems"
+                                    MinimumHeightRequest="300"
+                                    HeightRequest="300">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Horizontal" 
+                                             HorizontalItemSpacing="10"
+                                             Span="1"/>
+                        </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
+                                <Frame BorderColor="Black"
+                                       BackgroundColor="LightSlateGray"
+                                       Margin="10" Padding="10"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"
+                                       WidthRequest="325"
+                                       HeightRequest="275">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition Height="25"/>
+                                            <RowDefinition Height="25"/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
 
-                                    <Label Text="{Binding Name}" 
+                                        <!--Name-->
+                                        <Label Text="{Binding Name}" 
                                            Grid.Column="1"
                                            Grid.Row="0"
                                            HorizontalOptions="Center"/>
-                                </Grid>
+
+                                        <!--Image-->
+                                        <Frame Grid.Column="0" Grid.ColumnSpan="2"
+                                               Grid.Row="1" Grid.RowSpan="3"
+                                               BorderColor="Black"
+                                               HorizontalOptions="Start"
+                                               VerticalOptions="Start"
+                                               WidthRequest="75"
+                                               HeightRequest="75">
+
+                                            <!--Put the image here-->
+                                        </Frame>
+                                        
+                                        <!--Size-->
+                                        <Label Text="Size:" 
+                                               Grid.Column="1" Grid.Row="1"
+                                               HorizontalOptions="End"/>
+                                        <Label Text="{Binding Material.Size}" 
+                                               Grid.Column="2" Grid.Row="1"
+                                               HorizontalOptions="Start"/>
+
+                                        <!--Owned-->
+                                        <Grid Grid.Column="1" Grid.ColumnSpan="2" 
+                                              Grid.Row="2" Grid.RowSpan="2"
+                                              HorizontalOptions="StartAndExpand" 
+                                              VerticalOptions="StartAndExpand">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <Label Text="Required:" 
+                                                   Grid.Column="0"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        
+                                            <Button Text="{Static fontawesome:FontAwesomeIcons.Minus}" 
+                                                    FontFamily="FA-Solid" FontSize="10"
+                                                    Grid.Column="1"
+                                                    CornerRadius="2"
+                                                    WidthRequest="40"
+                                                    HeightRequest="40"/>
+                                            <Frame Grid.Column="2" 
+                                                   Padding="0" Margin="0" 
+                                                   BorderColor="Black" CornerRadius="0" 
+                                                   HorizontalOptions="FillAndExpand">
+                                                <Entry Text="{Binding Quantity}" FontSize="Medium"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                            </Frame>
+
+                                            <Button Text="{Static fontawesome:FontAwesomeIcons.Plus}" 
+                                                    FontFamily="FA-Solid" FontSize="10"
+                                                    Grid.Column="3"
+                                                    CornerRadius="2"
+                                                    WidthRequest="40"
+                                                    HeightRequest="40"/>
+                                        </Grid>
+
+
+                                        <!--Description-->
+                                        <Label Text="Description:" 
+                                               Grid.Column="0" Grid.Row="4"
+                                               VerticalOptions="End"/>
+                                        <Label Text="{Binding Description}" 
+                                               Grid.Column="0" Grid.ColumnSpan="3"
+                                               Grid.Row="5" Grid.RowSpan="2"
+                                               HorizontalOptions="Start"/>
+
+                                    </Grid>
+                                </Frame>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </Grid>
-                
+
                 <Button Text="Save" Command="{Binding SaveCommand}"/>
             </StackLayout>
         </ScrollView>

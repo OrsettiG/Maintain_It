@@ -19,6 +19,9 @@
                    Margin="5">
                 <StackLayout>
                     <CollectionView ItemsSource="{Binding ShoppingListViewModels}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout ItemSpacing="5" Orientation="Vertical"/>
+                        </CollectionView.ItemsLayout>
                         <CollectionView.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -42,31 +45,48 @@
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Frame>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="3*"/>
-                                            <ColumnDefinition Width="3*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Text="{Binding Name}"
-                                           Grid.Column="0"
-                                           HorizontalOptions="Start"
-                                           Margin="2"/>
-                                        <Label Text="{Binding Count}"
-                                           Grid.Column="1"
-                                           HorizontalOptions="EndAndExpand"
-                                           Margin="2"/>
-                                        <Label Text="{Static fontawesome:FontAwesomeIcons.LongArrowRight}"
-                                           FontFamily="FA-Solid"
-                                           Grid.Column="2"
-                                           HorizontalOptions="End"/>
+                                <SwipeView>
+                                    <SwipeView.LeftItems>
+                                        <SwipeItems>
+                                            <SwipeItem Text="Delete"
+                                                       IconImageSource="{FontImage FontFamily=FA-Solid, 
+                                                                        Glyph={Static fontawesome:FontAwesomeIcons.Trash}}"
+                                                       BackgroundColor="DarkRed"/>
+                                        </SwipeItems>
+                                    </SwipeView.LeftItems>
+                                    <SwipeView.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenShoppingListCommand}"/>
+                                    </SwipeView.GestureRecognizers>
+                                    <Frame BorderColor="Gray" HasShadow="True">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Text="{Binding Name}"
+                                               FontSize="Medium"
+                                               Grid.Column="0"
+                                               HorizontalOptions="Start"
+                                               Margin="2"/>
+                                            <Label Text="{Binding Count}"
+                                               FontSize="Medium"
+                                               Grid.Column="1"
+                                               HorizontalOptions="CenterAndExpand"
+                                               Margin="2"/>
+                                            <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}"
+                                               FontFamily="FA-Solid"
+                                               Grid.Column="2"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center"/>
 
-                                    </Grid>
-                                </Frame>
+                                        </Grid>
+                                    </Frame>
+                                </SwipeView>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
+                    <Button Text="Refresh" Command="{Binding RefreshCommand}"/>
                 </StackLayout>
             </Frame>
         </ScrollView>
