@@ -1,12 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Maintain_it.Views.PerformMaintenanceView">
+             xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels"
+             x:Class="Maintain_it.Views.PerformMaintenanceView"
+             Title="{Binding StepNumber}">
+    <ContentPage.BindingContext>
+        <viewmodel:PerformMaintenanceViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Previous" Command="{Binding PreviousStepCommand}"/>
+        <ToolbarItem Text="Next" Command="{Binding NextStepCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <StackLayout>
-            <Label Text="DO THE MAINTENANCE!!!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Label Text="{Binding Step.Name}"
+                       FontSize="Title"
+                       Grid.Column="0" Grid.ColumnSpan="3"
+                       Grid.Row="0"
+                       HorizontalOptions="CenterAndExpand"/>
+            </Grid>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

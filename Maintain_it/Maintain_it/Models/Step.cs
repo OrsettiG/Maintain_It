@@ -9,7 +9,7 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Step : IStorableObject
+    public class Step : IStorableObject, IEquatable<Step>, INode<Step>
     {
         public Step() { }
 
@@ -18,10 +18,10 @@ namespace Maintain_it.Models
 
         #region One To Many Relationships
 
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        [OneToMany( CascadeOperations = CascadeOperation.CascadeRead )]
         public List<Note> Notes { get; set; }
 
-        [OneToMany( CascadeOperations = CascadeOperation.All ), NotNull]
+        [OneToMany( CascadeOperations = CascadeOperation.CascadeRead ), NotNull]
         public List<StepMaterial> StepMaterials { get; set; }
 
         #endregion
@@ -35,33 +35,43 @@ namespace Maintain_it.Models
 
         #endregion
 
-        #region One to One Relationships
+        #region INode Implementation
+        [NotNull]
+        public int Index { get; set; }
 
 #nullable enable
-
+        #region One to One Relationships
+        [ForeignKey( typeof( Step ) )]
+        public int? NextNodeId { get; set; }
+        [OneToOne]
+        public Step? NextNode { get; set; }
 
         [ForeignKey( typeof( Step ) )]
-        public int? NextStepId { get; set; }
+        public int? PreviousNodeId { get; set; }
         [OneToOne]
-        public Step? NextStep { get; set; }
-
-        [ForeignKey( typeof( Step ) )]
-        public int? PreviousStepId { get; set; }
-        [OneToOne]
-        public Step? PreviousStep { get; set; }
-
+        public Step? PreviousNode { get; set; }
+        #endregion
         #endregion
 
         #region Properties
 
         public string? Name { get; set; }
 #nullable disable
-        public int StepNumber { get; set; }
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
         public double TimeRequired { get; set; }
         public int Timeframe { get; set; }
         public DateTime CreatedOn { get; set; }
+
+        public int CompareTo( Step other )
+        {
+            return other == null ? 1 : Index.CompareTo( other.Index );
+        }
+
+        public bool Equals( Step other )
+        {
+            return other.Id == Id;
+        }
         #endregion
     }
 }

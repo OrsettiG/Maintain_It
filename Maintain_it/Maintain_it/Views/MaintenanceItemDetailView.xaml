@@ -8,6 +8,9 @@
     <ContentPage.BindingContext>
         <viewmodels:MaintenanceItemViewModel/>
     </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Start Maintenance" Command="{Binding StartMaintenanceCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <StackLayout x:DataType="viewmodels:MaintenanceItemViewModel">
 
@@ -87,6 +90,7 @@
                            Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="8"
                            HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
                            TextDecorations="Underline"/>
+                    
 
                     <Frame Grid.ColumnSpan="3" Grid.Row="9"
                            BackgroundColor="LightGray"
@@ -108,19 +112,21 @@
                             </CollectionView.ItemsLayout>
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="{x:Type viewmodels:StepViewModel}">
-                                    <Frame BackgroundColor="DarkGray" WidthRequest="250" Padding="5">
+                                    <Frame BackgroundColor="SlateGray" WidthRequest="250" Padding="5">
                                         <Frame.GestureRecognizers>
                                             <DragGestureRecognizer DragStartingCommand="{Binding DragStartingCommand}"
-                                                           DragStartingCommandParameter="{Binding .}"
-                                                           DropCompletedCommand="{Binding DropCompleteCommand}"
-                                                           DropCompletedCommandParameter="{Binding .}"/>
+                                                                   DragStartingCommandParameter="{Binding .}"
+                                                                   DropCompletedCommand="{Binding DropCompleteCommand}"
+                                                                   DropCompletedCommandParameter="{Binding .}"
+                                                                   CanDrag="{Binding CanDrag}"/>
                                             <DropGestureRecognizer DropCommand="{Binding DropCommand}"
                                                            DropCommandParameter="{Binding .}"
                                                            DragOverCommand="{Binding DragOverCommand}"
                                                            DragOverCommandParameter="{Binding .}"/>
                                         </Frame.GestureRecognizers>
-                                        <Grid BackgroundColor="Gray" Padding="3">
+                                        <Grid BackgroundColor="White" Padding="3">
                                             <Grid.RowDefinitions>
+                                                <RowDefinition Height="50"/>
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
@@ -130,19 +136,47 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
 
-                                            <Label Text="{Binding StepNum}" BackgroundColor="Green"
+                                            <Label Text="{Binding StepNum}" BackgroundColor="LightGray"
                                                    Grid.Row="0" Grid.Column="0"
                                                    HorizontalOptions="Start" VerticalOptions="Start"
                                                    Padding="5"/>
 
-                                            <Label Text="{Binding Name}" 
-                                                   HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand"
-                                                   Grid.Row="0" Grid.Column="1"
-                                                   WidthRequest="50" 
-                                                   BackgroundColor="Aquamarine"/>
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="Large"
+                                                   TextDecorations="Underline"
+                                                   HorizontalTextAlignment="Center" 
+                                                   HorizontalOptions="FillAndExpand" 
+                                                   VerticalOptions="Start"
+                                                   Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                                                   WidthRequest="50"/>
+
+                                            <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                </Grid.RowDefinitions>
+                                                
+                                                <Label Text="Materials Required"
+                                                       Grid.Row="0" Grid.Column="0"
+                                                       VerticalOptions="Start"/>
+                                                <Label Text="{Binding StepMaterials.Count}"
+                                                       Grid.Row="0" Grid.Column="1"/>
+                                                
+                                                <Label Text="Notes" 
+                                                       Grid.Column="0" Grid.Row="1"/>
+                                                <Label Text="{Binding Notes.Count}" 
+                                                       Grid.Row="1" Grid.Column="1"/>
+                                            </Grid>
 
                                             <Label Text="{Binding Description}" 
-                                                   Grid.Row="1" Grid.ColumnSpan="3"/>
+                                                   Grid.Row="2" Grid.ColumnSpan="3"/>
+                                            
                                         </Grid>
                                     </Frame>
                                 </DataTemplate>
@@ -150,9 +184,20 @@
                         </CollectionView>
                     </Frame>
 
-                    <Button Text="Add New Step" Command="{Binding NewStepCommand}"
-                            Grid.Column="0" Grid.ColumnSpan="3"
-                            Grid.Row="10"/>
+                    <Grid Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="1"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Button Text="Add New Step" Command="{Binding NewStepCommand}"
+                            Grid.Column="0"
+                            HorizontalOptions="FillAndExpand"/>
+                        
+                        <Button Text="Re-Order" Command="{Binding ToggleCanDragCommand}"
+                            Grid.Column="2"
+                            HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
+                    </Grid>
                 </Grid>
             </ScrollView>
 

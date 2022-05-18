@@ -106,7 +106,7 @@ namespace Maintain_it.ViewModels
                 ShoppingListMaterials = new List<ShoppingListMaterial>()
             };
 
-            int id = await DbServiceLocator.AddItemAndReturnIdAsync( material );
+            int id = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( material );
 
             string encodedId = HttpUtility.UrlEncode( id.ToString() );
             //TODO: Update this nav call with the correct constant variable
@@ -122,7 +122,7 @@ namespace Maintain_it.ViewModels
             material.Units = materialUnits;
             material.QuantityOwned = QuantityOwned;
 
-            await DbServiceLocator.UpdateItemAsync( material );
+            _ = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( material );
             //TODO: Update this nav call with the correct constant variable
             await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" ); // This goes to AddStepMaterialViewModel
         }

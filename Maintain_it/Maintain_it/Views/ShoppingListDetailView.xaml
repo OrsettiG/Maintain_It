@@ -9,98 +9,138 @@
         <viewmodels:ShoppingListViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Edit" Command="{Binding AddNewShoppingListMaterialCommand}"/>
+        <ToolbarItem IconImageSource="{FontImage Glyph={Static fontawesome:FontAwesomeIcons.PencilAlt},
+                                                 FontFamily=FA-Solid,
+                                                 Size=Medium}"
+                                                 Command="{Binding EditShoppingListMaterialsCommand}"/>
     </ContentPage.ToolbarItems>
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding SaveAndGoBackCommand}"/>
+    </Shell.BackButtonBehavior>
     <ContentPage.Content>
-        <StackLayout>
-            <Frame BorderColor="Gray" Margin="5">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="25"/>
-                    </Grid.RowDefinitions>
-                    <Label Text="Remaining Items:" 
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <StackLayout Grid.RowSpan="2">
+                <Frame BorderColor="Gray" Margin="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        <Label Text="Remaining Items:" 
                            FontSize="Medium"
                            Grid.Column="1"
                            Grid.ColumnSpan="2"/>
-                    <Label Text="{Binding Count}" 
+                        <Label Text="{Binding Count}" 
                            FontSize="Medium"
                            Grid.Column="2"
                            HorizontalOptions="End"/>
-                </Grid>
-            </Frame>
-            <CollectionView ItemsSource="{Binding Materials}">
-                <CollectionView.Header>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition Height="5"/>
-                        </Grid.RowDefinitions>
-                        <Label Text="Name" FontSize="Medium"
-                               Grid.Column="1"
-                               HorizontalOptions="Start"/>
-                        <Label Text="Quantity" FontSize="Medium"
-                               Grid.Column="2"
-                               HorizontalOptions="Center"/>
-                        <Line HeightRequest="1" 
-                              Grid.Column="0" Grid.ColumnSpan="4"
-                              Grid.Row="1"
-                              BackgroundColor="Gray"
-                              VerticalOptions="Center"/>
                     </Grid>
-                </CollectionView.Header>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Padding="0,10,5,10">
-                            <Frame.GestureRecognizers>
-                            </Frame.GestureRecognizers>
+                </Frame>
+                <Frame Padding="1" Margin="5" BorderColor="{Binding EditingStateColor}">
+                    <CollectionView ItemsSource="{Binding Materials}" Margin="10" BackgroundColor="White">
+                        <CollectionView.Header>
                             <Grid>
-                                <Grid.GestureRecognizers>
-                                    <SwipeGestureRecognizer Direction="Right"
-                                                            Command="{Binding CrossOffCommand}"
-                                                            CommandParameter="Right"/>
-                                </Grid.GestureRecognizers>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="7*"/>
+                                    <ColumnDefinition Width="*"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <Label Text="{Binding Name}"
-                                       FontSize="Medium"
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="5"/>
+                                </Grid.RowDefinitions>
+                                <Label Text="Name" FontSize="Medium"
                                        Grid.Column="1"
-                                       HorizontalOptions="Start"/>
-                                <Label Text="{Binding Quantity}"
-                                       FontSize="Medium"
-                                       Grid.Column="2"
-                                       HorizontalOptions="Center"/>
-                                <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}"
-                                       FontSize="Medium"
-                                       FontFamily="FA-Solid" 
-                                       VerticalOptions="Center"
-                                       Grid.Column="3"
+                                       HorizontalOptions="Start"/>  
+                                <Label Text="Quantity" FontSize="Medium"
+                                       Grid.Column="1" Grid.ColumnSpan="2"
                                        HorizontalOptions="End"/>
-                                <Line HeightRequest="2"
-                                      Grid.Column="1" Grid.ColumnSpan="2"
-                                      BackgroundColor="Black" 
-                                      VerticalOptions="Center"
-                                      IsVisible="{Binding Purchased}"/>
+                                <Line HeightRequest="1" 
+                                      Grid.Column="0" Grid.ColumnSpan="4"
+                                      Grid.Row="1"
+                                      BackgroundColor="Gray"
+                                      VerticalOptions="Center"/>
                             </Grid>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </StackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <SwipeView Padding="2">
+                                    <SwipeView.RightItems>
+                                        <SwipeItems>
+                                            <SwipeItem Command="{Binding DeleteItemCommand}"
+                                               IsDestructive="True"
+                                               IconImageSource="{FontImage Glyph=
+                                               {
+                                                   Static fontawesome:FontAwesomeIcons.Trash
+                                               },
+                                               FontFamily=FA-Solid}"
+                                               BackgroundColor="DarkRed" 
+                                               IsVisible="{Binding CanEdit}"
+                                               />
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
+                                    <Frame Padding="0,10,5,10" BorderColor="{Binding Color}" HeightRequest="25">
+                                        <Grid>
+                                            <Grid.GestureRecognizers>
+                                                <SwipeGestureRecognizer Direction="Right"
+                                                                        Command="{Binding CrossOffCommand}"
+                                                                        CommandParameter="Right"/>
+                                                <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                                            </Grid.GestureRecognizers>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="10"/>
+                                                <ColumnDefinition Width="7*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="Medium"
+                                                   Grid.Column="1"
+                                                   TextDecorations="{Binding TextDecoration}"
+                                                   HorizontalOptions="FillAndExpand"
+                                                   VerticalOptions="CenterAndExpand"/>
+                                            <Label Text="{Binding Quantity}"
+                                                   FontSize="Medium"
+                                                   Grid.Column="2"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="CenterAndExpand"/>
+                                            <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}"
+                                                   FontSize="Medium"
+                                                   FontFamily="FA-Solid" 
+                                                   VerticalOptions="Center"
+                                                   Grid.Column="3"
+                                                   HorizontalOptions="End"/>
+                                        </Grid>
+                                    </Frame>
+                                </SwipeView>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Frame>
+            </StackLayout>
+
+            <Button Text="{Static fontawesome:FontAwesomeIcons.Plus}"
+                    FontFamily="FA-Solid" FontSize="Large"
+                    Grid.Row="1"
+                    HorizontalOptions="End"
+                    VerticalOptions="End"
+                    Command="{Binding AddRemoveItemsCommand}"
+                    IsVisible="{Binding IsEditing}"
+                    CornerRadius="45"
+                    WidthRequest="90"
+                    HeightRequest="90"
+                    Margin="10"/>
+
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

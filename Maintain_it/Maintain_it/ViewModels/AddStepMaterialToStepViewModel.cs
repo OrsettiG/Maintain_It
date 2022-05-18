@@ -294,6 +294,10 @@ namespace Maintain_it.ViewModels
 
                     await PopulatePreselectedStepMaterials();
                     break;
+
+                case RoutingPath.Refresh:
+                    await Refresh();
+                    break;
             }
         }
 

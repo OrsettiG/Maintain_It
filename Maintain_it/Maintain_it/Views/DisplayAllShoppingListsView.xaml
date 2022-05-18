@@ -51,7 +51,9 @@
                                             <SwipeItem Text="Delete"
                                                        IconImageSource="{FontImage FontFamily=FA-Solid, 
                                                                         Glyph={Static fontawesome:FontAwesomeIcons.Trash}}"
-                                                       BackgroundColor="DarkRed"/>
+                                                       BackgroundColor="DarkRed"
+                                                       IsDestructive="True"
+                                                       Command="{Binding DeleteShoppingListCommand}"/>
                                         </SwipeItems>
                                     </SwipeView.LeftItems>
                                     <SwipeView.GestureRecognizers>

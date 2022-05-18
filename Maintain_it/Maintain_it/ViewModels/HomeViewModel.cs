@@ -69,40 +69,6 @@ namespace Maintain_it.ViewModels
 
         #region Methods
 
-        NodeList<NodeTest> Origin { get; set; }
-
-        private AsyncCommand addTestCommand;
-        public ICommand AddTestCommand => addTestCommand ??= new AsyncCommand( AddTest );
-
-        int countAhead = 1;
-        int countBehind = 1;
-        Random random = new Random();
-        
-        private async Task AddTest()
-        {
-            if( Origin == null )
-            {
-                Origin = new NodeList<NodeTest>( new NodeTest( $"TestNode0" ) );
-            }
-            else
-            {
-                int place = random.Next(0,2);
-
-                if(place == 0 )
-                {
-                    _ = Origin.AddNewNodeAtEnd( new NodeTest( $"BehindNode{countBehind}" ) );
-                    countBehind++;
-                }
-
-                if(place == 1 )
-                {
-
-                    _ = Origin.AddNewNodeAtStart( new NodeTest( $"AheadNode{countAhead}" ) );
-                    countAhead++;
-                }
-            }
-        }
-
         private async Task Add()
         {
             await Shell.Current.GoToAsync( nameof( MaintenanceItemDetailView ) );

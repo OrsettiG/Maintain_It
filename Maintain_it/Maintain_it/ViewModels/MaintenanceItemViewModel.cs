@@ -44,18 +44,23 @@ namespace Maintain_it.ViewModels
         #region PROPERTIES
         private MaintenanceItem item;
 
+        public int ItemId
+        {
+            get => item.Id;
+        }
+
         public List<Timeframe> Timeframes => Options.timeframes;
 
         public bool locked { get; private set; }
 
-        private string name = string.Empty;
+        private string name = "";
         public string Name
         {
             get => name;
             set => SetProperty( ref name, value );
         }
 
-        private string comment;
+        private string comment = "";
         public string Comment
         {
             get => comment;
@@ -138,6 +143,13 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref _stepViewModels, value.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel> );
         }
 
+        private bool canDrag = false;
+        public bool CanDrag
+        {
+            get => canDrag;
+            set => SetProperty( ref canDrag, value );
+        }
+
 
         private HomeViewModel _homeViewModel;
         #endregion
@@ -169,6 +181,33 @@ namespace Maintain_it.ViewModels
 
         private AsyncCommand newStepCommand;
         public ICommand NewStepCommand => newStepCommand ??= new AsyncCommand( NewStep );
+
+        private ICommand toggleCanDragCommand;
+        public ICommand ToggleCanDragCommand
+        {
+            get => toggleCanDragCommand ??= new Command( ToggleCanDrag );
+        }
+
+        private void ToggleCanDrag()
+        {
+            foreach( StepViewModel vm in StepViewModels )
+            {
+                vm.ToggleCanDragCommand?.Execute( null );
+            }
+        }
+
+        private AsyncCommand startMaintenanceCommand;
+        public ICommand StartMaintenanceCommand
+        {
+            get => startMaintenanceCommand ??= new AsyncCommand( StartMaintenance );
+        }
+
+        private async Task StartMaintenance()
+        {
+            string encodedId = HttpUtility.UrlEncode($"{maintenanceItemId}");
+
+            await Shell.Current.GoToAsync( $"{nameof( PerformMaintenanceView )}?{RoutingPath.MaintenanceItemId}={encodedId}" );
+        }
         #endregion
 
         #region METHODS
@@ -190,7 +229,7 @@ namespace Maintain_it.ViewModels
             {
                 string encodedQuery = HttpUtility.UrlEncode( maintenanceItemId.ToString() );
 
-                //await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListFromMaintenanceItemView )}?{nameof( maintenanceItemId )}={encodedQuery}" );
+                //await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListFromMaintenanceItemView )}?{nameof( maintenanceItemId )}={encodedFinalStepId}" );
             }
         }
 
@@ -199,41 +238,17 @@ namespace Maintain_it.ViewModels
 
             if( update )
             {
+                await MaintenanceItemManager.UpdateProperties( item.Id, name: name, comment: comment, firstServiceDate: firstServiceDate, recursEvery: recursEvery, timeframe: (int)frequency, notifyOfNextServiceDate: notifyOfNextServiceDate );
 
-                item.Name = name;
-                item.Comment = comment;
-                item.FirstServiceDate = firstServiceDate;
-                item.PreviousServiceDate = previousServiceDate;
-                item.NextServiceDate = nextServiceDate;
-                item.IsRecurring = isRecurring;
-                item.RecursEvery = recursEvery;
-                item.Frequency = (int)frequency;
-                item.TimesServiced = timesServiced;
-                item.PreviousServiceCompleted = previousServiceCompleted;
-                item.NotifyOfNextServiceDate = notifyOfNextServiceDate;
-                item.Steps = await CreateStepList();
-
-                await DbServiceLocator.UpdateItemAsync( item );
+                await MaintenanceItemManager.UpdateSteps( item.Id, stepIds );
             }
             else
             {
-                item = new MaintenanceItem()
-                {
-                    Name = name,
-                    Comment = comment,
-                    FirstServiceDate = firstServiceDate,
-                    PreviousServiceDate = previousServiceDate,
-                    NextServiceDate = nextServiceDate,
-                    IsRecurring = isRecurring,
-                    RecursEvery = recursEvery,
-                    Frequency = (int)frequency,
-                    TimesServiced = timesServiced,
-                    PreviousServiceCompleted = previousServiceCompleted,
-                    NotifyOfNextServiceDate = notifyOfNextServiceDate,
-                    Steps = await CreateStepList()
-                };
 
-                await DbServiceLocator.AddItemAsync( item );
+                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, (int)Frequency, NotifyOfNextServiceDate );
+
+                await MaintenanceItemManager.AddSteps( id, stepIds );
+
             }
 
             ClearData();
@@ -246,13 +261,13 @@ namespace Maintain_it.ViewModels
 
             foreach( StepViewModel model in StepViewModels )
             {
-                await MainThread.InvokeOnMainThreadAsync( () =>
-                  model.SaveStep() );
+                //await MainThread.InvokeOnMainThreadAsync( () =>
+                //  model.SaveStep() );
 
                 list.Add( model.Step );
             };
 
-            return list.ToList();
+            return list;
         }
 
         private List<StepViewModel> CreateStepViewModelList( List<Step> stepList )
@@ -297,21 +312,19 @@ namespace Maintain_it.ViewModels
                 update = true;
             }
 
-            Name = maintenanceItem.Name;
-            Comment = maintenanceItem.Comment;
-            FirstServiceDate = maintenanceItem.FirstServiceDate;
-            PreviousServiceDate = maintenanceItem.PreviousServiceDate;
-            NextServiceDate = maintenanceItem.NextServiceDate;
-            IsRecurring = maintenanceItem.IsRecurring;
-            RecursEvery = maintenanceItem.RecursEvery;
+            Name = item.Name;
+            Comment = item.Comment;
+            FirstServiceDate = item.FirstServiceDate;
+            RecursEvery = item.RecursEvery;
 
-            Frequency = (Timeframe)maintenanceItem.Frequency;
-            TimesServiced = maintenanceItem.TimesServiced;
-            PreviousServiceCompleted = maintenanceItem.PreviousServiceCompleted;
-            NotifyOfNextServiceDate = maintenanceItem.NotifyOfNextServiceDate;
+            Frequency = (Timeframe)item.Timeframe;
+            TimesServiced = item.ServiceRecords.Count;
+            PreviousServiceCompleted = TimesServiced > 0 && item.ServiceRecords[^1].ServiceCompleted;
+            NotifyOfNextServiceDate = item.NotifyOfNextServiceDate;
 
             stepIds.AddRange( GetStepIds() );
-            RefreshSteps();
+
+            _ = Task.Run( async () => await RefreshSteps() );
         }
 
         private IEnumerable<int> GetStepIds()
@@ -323,7 +336,7 @@ namespace Maintain_it.ViewModels
             }
             return ids;
         }
-        
+
         private void ClearData()
         {
             if( !locked )
@@ -434,10 +447,16 @@ namespace Maintain_it.ViewModels
 
         private async Task NewStep()
         {
+            if( item == null )
+            {
+                maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, TimesServiced, NotifyOfNextServiceDate );
+            }
+
             if( StepViewModels.Count > 0 )
             {
-                string encodedQuery = HttpUtility.UrlEncode(StepViewModels[^1].Step.Id.ToString());
-                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?previousStepId={encodedQuery}" );
+                string encodedFinalStepId = HttpUtility.UrlEncode(StepViewModels[^1].Step.Id.ToString());
+                string encodedMaintenanceItemId = HttpUtility.UrlEncode(maintenanceItemId.ToString());
+                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?previousStepId={encodedFinalStepId}&{RoutingPath.MaintenanceItemId}={encodedMaintenanceItemId}" );
             }
 
             if( StepViewModels.Count < 1 )
@@ -449,6 +468,7 @@ namespace Maintain_it.ViewModels
         }
 
         #endregion
+
         #region Query Handling
 
         public override async void ApplyQueryAttributes( IDictionary<string, string> query )

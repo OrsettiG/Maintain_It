@@ -154,6 +154,7 @@
                                     <Button 
                                         Grid.Row="4" Grid.Column="0"  Grid.ColumnSpan="4" 
                                         Text="Start Maintenance"
+                                        Command="{Binding StartMaintenanceCommand}"
                                         VerticalOptions="End" HorizontalOptions="FillAndExpand" 
                                         BackgroundColor="Green"/>
                                 </Grid>

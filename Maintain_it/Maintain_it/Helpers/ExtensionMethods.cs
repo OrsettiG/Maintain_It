@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Maintain_it.Models;
+using Maintain_it.Services;
 
 namespace Maintain_it.Helpers
 {
@@ -33,7 +34,7 @@ namespace Maintain_it.Helpers
             return list.Count == original.Count;
         }
 
-        internal static void Align<T>( this HashSet<T> set, IEnumerable<T> targets, out List<T> Added, out List<T> Removed)
+        internal static void Align<T>( this HashSet<T> set, IEnumerable<T> targets, out List<T> Added, out List<T> Removed )
         {
             Console.WriteLine( "ALIGNING" );
             Added = new List<T>();
@@ -51,13 +52,20 @@ namespace Maintain_it.Helpers
                     Added.Add( t );
                     Console.WriteLine( $"Added {t}" );
                 }
+
+                // TODO: Should be able to make this loop into the following:
+                //if( set.Add( t ) )
+                //{
+                //    Added.Add( t );
+                //    Console.WriteLine( $"Added {t}" );
+                //}
             }
 
             List<T> temp = new List<T>(set);
 
             foreach( T t in temp )
             {
-                if( targets.Contains(t) )
+                if( targets.Contains( t ) )
                 {
                     continue;
                 }
@@ -72,7 +80,46 @@ namespace Maintain_it.Helpers
             Console.WriteLine( "ALIGNMENT COMPLETE" );
         }
 
-        internal static bool Contains<T>(this IEnumerable<T> source, T value )
+        internal static IEnumerable<int> GetIds( this IEnumerable<IStorableObject> storableObjects )
+        {
+            List<int> ids = new List<int>();
+            foreach( IStorableObject storableObject in storableObjects )
+            {
+                ids.Add( storableObject.Id );
+            }
+            return ids;
+        }
+
+        internal static void Align<T>( this HashSet<T> set, IEnumerable<T> targets )
+        {
+            foreach( T t in targets )
+            {
+                if( set.Contains( t ) )
+                {
+                    continue;
+                }
+                else
+                {
+                    _ = set.Add( t );
+                }
+            }
+
+            List<T> temp = new List<T>(set);
+
+            foreach( T t in temp )
+            {
+                if( targets.Contains( t ) )
+                {
+                    continue;
+                }
+                else
+                {
+                    _ = set.Remove( t );
+                }
+            }
+        }
+
+        internal static bool Contains<T>( this IEnumerable<T> source, T value )
         {
             foreach( T t in source )
             {

@@ -56,5 +56,13 @@ namespace Maintain_it.Helpers
         /// </list>
         /// </summary>
         public const string ShoppingListMaterialId = "shoppingListMaterialId";
+
+        /// <summary>
+        /// Query Param for:
+        /// <list type="bullet">
+        /// <item><see cref="PerformMaintenanceViewModel"/></item>
+        /// </list>
+        /// </summary>
+        public const string MaintenanceItemId = "maintenanceItemId";
     }
 }

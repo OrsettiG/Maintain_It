@@ -17,7 +17,7 @@ namespace Maintain_it.Models
 
         #region Many To Many Relationships
 
-        [OneToMany( CascadeOperations = CascadeOperation.All)]
+        [OneToMany( CascadeOperations = CascadeOperation.CascadeRead )]
         public List<ShoppingListMaterial> Materials { get; set; }
 
         #endregion

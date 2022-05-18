@@ -13,6 +13,7 @@ namespace Maintain_it
         public AppShell()
         {
             InitializeComponent();
+
             //Home Routes
             Routing.RegisterRoute( nameof( TestView ), typeof( TestView ) );
 
@@ -26,6 +27,8 @@ namespace Maintain_it
             Routing.RegisterRoute( $"{nameof( MaintenanceItemDetailView )}/{nameof( AddNewStepView )}", typeof( AddNewStepView ) );
 
             Routing.RegisterRoute( $"{nameof( MaintenanceItemDetailView )}/{nameof( AddNewStepView )}/{nameof( AddStepMaterialsToStepView )}", typeof( AddStepMaterialsToStepView ) );
+            
+            Routing.RegisterRoute( $"{nameof(PerformMaintenanceView)}", typeof( PerformMaintenanceView ) );
 
             //ShoppingList Views
             Routing.RegisterRoute( $"{nameof( DisplayAllShoppingListsView )}/{nameof( CreateNewShoppingListView )}", typeof( CreateNewShoppingListView ) );
@@ -43,6 +46,9 @@ namespace Maintain_it
             Routing.RegisterRoute( nameof( AboutView ), typeof( AboutView ) );
 
             //Support Routes
+
+            //General Routes
+            Routing.RegisterRoute($"{nameof(MaterialDetailView)}", typeof( MaterialDetailView ) );
         }
     }
 }

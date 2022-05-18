@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
+using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
 
@@ -31,37 +33,37 @@ namespace Maintain_it.ViewModels
         #region Properties
 
         private Material _material;
-        public Material Material 
-        { 
-            get => _material; 
+        public Material Material
+        {
+            get => _material;
         }
 
         private string name;
-        public string Name 
-        { 
-            get => name; 
-            set => SetProperty( ref name, value ); 
+        public string Name
+        {
+            get => name;
+            set => SetProperty( ref name, value );
         }
 
         private string description;
-        public string Description 
-        { 
-            get => description; 
-            set => SetProperty( ref description, value ); 
+        public string Description
+        {
+            get => description;
+            set => SetProperty( ref description, value );
         }
 
         private double? size;
-        public double? Size 
-        { 
-            get => size; 
-            set => SetProperty( ref size, value ); 
+        public double? Size
+        {
+            get => size;
+            set => SetProperty( ref size, value );
         }
 
         private int quantityOwned;
-        public int QuantityOwned 
-        { 
-            get => quantityOwned; 
-            set => SetProperty( ref quantityOwned, value ); 
+        public int QuantityOwned
+        {
+            get => quantityOwned;
+            set => SetProperty( ref quantityOwned, value );
         }
 
         private bool selected;
@@ -72,80 +74,84 @@ namespace Maintain_it.ViewModels
         }
 
         private ObservableRangeCollection<Tag> tags;
-        public ObservableRangeCollection<Tag> Tags 
-        { 
-            get => tags ??= new ObservableRangeCollection<Tag>(); 
-            set => SetProperty( ref tags, value ); 
+        public ObservableRangeCollection<Tag> Tags
+        {
+            get => tags ??= new ObservableRangeCollection<Tag>();
+            set => SetProperty( ref tags, value );
         }
 
-        private ConcurrentDictionary<int, byte> uniqueSteps = new ConcurrentDictionary<int, byte>();
-        private ObservableRangeCollection<Step> steps;
-        public ObservableRangeCollection<Step> Steps 
-        { 
-            get => steps ??= new ObservableRangeCollection<Step>(); 
-            set => SetProperty( ref steps, value ); 
+        private ConcurrentDictionary<int, StepViewModel> uniqueSteps = new ConcurrentDictionary<int, StepViewModel>();
+        private ObservableRangeCollection<StepViewModel> steps;
+        public ObservableRangeCollection<StepViewModel> Steps
+        {
+            get => steps ??= new ObservableRangeCollection<StepViewModel>();
+            set => SetProperty( ref steps, value );
         }
 
-        private ConcurrentDictionary<int, byte> uniqueShoppingLists = new ConcurrentDictionary<int, byte>();
-        private ObservableRangeCollection<ShoppingList> shoppingLists;
-        public ObservableRangeCollection<ShoppingList> ShoppingLists 
-        { 
-            get => shoppingLists ??= new ObservableRangeCollection<ShoppingList>(); 
-            set => SetProperty( ref shoppingLists, value ); 
-        }
-
-        private ConcurrentDictionary<int, byte> uniqueRetailers = new ConcurrentDictionary<int, byte>();
-        private ObservableRangeCollection<Retailer> retailers;
-        public ObservableRangeCollection<Retailer> Retailers 
-        { 
-            get => retailers ??= new ObservableRangeCollection<Retailer>(); 
-            set => SetProperty( ref retailers, value ); 
+        private ConcurrentDictionary<int, ShoppingListViewModel> uniqueShoppingLists = new ConcurrentDictionary<int, ShoppingListViewModel>();
+        private ObservableRangeCollection<ShoppingListViewModel> shoppingLists;
+        public ObservableRangeCollection<ShoppingListViewModel> ShoppingLists
+        {
+            get => shoppingLists ??= new ObservableRangeCollection<ShoppingListViewModel>();
+            set => SetProperty( ref shoppingLists, value );
         }
         #endregion
 
         #region Methods
         private async Task Init()
         {
-            List<StepMaterial> stepMaterials = await DbServiceLocator.GetAllItemsAsync<StepMaterial>() as List<StepMaterial>;
-            List<ShoppingListMaterial> shoppingListMaterials = await DbServiceLocator.GetAllItemsAsync<ShoppingListMaterial>() as List<ShoppingListMaterial>;
-            List<RetailerMaterial> retailerMaterials = await DbServiceLocator.GetAllItemsAsync<RetailerMaterial>() as List<RetailerMaterial>;
+            HashSet<int>StepIds = new HashSet<int>();
+            foreach( StepMaterial mat in Material.StepMaterials )
+            {
+                _ = StepIds.Add( mat.StepId );
+            }
+            
+            HashSet<int>ShoppingListIds = new HashSet<int>();
+            foreach( ShoppingListMaterial mat in Material.ShoppingListMaterials )
+            {
+                _ = ShoppingListIds.Add( mat.ShoppingListId );
+            }
+            List<Step> steps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( StepIds ) as List<Step>;
+
+
+            List<ShoppingList> shoppingListMaterials = await DbServiceLocator.GetItemRangeRecursiveAsync<ShoppingList>(ShoppingListIds) as List<ShoppingList>;
 
             //Steps
-            _ = Parallel.ForEach( stepMaterials, sM =>
+            _ = Parallel.ForEach( steps, sM =>
             {
-                if( sM.MaterialId == _material.Id )
+                if( sM != null )
                 {
-                    _ = uniqueSteps.GetOrAdd( sM.StepId, byte.MinValue );
+                    _ = uniqueSteps.GetOrAdd( sM.Id, new StepViewModel( sM ) );
                 }
             } );
 
             //ShoppingLists
             _ = Parallel.ForEach( shoppingListMaterials, sLM =>
             {
-                if( sLM.MaterialId == _material.Id )
+                if( sLM != null )
                 {
-                    _ = uniqueShoppingLists.GetOrAdd( sLM.ShoppingListId, byte.MinValue );
+                    _ = uniqueShoppingLists.GetOrAdd( sLM.Id, new ShoppingListViewModel( sLM ) );
                 }
             } );
 
-            //Retailers
-            _ = Parallel.ForEach( retailerMaterials, rM => 
-            {
-                if( rM.MaterialId == _material.Id )
-                {
-                    _ = uniqueRetailers.GetOrAdd( rM.RetailerId, byte.MinValue );
-                }
-            } );
-
-            Steps.AddRange( await DbServiceLocator.GetItemRangeAsync<Step>( uniqueSteps.Keys ) );
-            ShoppingLists.AddRange( await DbServiceLocator.GetItemRangeAsync<ShoppingList>( uniqueShoppingLists.Keys ) );
-            Retailers.AddRange( await DbServiceLocator.GetItemRangeAsync<Retailer>( uniqueRetailers.Keys ) );
+            Steps.AddRange( uniqueSteps.Values );
+            ShoppingLists.AddRange( uniqueShoppingLists.Values );
         }
 
         #region Query Handling
         private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
         {
-            await Init();
+            switch( kvp.Key )
+            {
+                case RoutingPath.MaterialID:
+                    if( int.TryParse( kvp.Value, out int materialId ) )
+                    {
+                        _material = await DbServiceLocator.GetItemRecursiveAsync<Material>( materialId );
+                        await Init();
+                    }
+
+                    break;
+            }
         }
         #endregion
         #endregion

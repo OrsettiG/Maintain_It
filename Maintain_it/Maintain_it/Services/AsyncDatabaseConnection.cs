@@ -79,6 +79,7 @@ namespace Maintain_it.Services
             {
                 Database instance = new Database();
                 _ = await database.CreateTableAsync<MaintenanceItem>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<ServiceRecord>().ConfigureAwait(false);
                 _ = await database.CreateTableAsync<Material>().ConfigureAwait(false);
                 _ = await database.CreateTableAsync<Step>().ConfigureAwait(false);
                 _ = await database.CreateTableAsync<StepMaterial>().ConfigureAwait(false);

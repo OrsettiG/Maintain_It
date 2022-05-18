@@ -17,12 +17,6 @@ namespace Maintain_it.Models
     {
         public MaintenanceItem(){}
 
-        public MaintenanceItem( string Name )
-        {
-            this.Name = Name;
-            FirstServiceDate = DateTime.Now;
-        }
-
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
@@ -34,17 +28,17 @@ namespace Maintain_it.Models
         public DateTime CreatedOn { get; set; }
         public string Comment { get; set; }
         public DateTime FirstServiceDate { get; set; }
-        public DateTime PreviousServiceDate { get; set; }
-        public DateTime NextServiceDate { get; set; }
-        public bool IsRecurring { get; set; }
+        public DateTime? NextServiceDate { get; set; }
         public int RecursEvery { get; set; }
-        public int Frequency { get; set; }
-        public int TimesServiced { get; set; }
-        public bool PreviousServiceCompleted { get; set; }
+        public int Timeframe { get; set; }
         public bool NotifyOfNextServiceDate { get; set; }
         #endregion
 
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        [OneToMany( CascadeOperations = CascadeOperation.CascadeRead )]
         public List<Step> Steps { get; set; }
+
+
+        [OneToMany(CascadeOperations = CascadeOperation.CascadeRead)]
+        public List<ServiceRecord> ServiceRecords { get; set; }
     }
 }

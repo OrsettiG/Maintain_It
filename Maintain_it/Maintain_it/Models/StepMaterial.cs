@@ -10,7 +10,7 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class StepMaterial : IStorableObject
+    public class StepMaterial : IStorableObject, IEquatable<StepMaterial>
     {
         public StepMaterial() { }
 
@@ -38,7 +38,12 @@ namespace Maintain_it.Models
         public int StepId { get; set; }
         [ManyToOne]
         public Step Step { get; set; }
-        
+
         #endregion
+
+        public bool Equals( StepMaterial other )
+        {
+            return other.Id == Id;
+        }
     }
 }

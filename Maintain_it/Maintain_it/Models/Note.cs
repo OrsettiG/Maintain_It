@@ -10,15 +10,12 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Note : IStorableObject
+    public class Note : IStorableObject, IEquatable<Note>
     {
         public Note() { }
 
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
-
-        #region One To Many Relationships
-        #endregion
 
         #region Many To One Relationships
 
@@ -29,10 +26,6 @@ namespace Maintain_it.Models
 
         #endregion
 
-        // Empty
-        #region Many To Many Relationships
-        #endregion
-
         #region Properties
 #nullable enable
         public string? Name { get; set; }
@@ -41,6 +34,12 @@ namespace Maintain_it.Models
         public string ImagePath { get; set; }
         public DateTime LastUpdated { get; set; }
         public DateTime CreatedOn { get; set; }
+
         #endregion
+
+        public bool Equals( Note other )
+        {
+            return other.Id == Id;
+        }
     }
 }

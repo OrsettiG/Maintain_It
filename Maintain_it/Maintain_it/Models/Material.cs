@@ -9,7 +9,7 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Material : IStorableObject
+    public class Material : IStorableObject, IEquatable<Material>
     {
 
         public Material() { }
@@ -26,13 +26,13 @@ namespace Maintain_it.Models
 
         #region One To Many Relationships
 
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        [OneToMany( CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true )]
         public List<StepMaterial> StepMaterials { get; set; }
 
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        [OneToMany( CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true )]
         public List<RetailerMaterial> RetailerMaterials { get; set; }
 
-        [OneToMany( CascadeOperations = CascadeOperation.All )]
+        [OneToMany( CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true )]
         public List<ShoppingListMaterial> ShoppingListMaterials { get; set; }
 
 
@@ -53,14 +53,16 @@ namespace Maintain_it.Models
         public string? Tag { get; set; }
         public string? Units { get; set; }
         public string? Description { get; set; }
+        public string? PartNumber { get; set; }
 #nullable disable
 
         public int QuantityOwned { get; set; }
         public DateTime CreatedOn { get; set; }
-        #endregion
 
-        #region Methods
-
+        public bool Equals( Material other )
+        {
+            return other.Id == Id;
+        }
         #endregion
     }
 }

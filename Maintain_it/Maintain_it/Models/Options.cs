@@ -4,13 +4,14 @@ using System.Text;
 
 namespace Maintain_it.Models
 {
-    public enum Timeframe { Minutes, Hours, Days, Weeks, Months, Years }
+    public enum Timeframe { None, Minutes, Hours, Days, Weeks, Months, Years }
     public enum TagType { General, Step, Retailer, ShoppingList }
 
     public static class Options
     {
         public static List<Timeframe> timeframes = new List<Timeframe>()
         {
+            Timeframe.None,
             Timeframe.Minutes,
             Timeframe.Hours,
             Timeframe.Days,

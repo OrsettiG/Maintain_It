@@ -81,7 +81,10 @@ namespace Maintain_it.ViewModels
             {
                 if( sList.Active || !sList.Active)
                 {
-                    bag.Add( new ShoppingListViewModel( sList ) );
+                    ShoppingListViewModel item = new ShoppingListViewModel( sList );
+                    item.RefreshContainer = (AsyncCommand)RefreshCommand;
+                    bag.Add( item );
+                    
                 }
             } );
 

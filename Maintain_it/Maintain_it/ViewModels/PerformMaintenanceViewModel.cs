@@ -33,6 +33,13 @@ namespace Maintain_it.ViewModels
 
         private List<Step> steps = new List<Step>();
         private MaintenanceItem maintenanceItem { get; set; }
+
+        private int stepNumber;
+        public string StepNumber
+        {
+            get => $"Step {stepNumber}";
+            set => SetProperty( ref stepNumber, int.Parse( value ) );
+        }
         #endregion
 
         #region Commands
@@ -47,38 +54,50 @@ namespace Maintain_it.ViewModels
         #region Methods
         private async Task NextStep()
         {
-            if( Step.NextStep != null )
+            if( Step.NextNodeId != null )
             {
-                Step = Step.NextStep;
+                Step step = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)Step.NextNodeId );
 
-                await Refresh();
+                if( step != null )
+                {
+                    Step = step;
+
+                    await Refresh();
+                }
             }
         }
 
         private async Task PreviousStep()
         {
-            if( Step.PreviousStep != null )
+            if( Step.PreviousNodeId != null )
             {
-                Step = Step.PreviousStep;
+                Step step = await DbServiceLocator.GetItemRecursiveAsync<Step>((int)Step.PreviousNodeId);
 
-                await Refresh();
+                if( step != null )
+                {
+                    Step = step;
+
+                    await Refresh();
+                }
             }
 
         }
 
         private async Task Refresh()
         {
-            StepViewModel.SaveStepCommand?.Execute( null );
 
             StepViewModel = new StepViewModel()
             {
                 Step = Step
             };
 
+            StepNumber = Step.Index.ToString();
+
             await StepViewModel.InitAsync().ConfigureAwait( false );
 
-            PreviousStepExists = Step.PreviousStep != null;
-            NextStepExists = Step.NextStep != null;
+
+            PreviousStepExists = Step.PreviousNode != null;
+            NextStepExists = Step.NextNode != null;
 
 
         }
@@ -102,12 +121,21 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case nameof( maintenanceItemId ):
+                case RoutingPath.MaintenanceItemId:
                     if( int.TryParse( kvp.Value, out maintenanceItemId ) )
                     {
                         maintenanceItem = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( maintenanceItemId ).ConfigureAwait( false );
 
-                        List<Step> steps = maintenanceItem.Steps.AsParallel().OrderBy( x => x.StepNumber ).ToList();
+                        List<int> stepIds = new List<int>();
+                        foreach( Step step in maintenanceItem.Steps )
+                        {
+                            stepIds.Add( step.Id );
+                        }
+
+                        steps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ).ConfigureAwait( false ) as List<Step>;
+
+                        steps = steps.AsParallel().OrderBy( x => x.Index ).ToList();
+
                         Step = steps.FirstOrDefault();
                     }
 

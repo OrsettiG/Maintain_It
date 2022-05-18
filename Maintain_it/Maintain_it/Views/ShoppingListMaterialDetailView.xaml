@@ -2,15 +2,59 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels"
-             x:Class="Maintain_it.Views.ShoppingListMaterialDetailView">
+             x:Class="Maintain_it.Views.ShoppingListMaterialDetailView"
+             Title="{Binding Name}">
     <ContentPage.BindingContext>
         <viewmodel:ShoppingListMaterialDetailViewModel/>
     </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Save" Command="{Binding SaveCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="{Binding Name}"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <Frame>
+            <StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Name:" FontSize="Large" VerticalOptions="Center"/>
+                    <Label Text="{Binding Name}" FontSize="Large" TextDecorations="Underline"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Quantity Owned:" 
+                           FontSize="Large" 
+                           VerticalOptions="Center"/>
+                    <Label Text="{Binding QuantityOwned}" 
+                           FontSize="Large"
+                           TextDecorations="Underline"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Quantity Needed:" 
+                           FontSize="Large"
+                           VerticalOptions="Center"/>
+                    <Entry Text="{Binding Quantity}" WidthRequest="60" HorizontalTextAlignment="Center"/>
+                </StackLayout>                
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="ID" 
+                           FontSize="Large"
+                           VerticalOptions="Center"/>
+                    <Entry Text="{Binding Id}" WidthRequest="60" HorizontalTextAlignment="Center"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Purchased:" FontSize="Large" VerticalOptions="Center"/>
+                    <CheckBox IsChecked="{Binding Purchased}"/>
+                </StackLayout>
+                <Grid VerticalOptions="FillAndExpand">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
+                    <Frame Grid.Row="0" BorderColor="Black" VerticalOptions="FillAndExpand">
+                        <Label Text="Image" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand"/>
+                    </Frame>
+                    <Button Text="Open Material" 
+                            Grid.Row="1"  
+                            VerticalOptions="End"
+                            Command="{Binding OpenMaterialCommand}"/>
+                </Grid>
+            </StackLayout>
+        </Frame>
     </ContentPage.Content>
 </ContentPage>

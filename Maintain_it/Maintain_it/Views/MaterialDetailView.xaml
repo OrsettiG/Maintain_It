@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels"
+             x:Class="Maintain_it.Views.MaterialDetailView">
+    <ContentPage.BindingContext>
+        <viewmodel:MaterialViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="{Binding Name}"/>
+
+            <Label Text="Steps"/>
+            <CollectionView ItemsSource="{Binding Steps}" EmptyView="No Steps">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Text="{Binding Name}"
+                                   Grid.Column="0"/>
+
+                            <Label Text="{Binding MaintenanceItemName}"
+                                   Grid.Column="1"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="Shopping Lists"/>
+            <CollectionView ItemsSource="{Binding ShoppingLists}" EmptyView="No Shopping Lists">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Name}"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

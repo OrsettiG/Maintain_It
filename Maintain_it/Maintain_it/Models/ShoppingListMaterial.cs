@@ -9,7 +9,7 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class ShoppingListMaterial : IStorableObject
+    public class ShoppingListMaterial : IStorableObject, IEquatable<ShoppingListMaterial>
     {
         public ShoppingListMaterial() { }
 
@@ -37,6 +37,11 @@ namespace Maintain_it.Models
         public int Quantity { get; set; }
         public bool Purchased { get; set; }
         public DateTime CreatedOn { get; set; }
+
+        public bool Equals( ShoppingListMaterial other )
+        {
+            return other.Id == Id;
+        }
         #endregion
 
     }

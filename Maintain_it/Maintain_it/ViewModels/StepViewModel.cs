@@ -17,6 +17,7 @@ using Xamarin.Forms;
 using System.Linq;
 using System.Web;
 using Xamarin.Essentials;
+using Maintain_it.Helpers;
 
 namespace Maintain_it.ViewModels
 {
@@ -27,6 +28,16 @@ namespace Maintain_it.ViewModels
         public StepViewModel( MaintenanceItemViewModel maintenanceItemViewModel )
         {
             maintenanceItemVM = maintenanceItemViewModel;
+        }
+
+        public StepViewModel( Step step )
+        {
+            Step = step;
+            Name = step.Name;
+            Description = step.Description;
+            StepNum = step.Index;
+            TimeRequired = step.TimeRequired;
+            MaintenanceItemName = step.MaintenanceItem.Name;
         }
 
         #region Parameters
@@ -60,6 +71,7 @@ namespace Maintain_it.ViewModels
 
         private ObservableRangeCollection<StepMaterial> _stepMaterials;
         public ObservableRangeCollection<StepMaterial> StepMaterials { get => _stepMaterials ??= new ObservableRangeCollection<StepMaterial>(); set => SetProperty( ref _stepMaterials, value ); }
+
         private ObservableRangeCollection<Note> notes;
         public ObservableRangeCollection<Note> Notes => notes ??= new ObservableRangeCollection<Note>();
 
@@ -74,16 +86,22 @@ namespace Maintain_it.ViewModels
         private Step previousStep;
         public Step PreviousStep { get => previousStep; set => SetProperty( ref previousStep, value ); }
 
-        private NodeList<Step> node;
-        public NodeList<Step> Node { get => node ??= new NodeList<Step>( Step ); set => SetProperty( ref node, value ); }
-
         public MaintenanceItemViewModel maintenanceItemVM { get; }
+        public string MaintenanceItemName { get; }
         private bool Dragging = false;
+
+        private bool canDrag = false;
+        public bool CanDrag
+        {
+            get => canDrag;
+            set => SetProperty( ref canDrag, value );
+        }
 
         #region Query Parameters
         private HashSet<int> stepMaterialIds = new HashSet<int>();
-        private int previousStepId;
+        private int? previousStepId = null;
         private bool isFirstStep = false;
+        private int? maintenanceItemId = null;
         #endregion
 
         #endregion
@@ -92,9 +110,6 @@ namespace Maintain_it.ViewModels
 
         private AsyncCommand addStepCommand;
         public ICommand AddStepCommand => addStepCommand ??= new AsyncCommand( AddStep );
-
-        private AsyncCommand saveStepCommand;
-        public ICommand SaveStepCommand => saveStepCommand ??= new AsyncCommand( SaveStep );
 
         private AsyncCommand selectMaterialsCommand;
         public ICommand SelectMaterialsCommand => selectMaterialsCommand ??= new AsyncCommand( SelectMaterials );
@@ -111,7 +126,16 @@ namespace Maintain_it.ViewModels
         private Command incrementStepMatQuantityCommand;
         public ICommand IncrementStepMatQuantityCommand => incrementStepMatQuantityCommand ??= new Command( IncrementStepMatCounter );
 
+        private ICommand toggleCanDragCommand;
+        public ICommand ToggleCanDragCommand
+        {
+            get => toggleCanDragCommand ??= new Command( ToggleCanDrag );
+        }
 
+        private void ToggleCanDrag()
+        {
+            CanDrag = !CanDrag;
+        }
 
         #endregion
 
@@ -159,7 +183,7 @@ namespace Maintain_it.ViewModels
                 {
                     foreach( StepViewModel item in maintenanceItemVM.StepViewModels.Where( x => x.StepNum <= droppedOnStepNum && x.StepNum >= itemDropping.StepNum && x.Step.Id != itemDropping.Step.Id ) )
                     {
-                        item.Step.StepNumber--;
+                        item.Step.Index--;
                         item.StepNum--;
                     }
                 }
@@ -167,13 +191,13 @@ namespace Maintain_it.ViewModels
                 {
                     foreach( StepViewModel item in maintenanceItemVM.StepViewModels.Where( x => x.StepNum >= droppedOnStepNum && x.StepNum <= itemDropping.StepNum && x.Step.Id != itemDropping.Step.Id ) )
                     {
-                        item.Step.StepNumber++;
+                        item.Step.Index++;
                         item.StepNum++;
                     }
                 }
 
                 itemDropping.StepNum = droppedOnStepNum;
-                itemDropping.Step.StepNumber = droppedOnStepNum;
+                itemDropping.Step.Index = droppedOnStepNum;
             }
 
         }
@@ -203,9 +227,9 @@ namespace Maintain_it.ViewModels
             TimeRequired = step.TimeRequired;
             Timeframe = (Timeframe)step.Timeframe;
             IsCompleted = step.IsCompleted;
-            StepNum = step.StepNumber;
+            StepNum = step.Index;
             StepMaterials.AddRange( step.StepMaterials );
-            Notes.AddRange( step.Notes );            
+            Notes.AddRange( step.Notes );
         }
 
         public async Task InitAsync()
@@ -217,9 +241,11 @@ namespace Maintain_it.ViewModels
                 new Task( () => TimeRequired = step.TimeRequired ),
                 new Task( () => Timeframe = (Timeframe)step.Timeframe ),
                 new Task( () => IsCompleted = step.IsCompleted ),
-                new Task( () => StepNum = step.StepNumber ),
+                new Task( () => StepNum = step.Index ),
                 new Task( () => StepMaterials.AddRange( step.StepMaterials ) ),
-                new Task( () => Notes.AddRange( step.Notes ) )
+                new Task( () => Notes.AddRange( step.Notes ) ),
+                new Task( () => PreviousStep = step.PreviousNode ),
+                new Task( () => NextStep = step.NextNode )
             };
 
             await Task.WhenAll( tasks ).ConfigureAwait( false );
@@ -237,45 +263,63 @@ namespace Maintain_it.ViewModels
 
         private async Task AddStep()
         {
-            step = new Step()
-            {
-                Name = Name,
-                Description = Description,
-                TimeRequired = TimeRequired,
-                Timeframe = (int)Timeframe.Minutes,
-                IsCompleted = false,
-                CreatedOn = DateTime.Now,
-                StepNumber = StepNum,
-                PreviousStep = PreviousStep,
-                NextStep = NextStep,
-                StepMaterials = StepMaterials.Count < 1 ? new List<StepMaterial>() : await ConvertToListAsync( StepMaterials ),
-                Notes = await ConvertToListAsync( Notes )
-            };
+            //step = new Step()
+            //{
+            //    Name = Name,
+            //    Description = Description,
+            //    TimeRequired = TimeRequired,
+            //    Timeframe = (int)Timeframe.Minutes,
+            //    IsCompleted = false,
+            //    CreatedOn = DateTime.Now,
+            //    Index = StepNum,
+            //    PreviousNode = PreviousNode,
+            //    NextNode = NextNode,
+            //    StepMaterials = StepMaterials.Count < 1 ? new List<StepMaterial>() : await ConvertToListAsync( StepMaterials ),
+            //    Notes = await ConvertToListAsync( Notes )
+            //};
 
-            int stepId = await DbServiceLocator.AddItemAndReturnIdAsync( step );
+            int stepId = await StepManager.NewStep( isFirstStep, Name, Description, IsCompleted, TimeRequired, (int)Timeframe );
 
-            if( StepNum > 1 )
+            await StepManager.UpdateItemIndexAsync( stepId, StepNum );
+            Step = await StepManager.GetItemRecursiveAsync( stepId );
+            //TODO: Add Notes to Step
+            if(Notes.Count > 0 )
             {
-                step.PreviousStep.NextStep = await DbServiceLocator.GetItemAsync<Step>( stepId ).ConfigureAwait( false );
+                await StepManager.AddNotes( Notes.GetIds(), Step.Id );
+            }
+
+            //TODO: Add StepMaterials to Step
+            if(StepMaterials.Count > 0 )
+            {
+                await StepManager.AddStepMaterials( stepMaterialIds, Step.Id );
+            }
+
+            if(maintenanceItemId != null )
+            {
+
+                await MaintenanceItemManager.AddStep(stepId, (int)maintenanceItemId);
+                await MaintenanceItemManager.UpdateStepSequence( (int)maintenanceItemId );
             }
 
             string encodedId = HttpUtility.UrlEncode( stepId.ToString());
-            try
-            {
-                await MainThread.InvokeOnMainThreadAsync( async () =>
-                    await Shell.Current.GoToAsync( $"..?stepIds={encodedId}" )
-                );
-            }
-            catch( Exception ex )
-            {
-                Console.WriteLine( $"EXCEPTION: {ex}" );
-            }
+
+            await Shell.Current.GoToAsync( $"..?stepIds={encodedId}" );
+
+            //try
+            //{
+            //    await MainThread.InvokeOnMainThreadAsync( async () =>
+            //    );
+            //}
+            //catch( Exception ex )
+            //{
+            //    Console.WriteLine( $"EXCEPTION: {ex}" );
+            //}
         }
 
-        internal async Task SaveStep()
-        {
-            await DbServiceLocator.UpdateItemAsync( step ).ConfigureAwait( false );
-        }
+        //public async Task SaveStep()
+        //{
+        //    await DbServiceLocator.UpdateItemStepsAsync( Step );
+        //}
 
         private async Task SelectMaterials()
         {
@@ -286,23 +330,15 @@ namespace Maintain_it.ViewModels
             }
             else
             {
-                await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?refresh=true" );
+                await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?{RoutingPath.Refresh}=true" );
             }
         }
 
         private async Task AddNote()
         {
-            Note n = new Note()
-            {
-                CreatedOn = DateTime.Now,
-                Text = NoteText,
-                ImagePath = NoteImagePath.IsEmpty ? string.Empty : NoteImagePath.File,
-                LastUpdated = DateTime.Now
-            };
+            int id = await NoteManager.NewNote( NoteText, NoteImagePath = NoteImagePath.IsEmpty ? string.Empty : NoteImagePath.File );
 
-            int id = await DbServiceLocator.AddItemAndReturnIdAsync( n );
-
-            Notes.Add( await DbServiceLocator.GetItemAsync<Note>( id ) );
+            Notes.Add( await NoteManager.GetItemAsync( id ) );
 
             NoteText = string.Empty;
             NoteImagePath = string.Empty;
@@ -333,6 +369,13 @@ namespace Maintain_it.ViewModels
                     PreviousStep = null;
                     NextStep = null;
                     break;
+                case RoutingPath.MaintenanceItemId:
+                    string id = HttpUtility.UrlDecode(kvp.Value);
+                    if( int.TryParse( id, out int itemId ) )
+                    {
+                        maintenanceItemId = itemId;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -357,10 +400,11 @@ namespace Maintain_it.ViewModels
             string num = HttpUtility.UrlDecode( value );
 
 
-            if( int.TryParse( num, out previousStepId ) )
+            if( int.TryParse( num, out int pStepId ) )
             {
-                PreviousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( previousStepId ).ConfigureAwait( false );
-                stepNum = PreviousStep.StepNumber + 1;
+                previousStepId = pStepId;
+                PreviousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( pStepId ).ConfigureAwait( false );
+                stepNum = PreviousStep.Index + 1;
 
                 NextStep = null;
             }
