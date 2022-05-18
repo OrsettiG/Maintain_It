@@ -296,9 +296,7 @@ namespace Maintain_it.ViewModels
 
             if(maintenanceItemId != null )
             {
-
-                await MaintenanceItemManager.AddStep(stepId, (int)maintenanceItemId);
-                await MaintenanceItemManager.UpdateStepSequence( (int)maintenanceItemId );
+                _ = await StepManager.UpdateMaintenanceItem( (int)maintenanceItemId, stepId );
             }
 
             string encodedId = HttpUtility.UrlEncode( stepId.ToString());

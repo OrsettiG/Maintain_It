@@ -342,11 +342,16 @@ namespace Maintain_it.Helpers
         }
 #nullable disable
 
-        public static async Task UpdateItemIndexAsync( Step node )
+        public static async Task UpdatePrevAndNextNodes( Step node )
         {
             Step item = await GetItemRecursiveAsync(node.Id);
 
-            await UpdateItemIndexAsync( item, node.Index, (int)node.NextNodeId, (int)node.PreviousNodeId, node.NextNode, node.PreviousNode );
+            item.NextNode = node.NextNode;
+            item.NextNodeId = node.NextNodeId;
+            item.PreviousNodeId = node.PreviousNodeId;
+            item.PreviousNode = node.PreviousNode;
+
+            await DbServiceLocator.UpdateItemAsync( item );
         }
 
 

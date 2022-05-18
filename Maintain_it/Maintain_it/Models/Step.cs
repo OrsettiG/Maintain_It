@@ -72,6 +72,7 @@ namespace Maintain_it.Models
         {
             return other.Id == Id;
         }
+
         #endregion
     }
 }

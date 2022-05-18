@@ -42,6 +42,7 @@ namespace Maintain_it.Services
         public static async Task DropAllTablesAsync()
         {
             _ = await db.DropTableAsync<MaintenanceItem>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<ServiceRecord>().ConfigureAwait(false);
             _ = await db.DropTableAsync<Step>().ConfigureAwait(false);
             _ = await db.DropTableAsync<StepMaterial>().ConfigureAwait(false);
             _ = await db.DropTableAsync<Note>().ConfigureAwait(false);

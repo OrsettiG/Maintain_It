@@ -72,8 +72,6 @@ namespace Maintain_it.Helpers
             {
                 item.Steps.Add( step );
 
-
-
                 if( updateDb )
                     await DbServiceLocator.UpdateItemAsync( item );
             }
@@ -88,15 +86,16 @@ namespace Maintain_it.Helpers
 
         private static async Task UpdateStepSequence( MaintenanceItem item )
         {
-            SortedSet<Step> steps = item.Steps.OrderBy(x => x.Index) as SortedSet<Step>;
+            IOrderedEnumerable<Step> steps = item.Steps.OrderBy(x => x.Index);
 
             Step downstream = null;
 
             foreach( Step step in steps )
             {
-                // Set the step's previous node to the downstream node. This will always be null on the first node.
+
+                // Set the step's previous node to the downstream node. This will always be null on the first node so we need the null propogation on the id.
                 step.PreviousNode = downstream;
-                step.PreviousNodeId = downstream.Id;
+                step.PreviousNodeId = downstream?.Id;
 
                 // Set the downstream node's next node to this one. This will be null on the first iteration so we have to null check.
                 switch( downstream )
@@ -111,7 +110,8 @@ namespace Maintain_it.Helpers
                 }
 
                 // Now that downstream is all tied up, we can update it in the db.
-                await StepManager.UpdateItemIndexAsync( downstream );
+                if( downstream != null )
+                    await StepManager.UpdatePrevAndNextNodes( downstream );
 
                 // Set this nodes next node to null. If there is another node in the sequence, this will be set to the correct node on the next loop and if we are on the last node then we want this to be null anyways.
                 step.NextNode = null;
@@ -122,7 +122,7 @@ namespace Maintain_it.Helpers
             }
 
             // Update the last item in the step sequence.
-            await StepManager.UpdateItemIndexAsync( downstream );
+            await StepManager.UpdatePrevAndNextNodes( downstream );
         }
 
 
@@ -164,6 +164,8 @@ namespace Maintain_it.Helpers
             await RemoveMissingSteps( item, steps );
 
             await AddSteps( item, steps, false );
+
+            await UpdateStepSequence( item );
 
             await DbServiceLocator.UpdateItemAsync( item );
         }

@@ -34,13 +34,13 @@ namespace Maintain_it.Helpers
             return list.Count == original.Count;
         }
 
-        internal static void Align<T>( this HashSet<T> set, IEnumerable<T> targets, out List<T> Added, out List<T> Removed )
+        internal static void Align( this HashSet<int> set, IEnumerable<int> targets, out List<int> Added, out List<int> Removed )
         {
             Console.WriteLine( "ALIGNING" );
-            Added = new List<T>();
-            Removed = new List<T>();
+            Added = new List<int>();
+            Removed = new List<int>();
 
-            foreach( T t in targets )
+            foreach( int t in targets )
             {
                 if( set.Contains( t ) )
                 {
@@ -61,9 +61,9 @@ namespace Maintain_it.Helpers
                 //}
             }
 
-            List<T> temp = new List<T>(set);
+            List<int> temp = new List<int>(set);
 
-            foreach( T t in temp )
+            foreach( int t in temp )
             {
                 if( targets.Contains( t ) )
                 {
@@ -90,9 +90,9 @@ namespace Maintain_it.Helpers
             return ids;
         }
 
-        internal static void Align<T>( this HashSet<T> set, IEnumerable<T> targets )
+        internal static void Align( this HashSet<int> set, IEnumerable<int> targets )
         {
-            foreach( T t in targets )
+            foreach( int t in targets )
             {
                 if( set.Contains( t ) )
                 {
@@ -104,9 +104,9 @@ namespace Maintain_it.Helpers
                 }
             }
 
-            List<T> temp = new List<T>(set);
+            List<int> temp = new List<int>(set);
 
-            foreach( T t in temp )
+            foreach( int t in temp )
             {
                 if( targets.Contains( t ) )
                 {
@@ -119,11 +119,24 @@ namespace Maintain_it.Helpers
             }
         }
 
-        internal static bool Contains<T>( this IEnumerable<T> source, T value )
+        internal static bool Contains( this IEnumerable<int> source, int value )
         {
-            foreach( T t in source )
+            foreach( int t in source )
             {
                 if( Equals( t, value ) )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        internal static bool Contains<T>(this IEnumerable<T> source, T value ) where T : IStorableObject
+        {
+            foreach(T t in source )
+            {
+                if( value.Id.Equals( t.Id ) )
                 {
                     return true;
                 }
