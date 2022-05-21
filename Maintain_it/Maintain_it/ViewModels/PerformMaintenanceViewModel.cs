@@ -56,7 +56,7 @@ namespace Maintain_it.ViewModels
         {
             if( Step.NextNodeId != null )
             {
-                Step step = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)Step.NextNodeId );
+                Step step = await StepManager.GetItemRecursiveAsync( (int)Step.NextNodeId );
 
                 if( step != null )
                 {
@@ -71,7 +71,7 @@ namespace Maintain_it.ViewModels
         {
             if( Step.PreviousNodeId != null )
             {
-                Step step = await DbServiceLocator.GetItemRecursiveAsync<Step>((int)Step.PreviousNodeId);
+                Step step = await StepManager.GetItemRecursiveAsync( (int)Step.PreviousNodeId );
 
                 if( step != null )
                 {
@@ -85,7 +85,10 @@ namespace Maintain_it.ViewModels
 
         private async Task Refresh()
         {
+            if( Step == null )
+                return;
 
+            Step = await StepManager.GetItemRecursiveAsync( Step.Id );
             StepViewModel = new StepViewModel()
             {
                 Step = Step
@@ -95,9 +98,6 @@ namespace Maintain_it.ViewModels
 
             await StepViewModel.InitAsync().ConfigureAwait( false );
 
-
-            PreviousStepExists = Step.PreviousNode != null;
-            NextStepExists = Step.NextNode != null;
 
 
         }
@@ -124,22 +124,12 @@ namespace Maintain_it.ViewModels
                 case RoutingPath.MaintenanceItemId:
                     if( int.TryParse( kvp.Value, out maintenanceItemId ) )
                     {
-                        maintenanceItem = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( maintenanceItemId ).ConfigureAwait( false );
+                        maintenanceItem = await MaintenanceItemManager.GetItemRecursiveAsync( maintenanceItemId );
 
-                        List<int> stepIds = new List<int>();
-                        foreach( Step step in maintenanceItem.Steps )
-                        {
-                            stepIds.Add( step.Id );
-                        }
-
-                        steps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ).ConfigureAwait( false ) as List<Step>;
-
-                        steps = steps.AsParallel().OrderBy( x => x.Index ).ToList();
-
-                        Step = steps.FirstOrDefault();
+                        Step = maintenanceItem.Steps.Where( x => x.Index == 1 ).FirstOrDefault();
                     }
 
-                    await Refresh().ConfigureAwait( false );
+                    await Refresh();
                     break;
             }
         }

@@ -82,7 +82,8 @@ namespace Maintain_it.Services
         {
             await Init();
 
-            return await db.GetWithChildrenAsync<T>( id ).ConfigureAwait( false );
+            T item = await db.GetWithChildrenAsync<T>( id ).ConfigureAwait( false );
+            return item;
         }
 
         public virtual async Task<T> GetItemRecursiveAsync( int id )

@@ -28,7 +28,8 @@ namespace Maintain_it.Helpers
                 IsCompleted = isCompleted,
                 TimeRequired = timeRequired,
                 Timeframe = timeframe,
-                NextNodeId = null,
+                NextNodeId = 0,
+                PreviousNodeId = 0,
                 CreatedOn = DateTime.Now
             };
 
@@ -67,8 +68,8 @@ namespace Maintain_it.Helpers
             item.TimeRequired = timeRequired ?? item.TimeRequired;
             item.Timeframe = timeFrame ?? item.Timeframe;
             item.Index = index ?? item.Index;
-            item.PreviousNodeId = previousNodeId ?? item.PreviousNodeId;
-            item.NextNodeId = nextNodeId ?? item.NextNodeId;
+            //item.PreviousNodeId = previousNodeId ?? item.PreviousNodeId;
+            //item.NextNodeId = nextNodeId ?? item.NextNodeId;
             item.MaintenanceItemId = maintenanceItemId ?? item.MaintenanceItemId;
 
             if( stepMaterialIds != null )
@@ -334,9 +335,7 @@ namespace Maintain_it.Helpers
         {
             node.Index = newIndex;
             node.NextNodeId = newNextNodeId ?? node.NextNodeId;
-            node.NextNode = nextNode ?? node.NextNode;
             node.PreviousNodeId = newPreviousNodeId ?? node.PreviousNodeId;
-            node.PreviousNode = previousNode ?? node.PreviousNode;
 
             await DbServiceLocator.UpdateItemAsync( node );
         }
@@ -346,23 +345,23 @@ namespace Maintain_it.Helpers
         {
             Step item = await GetItemRecursiveAsync(node.Id);
 
-            item.NextNode = node.NextNode;
             item.NextNodeId = node.NextNodeId;
+
             item.PreviousNodeId = node.PreviousNodeId;
-            item.PreviousNode = node.PreviousNode;
+
 
             await DbServiceLocator.UpdateItemAsync( item );
         }
 
 
 
-        public static async Task DeReference( int stepId, int maintenanceItemId )
-        {
-            Step step = await GetItemAsync( stepId );
-            MaintenanceItem item = await MaintenanceItemManager.GetItemRecursiveAsync( maintenanceItemId );
+        //public static async Task DeReference( int stepId, int maintenanceItemId )
+        //{
+        //    Step step = await GetItemAsync( stepId );
+        //    MaintenanceItem item = await MaintenanceItemManager.GetItemRecursiveAsync( maintenanceItemId );
 
-            await InsertStepIntoSequenceAfter( step.PreviousNode.Id, step.NextNode.Id );
-        }
+        //    await InsertStepIntoSequenceAfter( step.PreviousNode.Id, step.NextNode.Id );
+        //}
         #endregion
 
         #endregion
@@ -373,65 +372,65 @@ namespace Maintain_it.Helpers
         /// Links the two steps NextNode and PreviousNode properties and updates the database.
         /// </summary>
         /// <returns></returns>
-        public static async Task InsertStepIntoSequenceAfter( int previousStepId, int nextStepId )
-        {
-            Step previousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>(previousStepId);
-            Step nextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>(nextStepId);
+        //public static async Task InsertStepIntoSequenceAfter( int previousStepId, int nextStepId )
+        //{
+        //    Step previousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>(previousStepId);
+        //    Step nextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>(nextStepId);
 
-            await InsertStepIntoSequenceAfter( previousStep, nextStep );
-        }
+        //    await InsertStepIntoSequenceAfter( previousStep, nextStep );
+        //}
 
-        /// <summary>
-        /// Links the two steps NextNode and PreviousNode properties and updates the database.
-        /// </summary>
-        /// <returns></returns>
-        private static async Task InsertStepIntoSequenceAfter( Step insertAfter, Step stepToInsert )
-        {
-            // Get the previous and next step of each step that was passed in so that we can link them together
-            if( insertAfter != null && stepToInsert != null )
-            {
+        ///// <summary>
+        ///// Links the two steps NextNode and PreviousNode properties and updates the database.
+        ///// </summary>
+        ///// <returns></returns>
+        //private static async Task InsertStepIntoSequenceAfter( Step insertAfter, Step stepToInsert )
+        //{
+        //    // Get the previous and next step of each step that was passed in so that we can link them together
+        //    if( insertAfter != null && stepToInsert != null )
+        //    {
 
-                Step previousNextStep = null;
-                if( insertAfter.NextNodeId != null )
-                {
-                    previousNextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)insertAfter.NextNodeId );
-                }
+        //        Step previousNextStep = null;
+        //        if( insertAfter.NextNodeId != null )
+        //        {
+        //            previousNextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)insertAfter.NextNodeId );
+        //        }
 
-                Step nextStepPreviousStep = null;
-                if( stepToInsert.PreviousNodeId != null )
-                {
-                    nextStepPreviousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)stepToInsert.PreviousNodeId );
-                }
+        //        Step nextStepPreviousStep = null;
+        //        if( stepToInsert.PreviousNodeId != null )
+        //        {
+        //            nextStepPreviousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)stepToInsert.PreviousNodeId );
+        //        }
 
-                Step nextStepNextStep = null;
-                if( stepToInsert.NextNodeId != null )
-                {
-                    nextStepNextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)stepToInsert.NextNodeId );
-                }
+        //        Step nextStepNextStep = null;
+        //        if( stepToInsert.NextNodeId != null )
+        //        {
+        //            nextStepNextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)stepToInsert.NextNodeId );
+        //        }
 
-                insertAfter.NextNodeId = stepToInsert.Id;
-                insertAfter.NextNode = stepToInsert;
-                await DbServiceLocator.UpdateItemAsync( insertAfter );
+        //        insertAfter.NextNodeId = stepToInsert.Id;
+        //        insertAfter.NextNode = stepToInsert;
+        //        await DbServiceLocator.UpdateItemAsync( insertAfter );
 
-                stepToInsert.PreviousNodeId = insertAfter.Id;
-                stepToInsert.PreviousNode = insertAfter;
-                await DbServiceLocator.UpdateItemAsync( stepToInsert );
+        //        stepToInsert.PreviousNodeId = insertAfter.Id;
+        //        stepToInsert.PreviousNode = insertAfter;
+        //        await DbServiceLocator.UpdateItemAsync( stepToInsert );
 
-                if( nextStepPreviousStep != null && nextStepNextStep != null )
-                {
-                    nextStepPreviousStep.NextNode = nextStepNextStep;
-                    nextStepPreviousStep.NextNodeId = nextStepNextStep.Id;
+        //        if( nextStepPreviousStep != null && nextStepNextStep != null )
+        //        {
+        //            nextStepPreviousStep.NextNode = nextStepNextStep;
+        //            nextStepPreviousStep.NextNodeId = nextStepNextStep.Id;
 
-                    nextStepNextStep.PreviousNode = nextStepPreviousStep;
-                    nextStepNextStep.PreviousNodeId = nextStepPreviousStep.Id;
+        //            nextStepNextStep.PreviousNode = nextStepPreviousStep;
+        //            nextStepNextStep.PreviousNodeId = nextStepPreviousStep.Id;
 
-                    await DbServiceLocator.UpdateItemAsync( nextStepPreviousStep );
-                    await DbServiceLocator.UpdateItemAsync( nextStepNextStep );
-                }
+        //            await DbServiceLocator.UpdateItemAsync( nextStepPreviousStep );
+        //            await DbServiceLocator.UpdateItemAsync( nextStepNextStep );
+        //        }
 
-            }
+        //    }
 
-        }
+        //}
 
         #region Process Visualization
         // Possible stepId movements within list
@@ -590,10 +589,6 @@ namespace Maintain_it.Helpers
             Step step = await DbServiceLocator.GetItemRecursiveAsync<Step>( stepId );
 
             step.MaintenanceItem = step.MaintenanceItemId == 0 ? null : await MaintenanceItemManager.GetItemAsync( step.MaintenanceItemId );
-
-            step.NextNode = step.NextNodeId != null ? await GetItemAsync( (int)step.NextNodeId ) : null;
-
-            step.PreviousNode = step.PreviousNodeId != null ? await GetItemAsync( (int)step.PreviousNodeId ) : null;
 
             return step;
         }

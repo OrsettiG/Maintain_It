@@ -238,9 +238,11 @@ namespace Maintain_it.ViewModels
 
             if( update )
             {
-                await MaintenanceItemManager.UpdateProperties( item.Id, name: name, comment: comment, firstServiceDate: firstServiceDate, recursEvery: recursEvery, timeframe: (int)frequency, notifyOfNextServiceDate: notifyOfNextServiceDate );
+                await MaintenanceItemManager.UpdateProperties( item.Id, name: name, comment: comment, firstServiceDate: firstServiceDate, recursEvery: recursEvery, timeframe: (int)frequency, notifyOfNextServiceDate: notifyOfNextServiceDate, steps: stepIds );
 
-                await MaintenanceItemManager.UpdateSteps( item.Id, stepIds );
+                //await MaintenanceItemManager.UpdateSteps( item.Id, stepIds );
+
+                item = await MaintenanceItemManager.GetItemRecursiveAsync( item.Id );
             }
             else
             {
@@ -270,35 +272,34 @@ namespace Maintain_it.ViewModels
             return list;
         }
 
-        private List<StepViewModel> CreateStepViewModelList( List<Step> stepList )
-        {
-            StepViewModel[] vms = new StepViewModel[stepList.Count];
-
-            for( int i = 0; i < stepList.Count; i++ )
-            {
-                StepViewModel vm = new StepViewModel( this )
-                {
-                    Step = stepList[i]
-                };
-
-                vm.Init();
-
-                vms[i] = vm;
-            };
-
-            return vms.OrderBy( x => x.StepNum ).ToList();
-        }
-
         private async Task<StepViewModel> CreateNewStepViewModel( Step step )
         {
-            StepViewModel vm = await MainThread.InvokeOnMainThreadAsync(() =>
-                new StepViewModel(this)
-                {
-                    Step = step
-                }
-            );
+            //StepViewModel vm = await MainThread.InvokeOnMainThreadAsync(() =>
+            //    new StepViewModel(this)
+            //    {
+            //        Step = step
+            //    }
+            //);
+
+            StepViewModel vm = new StepViewModel(this);
 
             vm.Init();
+
+            return vm;
+        }
+
+        private async Task<StepViewModel> CreateNewStepViewModel( int stepId )
+        {
+            //StepViewModel vm = await MainThread.InvokeOnMainThreadAsync(() =>
+            //    new StepViewModel(this)
+            //    {
+            //        Step = step
+            //    }
+            //);
+
+            StepViewModel vm = new StepViewModel(this);
+
+            await vm.Init( stepId );
 
             return vm;
         }
@@ -369,25 +370,32 @@ namespace Maintain_it.ViewModels
 
                 StepViewModels.Clear();
 
-                List<Step> newStepList = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ) as List<Step>;
-
-                List<StepViewModel> data = new List<StepViewModel>();
-                foreach( Step step in newStepList )
+                foreach( int id in stepIds )
                 {
-
-                    try
-                    {
-                        Task<StepViewModel> task = CreateNewStepViewModel( step );
-                        data.Add( task.Result );
-                    }
-                    catch( AggregateException ex )
-                    {
-                        Console.WriteLine( $"EXEPTION: {ex.InnerExceptions}" );
-                    }
-
+                    StepViewModels.Add( await CreateNewStepViewModel( id ) );
                 }
 
-                StepViewModels.AddRange( data.OrderBy( x => x.StepNum ) );
+                //StepViewModels = StepViewModels.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel>;
+
+                //List<Step> newStepList = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ) as List<Step>;
+
+                //List<StepViewModel> data = new List<StepViewModel>();
+                //foreach( Step step in newStepList )
+                //{
+
+                //    try
+                //    {
+                //        Task<StepViewModel> task = CreateNewStepViewModel( step );
+                //        data.Add( task.Result );
+                //    }
+                //    catch( AggregateException ex )
+                //    {
+                //        Console.WriteLine( $"EXEPTION: {ex.InnerExceptions}" );
+                //    }
+
+                //}
+
+                //StepViewModels.AddRange( data.OrderBy( x => x.StepNum ) );
 
                 locked = false;
             }
@@ -405,7 +413,7 @@ namespace Maintain_it.ViewModels
 
                 foreach( Step step in item.Steps )
                 {
-                    data.Add( await CreateNewStepViewModel( step ) );
+                    data.Add( await CreateNewStepViewModel( step.Id ) );
                 }
 
                 StepViewModels.AddRange( data.OrderBy( x => x.StepNum ) );

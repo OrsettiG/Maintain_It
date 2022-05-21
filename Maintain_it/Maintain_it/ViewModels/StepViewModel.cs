@@ -232,6 +232,20 @@ namespace Maintain_it.ViewModels
             Notes.AddRange( step.Notes );
         }
 
+        public async Task Init( int id )
+        {
+            Step = await StepManager.GetItemRecursiveAsync( id );
+
+            Name = Step.Name;
+            Description = Step.Description;
+            TimeRequired = Step.TimeRequired;
+            Timeframe = (Timeframe)Step.Timeframe;
+            IsCompleted = Step.IsCompleted;
+            StepNum = Step.Index;
+            StepMaterials.AddRange( Step.StepMaterials );
+            Notes.AddRange( Step.Notes );
+        }
+
         public async Task InitAsync()
         {
             Task[] tasks = new Task[]
@@ -243,9 +257,7 @@ namespace Maintain_it.ViewModels
                 new Task( () => IsCompleted = step.IsCompleted ),
                 new Task( () => StepNum = step.Index ),
                 new Task( () => StepMaterials.AddRange( step.StepMaterials ) ),
-                new Task( () => Notes.AddRange( step.Notes ) ),
-                new Task( () => PreviousStep = step.PreviousNode ),
-                new Task( () => NextStep = step.NextNode )
+                new Task( () => Notes.AddRange( step.Notes ) )
             };
 
             await Task.WhenAll( tasks ).ConfigureAwait( false );

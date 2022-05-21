@@ -77,52 +77,55 @@ namespace Maintain_it.Helpers
             }
         }
 
-        public static async Task UpdateStepSequence( int itemId )
+        public static async Task<List<Step>> UpdateStepSequence( IEnumerable<int> stepIds )
         {
-            MaintenanceItem item = await GetItemRecursiveAsync(itemId);
+            List<Step> steps = await StepManager.GetItemRangeRecursiveAsync(stepIds) as List<Step>;
 
-            await UpdateStepSequence( item );
+            steps = UpdateStepSequence( steps );
+            return steps;
         }
 
-        private static async Task UpdateStepSequence( MaintenanceItem item )
+        private static List<Step> UpdateStepSequence( IEnumerable<Step> newSteps )
         {
-            IOrderedEnumerable<Step> steps = item.Steps.OrderBy(x => x.Index);
+            IOrderedEnumerable<Step> steps = newSteps.OrderBy(x => x.Index);
+            List<Step> updatedSteps = new List<Step>();
 
-            Step downstream = null;
+            Step upStream = null;
 
             foreach( Step step in steps )
             {
 
-                // Set the step's previous node to the downstream node. This will always be null on the first node so we need the null propogation on the id.
-                step.PreviousNode = downstream;
-                step.PreviousNodeId = downstream?.Id;
+                // Set the step's previous node to the upStream node. This will always be null on the first node so we need the null propogation on the id.
+                step.PreviousNodeId = (int)upStream?.Id;
 
-                // Set the downstream node's next node to this one. This will be null on the first iteration so we have to null check.
-                switch( downstream )
+                // Set the upStream node's next node to this one. This will be null on the first iteration so we have to null check.
+                switch( upStream )
                 {
                     case null:
                         break;
 
                     default:
-                        downstream.NextNode = step;
-                        downstream.NextNodeId = step.Id;
+                        upStream.NextNodeId = step.Id;
                         break;
                 }
 
-                // Now that downstream is all tied up, we can update it in the db.
-                if( downstream != null )
-                    await StepManager.UpdatePrevAndNextNodes( downstream );
+                // Now that upStream is all tied up, we can update it in the db.
+                if( upStream != null )
+                {
+                    updatedSteps.Add( upStream );
+                }
 
                 // Set this nodes next node to null. If there is another node in the sequence, this will be set to the correct node on the next loop and if we are on the last node then we want this to be null anyways.
-                step.NextNode = null;
-                step.NextNodeId = null;
+                step.NextNodeId = 0;
 
-                // Set the downstream node to this one
-                downstream = step;
+                // Set the upStream node to this one
+                upStream = step;
             }
 
-            // Update the last item in the step sequence.
-            await StepManager.UpdatePrevAndNextNodes( downstream );
+            updatedSteps.Add( upStream );
+
+
+            return updatedSteps;
         }
 
 
@@ -159,94 +162,22 @@ namespace Maintain_it.Helpers
         public static async Task UpdateSteps( int maintenanceItemId, IEnumerable<int> stepIds )
         {
             MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
-            List<Step> steps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>(stepIds) as List<Step>;
+            List<Step> newSteps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>(stepIds) as List<Step>;
 
-            await RemoveMissingSteps( item, steps );
-
-            await AddSteps( item, steps, false );
-
-            await UpdateStepSequence( item );
-
+            item.Steps = await UpdateStepSequence( stepIds );
+            Console.WriteLine( $"LAST STEP NEXT STEP ID: {item.Steps[^1].NextNodeId} SHOULD BE NULL" );
             await DbServiceLocator.UpdateItemAsync( item );
+            MaintenanceItem m = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( item.Id );
         }
 
-        /// <summary>
-        /// Removes the <see cref="Step"/> with the passed in Id from the <see cref="MaintenanceItem.Steps"/> collection if it exists and updates the Db. ONLY UPDATES THE MAINTENANCE ITEM, DOES NOT UPDATE STEP DB RECORD.
-        /// </summary>
-        public static async Task RemoveStep( int maintenanceItemId, int stepId )
-        {
-            MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
 
-            Step step = await DbServiceLocator.GetItemRecursiveAsync<Step>(stepId);
-
-            await RemoveStep( item, step );
-        }
-
-        private static async Task RemoveStep( MaintenanceItem item, Step step, bool updateDb = true )
-        {
-            if( item.Steps.Contains( step ) )
-            {
-                _ = item.Steps.RemoveAll( x => x.Id == step.Id );
-
-                await StepManager.DeleteItem( step.Id );
-
-                if( updateDb )
-                    await DbServiceLocator.UpdateItemAsync( item );
-            }
-        }
-
-        /// <summary>
-        /// Removes the <see cref="Step"/>s with the passed in Ids from the <see cref="MaintenanceItem.Steps"/> collection if they exist and updates the Db. ONLY UPDATES THE MAINTENANCE ITEM, DOES NOT UPDATE STEP DB RECORDS.
-        /// </summary>
-        public static async Task RemoveMissingSteps( int maintenanceItemId, IEnumerable<int> stepIds )
-        {
-            MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
-
-            List<Step> steps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>(stepIds) as List<Step>;
-
-            await RemoveMissingSteps( item, steps );
-        }
-
-        private static async Task RemoveMissingSteps( MaintenanceItem item, IEnumerable<Step> steps )
-        {
-            foreach( Step step in item.Steps )
-            {
-                if( !steps.Contains( step ) )
-                    await RemoveStep( item, step, false );
-            }
-
-            await DbServiceLocator.UpdateItemAsync( item );
-        }
-
-        /// <summary>
-        /// Removes the <see cref="Step"/>s with the passed in Ids from the <see cref="MaintenanceItem.Steps"/> collection if they exist and updates the Db. ONLY UPDATES THE MAINTENANCE ITEM, DOES NOT UPDATE STEP DB RECORDS.
-        /// </summary>
-        public static async Task RemoveSteps( int maintenanceItemId, IEnumerable<int> stepIds )
-        {
-            MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
-
-            List<Step> steps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>(stepIds) as List<Step>;
-
-            await RemoveSteps( item, steps );
-        }
-
-        private static async Task RemoveSteps( MaintenanceItem item, IEnumerable<Step> steps )
-        {
-            foreach( Step step in steps )
-            {
-                if( item.Steps.Contains( step ) )
-                    await RemoveStep( item, step, false );
-            }
-
-            await DbServiceLocator.UpdateItemAsync( item );
-        }
 
 #nullable enable
 
         /// <summary>
         /// Populates any non-null properties with the passed in value and updates the database.
         /// </summary>
-        public static async Task UpdateProperties( int maintenanceItemId, string? name = null, DateTime? firstServiceDate = null, string? comment = null, int? recursEvery = null, int? timeframe = null, bool? notifyOfNextServiceDate = null )
+        public static async Task UpdateProperties( int maintenanceItemId, string? name = null, DateTime? firstServiceDate = null, string? comment = null, int? recursEvery = null, int? timeframe = null, bool? notifyOfNextServiceDate = null, IEnumerable<int>? steps = null )
         {
             MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
 
@@ -256,6 +187,13 @@ namespace Maintain_it.Helpers
             item.RecursEvery = recursEvery ?? item.RecursEvery;
             item.Timeframe = timeframe ?? item.Timeframe;
             item.NotifyOfNextServiceDate = notifyOfNextServiceDate ?? item.NotifyOfNextServiceDate;
+
+            if(steps != null )
+            {
+                item.Steps = await StepManager.GetItemRangeRecursiveAsync( steps ) as List<Step>;
+
+                item.Steps = UpdateStepSequence( item.Steps );
+            }
 
             if( item.ServiceRecords.Count > 0 )
             {

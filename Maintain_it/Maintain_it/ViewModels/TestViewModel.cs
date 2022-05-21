@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
 //using System.Windows.Input;
@@ -23,20 +24,94 @@ namespace Maintain_it.ViewModels
         {
         }
 
-        private ObservableRangeCollection<StepMaterial> testData;
-        public ObservableRangeCollection<StepMaterial> TestData { get => testData ??= new ObservableRangeCollection<StepMaterial>(); set => SetProperty( ref testData, value ); }
-
-        private int testNum;
-        public int TestNum { get => testNum; set => SetProperty( ref testNum, value ); }
-
-        private AsyncCommand loadDataCommand;
-        public ICommand LoadDataCommand { get => loadDataCommand ??= new AsyncCommand( LoadData ); }
-        private async Task LoadData()
+        private string name;
+        public string Name 
         {
-            List<StepMaterial> data = await DbServiceLocator.GetAllItemsAsync<StepMaterial>() as List<StepMaterial>;
+            get => name;
+            set => SetProperty(ref name, value);
+        }
 
-            TestData.Clear();
-            TestData.AddRange( data );
+        private int nextNodeId;
+        public int NextNodeId
+        {
+            get => nextNodeId;
+            set => SetProperty(ref nextNodeId, value);
+        }
+        
+        private int previousNodeId;
+        public int PreviousNodeId
+        {
+            get => previousNodeId;
+            set => SetProperty(ref previousNodeId, value);
+        }
+        
+        
+        private string dbName;
+        public string DbName 
+        {
+            get => dbName;
+            set => SetProperty(ref dbName, value);
+        }
+
+        private int dbNextNodeId;
+        public int DbNextNodeId
+        {
+            get => dbNextNodeId;
+            set => SetProperty(ref dbNextNodeId, value);
+        }
+        
+        private int dbPreviousNodeId;
+        public int DbPreviousNodeId
+        {
+            get => dbPreviousNodeId;
+            set => SetProperty(ref dbPreviousNodeId, value);
+        }
+
+
+        private Step step;
+        public Step Step
+        {
+            get => step;
+            set => SetProperty( ref step, value );
+        }
+
+        private AsyncCommand newStepCommand;
+        public ICommand NewStepCommand
+        {
+            get => newStepCommand ??= new AsyncCommand( NewStep );
+        }
+
+        private async Task NewStep()
+        {
+            int id = await StepManager.NewStep(true);
+
+            Step = await StepManager.GetItemRecursiveAsync( id );
+            await Refresh();
+        }
+
+        private AsyncCommand updateStepCommand;
+        public ICommand UpdateStepCommand
+        {
+            get => updateStepCommand ??= new AsyncCommand( UpdateStep );
+        }
+
+        private async Task UpdateStep()
+        {
+            Step.Name = Name;
+            Step.NextNodeId = NextNodeId ;
+            Step.PreviousNodeId = PreviousNodeId;
+
+            await DbServiceLocator.UpdateItemAsync( Step );
+            await Refresh();
+        }
+
+        private async Task Refresh()
+        {
+            Step = await DbServiceLocator.GetItemRecursiveAsync<Step>( Step.Id );
+
+            DbName = Step.Name;
+            DbNextNodeId = Step.NextNodeId;
+            DbPreviousNodeId = Step.PreviousNodeId;
         }
     }
 
@@ -87,7 +162,7 @@ namespace Maintain_it.ViewModels
     //        int index2 = viewModel.TestData.IndexOf(itemDroppedOn);
 
     //        viewModel.TestData.Move( index1, index2 );
-            
+
     //        Console.WriteLine( $"TestViewModel Dropping {itemDroppedOn.Name}" );
     //    }
 

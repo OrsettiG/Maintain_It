@@ -7,33 +7,30 @@
     <ContentPage.BindingContext>
         <viewmodel:TestViewModel/>
     </ContentPage.BindingContext>
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Load Items" Command="{Binding LoadDataCommand}"/>
-    </ContentPage.ToolbarItems>
+
     <ContentPage.Content>
         <StackLayout>
             <Label Text="TESTING" 
                    FontSize="Title" TextColor="Red"
                    HorizontalOptions="Center"/>
             <Frame BackgroundColor="Gray">
-
-                <CollectionView x:Name="collectionView" ItemsSource="{Binding TestData}" BackgroundColor="Azure">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <StackLayout Margin="2" x:Name="stackLayout">
-                                <Label Text="{Binding Name}" 
-                                       FontSize="20"/>
-                                <Frame BorderColor="Gray" 
-                                       HeightRequest="2" 
-                                       VerticalOptions="End" 
-                                       IsClippedToBounds="True" 
-                                       Margin="0" 
-                                       Padding="0"/>
-                            </StackLayout>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                <StackLayout>
+                    <Entry Text="{Binding Name}"/>
+                    <Entry Text="{Binding NextNodeId}" Keyboard="Numeric"/>
+                    <Entry Text="{Binding PreviousNodeId}"/>
+                </StackLayout>
             </Frame>
+
+            <Frame>
+                <StackLayout>
+                    <Label Text="{Binding DbName}"/>
+                    <Label Text="{Binding DbNextNodeId}"/>
+                    <Label Text="{Binding DbPreviousNodeId}"/>
+                </StackLayout>
+            </Frame>
+
+            <Button Text="Add" Command="{Binding NewStepCommand}"/>
+            <Button Text="Update" Command="{Binding UpdateStepCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
 using Maintain_it.Views;
@@ -95,8 +96,8 @@ namespace Maintain_it.ViewModels
                 _maintenanceItems.Clear();
                 DisplayedMaintenanceItems.Clear();
 
-                List<MaintenanceItem> items = await DbServiceLocator.GetAllItemsRecursiveAsync<MaintenanceItem>() as List<MaintenanceItem>;
-
+                List<MaintenanceItem> items = await MaintenanceItemManager.GetAllItemsRecursiveAsync();
+                
                 List<MaintenanceItemViewModel> vms = CreateRange( items );
                 DisplayedMaintenanceItems.AddRange( vms );
                 _maintenanceItems.AddRange( items );

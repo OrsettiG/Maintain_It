@@ -21,11 +21,9 @@ namespace Maintain_it.Models
         [NotNull]
         public int Index { get; set; }
 
-        public int? NextNodeId { get; set; }
-        public T NextNode { get; set; }
+        public int NextNodeId { get; set; }
 
-        public int? PreviousNodeId { get; set; }
-        public T PreviousNode { get; set; }
+        public int PreviousNodeId { get; set; }
     }
 
 

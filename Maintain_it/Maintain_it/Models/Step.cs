@@ -41,15 +41,10 @@ namespace Maintain_it.Models
 
 #nullable enable
         #region One to One Relationships
-        [ForeignKey( typeof( Step ) )]
-        public int? NextNodeId { get; set; }
-        [OneToOne]
-        public Step? NextNode { get; set; }
 
-        [ForeignKey( typeof( Step ) )]
-        public int? PreviousNodeId { get; set; }
-        [OneToOne]
-        public Step? PreviousNode { get; set; }
+        public int NextNodeId { get; set; }
+        public int PreviousNodeId { get; set; }
+
         #endregion
         #endregion
 
