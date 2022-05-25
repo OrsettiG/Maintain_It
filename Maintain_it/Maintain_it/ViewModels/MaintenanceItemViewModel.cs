@@ -236,7 +236,7 @@ namespace Maintain_it.ViewModels
         private async Task Add()
         {
 
-            if( update )
+            if( item != null )
             {
                 await MaintenanceItemManager.UpdateProperties( item.Id, name: name, comment: comment, firstServiceDate: firstServiceDate, recursEvery: recursEvery, timeframe: (int)frequency, notifyOfNextServiceDate: notifyOfNextServiceDate, steps: stepIds );
 
@@ -247,11 +247,10 @@ namespace Maintain_it.ViewModels
             else
             {
 
-                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, (int)Frequency, NotifyOfNextServiceDate );
-
-                await MaintenanceItemManager.AddSteps( id, stepIds );
-
+                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, (int)Frequency, NotifyOfNextServiceDate, stepIds );
             }
+
+
 
             ClearData();
             await Shell.Current.GoToAsync( $"//{nameof( HomeView )}?Refresh=true" );
@@ -458,6 +457,7 @@ namespace Maintain_it.ViewModels
             if( item == null )
             {
                 maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, TimesServiced, NotifyOfNextServiceDate );
+                item = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
             }
 
             if( StepViewModels.Count > 0 )

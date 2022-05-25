@@ -275,20 +275,6 @@ namespace Maintain_it.ViewModels
 
         private async Task AddStep()
         {
-            //step = new Step()
-            //{
-            //    Name = Name,
-            //    Description = Description,
-            //    TimeRequired = TimeRequired,
-            //    Timeframe = (int)Timeframe.Minutes,
-            //    IsCompleted = false,
-            //    CreatedOn = DateTime.Now,
-            //    Index = StepNum,
-            //    PreviousNode = PreviousNode,
-            //    NextNode = NextNode,
-            //    StepMaterials = StepMaterials.Count < 1 ? new List<StepMaterial>() : await ConvertToListAsync( StepMaterials ),
-            //    Notes = await ConvertToListAsync( Notes )
-            //};
 
             int stepId = await StepManager.NewStep( isFirstStep, Name, Description, IsCompleted, TimeRequired, (int)Timeframe );
 

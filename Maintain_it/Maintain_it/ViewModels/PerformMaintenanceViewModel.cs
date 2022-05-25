@@ -10,6 +10,7 @@ using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
 
+using MvvmHelpers;
 using MvvmHelpers.Commands;
 
 namespace Maintain_it.ViewModels
@@ -21,6 +22,21 @@ namespace Maintain_it.ViewModels
         #region Properties
         private Step step;
         public Step Step { get => step; private set => SetProperty( ref step, value ); }
+
+        private string title;
+        public string Title { get => title; set => SetProperty( ref title, value ); }
+
+        private string description;
+        public string Description { get => description; set => SetProperty( ref description, value ); }
+
+        private ObservableRangeCollection<Note> notes;
+        public ObservableRangeCollection<Note> Notes { get => notes; set => SetProperty( ref notes, value ); }
+
+        private bool isCompleted;
+        public bool IsCompleted { get => isCompleted; set => SetProperty( ref isCompleted, value ); }
+
+        private double timeRequired;
+        public double TimeRequired { get => timeRequired; set => SetProperty( ref timeRequired, value ); }
 
         private StepViewModel stepViewModel;
         public StepViewModel StepViewModel { get => stepViewModel; private set => SetProperty( ref stepViewModel, value ); }
@@ -45,16 +61,9 @@ namespace Maintain_it.ViewModels
         #region Commands
         private AsyncCommand nextStepCommand;
         public ICommand NextStepCommand => nextStepCommand ??= new AsyncCommand( NextStep );
-
-        private AsyncCommand previousStepCommand;
-        public ICommand PreviousStepCommand => previousStepCommand ??= new AsyncCommand( PreviousStep );
-
-        #endregion
-
-        #region Methods
         private async Task NextStep()
         {
-            if( Step.NextNodeId != null )
+            if( Step.NextNodeId != 0 )
             {
                 Step step = await StepManager.GetItemRecursiveAsync( (int)Step.NextNodeId );
 
@@ -67,9 +76,11 @@ namespace Maintain_it.ViewModels
             }
         }
 
+        private AsyncCommand previousStepCommand;
+        public ICommand PreviousStepCommand => previousStepCommand ??= new AsyncCommand( PreviousStep );
         private async Task PreviousStep()
         {
-            if( Step.PreviousNodeId != null )
+            if( Step.PreviousNodeId != 0 )
             {
                 Step step = await StepManager.GetItemRecursiveAsync( (int)Step.PreviousNodeId );
 
@@ -82,6 +93,18 @@ namespace Maintain_it.ViewModels
             }
 
         }
+
+        private AsyncCommand completeStepCommand;
+        public ICommand CompleteStepCommand => completeStepCommand ??= new AsyncCommand( CompleteStep );
+        private async Task CompleteStep()
+        {
+
+        }
+
+        #endregion
+
+        #region Methods
+
 
         private async Task Refresh()
         {

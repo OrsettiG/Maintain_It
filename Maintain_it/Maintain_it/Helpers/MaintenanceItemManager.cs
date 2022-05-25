@@ -11,7 +11,7 @@ namespace Maintain_it.Helpers
 {
     internal static class MaintenanceItemManager
     {
-        public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, int timeframe = 0, bool notifyOfNextServiceDate = false )
+        public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, int timeframe = 0, bool notifyOfNextServiceDate = false, IEnumerable<int> stepIds = null )
         {
             MaintenanceItem item = new MaintenanceItem()
             {
@@ -26,6 +26,9 @@ namespace Maintain_it.Helpers
                 Steps = new List<Step>(),
                 ServiceRecords = new List<ServiceRecord>()
             };
+
+            if( stepIds != null )
+                item.Steps = await UpdateStepSequence( stepIds );
 
             return await DbServiceLocator.AddItemAndReturnIdAsync( item );
         }
@@ -81,14 +84,24 @@ namespace Maintain_it.Helpers
         {
             List<Step> steps = await StepManager.GetItemRangeRecursiveAsync(stepIds) as List<Step>;
 
-            steps = UpdateStepSequence( steps );
+            steps = await UpdateStepSequence( steps );
             return steps;
         }
 
-        private static List<Step> UpdateStepSequence( IEnumerable<Step> newSteps )
+        private static async Task<List<Step>> UpdateStepSequence( IEnumerable<Step> newSteps )
         {
             IOrderedEnumerable<Step> steps = newSteps.OrderBy(x => x.Index);
             List<Step> updatedSteps = new List<Step>();
+
+            switch( newSteps.Count() )
+            {
+                case 0:
+                    return updatedSteps;
+                case 1:
+                    updatedSteps.Add( steps.FirstOrDefault() );
+                    return updatedSteps;
+            }
+
 
             Step upStream = null;
 
@@ -96,7 +109,7 @@ namespace Maintain_it.Helpers
             {
 
                 // Set the step's previous node to the upStream node. This will always be null on the first node so we need the null propogation on the id.
-                step.PreviousNodeId = (int)upStream?.Id;
+                step.PreviousNodeId = upStream != null ? upStream.Id : 0;
 
                 // Set the upStream node's next node to this one. This will be null on the first iteration so we have to null check.
                 switch( upStream )
@@ -113,6 +126,7 @@ namespace Maintain_it.Helpers
                 if( upStream != null )
                 {
                     updatedSteps.Add( upStream );
+                    await DbServiceLocator.UpdateItemAsync( upStream );
                 }
 
                 // Set this nodes next node to null. If there is another node in the sequence, this will be set to the correct node on the next loop and if we are on the last node then we want this to be null anyways.
@@ -123,7 +137,7 @@ namespace Maintain_it.Helpers
             }
 
             updatedSteps.Add( upStream );
-
+            await DbServiceLocator.UpdateItemAsync( upStream );
 
             return updatedSteps;
         }
@@ -188,11 +202,11 @@ namespace Maintain_it.Helpers
             item.Timeframe = timeframe ?? item.Timeframe;
             item.NotifyOfNextServiceDate = notifyOfNextServiceDate ?? item.NotifyOfNextServiceDate;
 
-            if(steps != null )
+            if( steps != null )
             {
                 item.Steps = await StepManager.GetItemRangeRecursiveAsync( steps ) as List<Step>;
 
-                item.Steps = UpdateStepSequence( item.Steps );
+                item.Steps = await UpdateStepSequence( item.Steps );
             }
 
             if( item.ServiceRecords.Count > 0 )

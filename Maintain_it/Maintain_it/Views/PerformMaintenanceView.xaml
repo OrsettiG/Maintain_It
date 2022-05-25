@@ -12,7 +12,7 @@
         <ToolbarItem Text="Next" Command="{Binding NextStepCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <StackLayout>
+        <StackLayout BackgroundColor="LightGray">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -25,12 +25,27 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
+                <Frame Grid.Column="0" 
+                       Grid.ColumnSpan="3" 
+                       Grid.Row="0" 
+                       CornerRadius="10"
+                       HasShadow="True"
+                       BorderColor="DarkGray"
+                       Margin="5">
+                    <StackLayout>
 
-                <Label Text="{Binding Step.Name}"
-                       FontSize="Title"
-                       Grid.Column="0" Grid.ColumnSpan="3"
-                       Grid.Row="0"
-                       HorizontalOptions="CenterAndExpand"/>
+                        <Label Text="Description:"
+                       FontSize="Large"
+                       HorizontalOptions="StartAndExpand"/>
+
+                        <Label Text="{Binding Step.Description}"
+                       FontSize="Medium"
+                       HorizontalOptions="StartAndExpand"/>
+                        
+                    </StackLayout>
+                </Frame>
+                
+                
             </Grid>
         </StackLayout>
     </ContentPage.Content>
