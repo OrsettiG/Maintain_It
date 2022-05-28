@@ -4,18 +4,26 @@
              x:Class="Maintain_it.App">
     <!--
         Define global resources and styles here, that apply to all pages in your app.
+    E5E2C7
     -->
     <Application.Resources>
         <ResourceDictionary>
-            <Color x:Key="Primary">#2196F3</Color>
+            <Color x:Key="Primary">#B6C197</Color>
+            <Color x:Key="Secondary">#38302E</Color>
+            <Color x:Key="Transition">#F3F1DE</Color>
+            <Color x:Key="Cue">#037171</Color>
+            <Color x:Key="Warning">#D64933</Color>
+            
             <Style TargetType="Button">
-                <Setter Property="TextColor" Value="White"></Setter>
+                <Setter Property="TextColor" Value="{StaticResource Secondary}"></Setter>
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
                                     <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                    <Setter Property="BorderColor" Value="{StaticResource Secondary}" />
+                                    <Setter Property="BorderWidth" Value="1" />
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Disabled">
@@ -27,6 +35,36 @@
                     </VisualStateGroupList>
                 </Setter>
             </Style>
+
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
+            </Style>
+            <Style TargetType="Frame">
+                <Setter Property="BorderColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
+                <Setter Property="HasShadow" Value="True"/>
+            </Style>
+            
+            <!--Collection View-->
+            <Style TargetType="CollectionView">
+                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
+            </Style>
+
+            <!--Box View-->
+            <Style TargetType="BoxView">
+                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}"/>
+            </Style>
+            
+            <!--Check Box-->
+            <Style TargetType="CheckBox">
+                <Setter Property="Color" Value="{StaticResource Primary}"/>
+            </Style>
+
+            <Style TargetType="StackLayout">
+                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
+            </Style>
+            
         </ResourceDictionary>        
     </Application.Resources>
 </Application>

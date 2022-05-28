@@ -15,14 +15,14 @@
         <ResourceDictionary>
             <Style x:Key="BaseStyle" TargetType="Element">
                 <Setter Property="Shell.BackgroundColor" Value="{StaticResource Primary}" />
-                <Setter Property="Shell.ForegroundColor" Value="White" />
-                <Setter Property="Shell.TitleColor" Value="White" />
+                <Setter Property="Shell.ForegroundColor" Value="{StaticResource Cue}" />
+                <Setter Property="Shell.TitleColor" Value="{StaticResource Secondary}" />
                 <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
                 <Setter Property="Shell.UnselectedColor" Value="#95FFFFFF" />
                 <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource Primary}" />
-                <Setter Property="Shell.TabBarForegroundColor" Value="White"/>
+                <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource Transition}"/>
                 <Setter Property="Shell.TabBarUnselectedColor" Value="#95FFFFFF"/>
-                <Setter Property="Shell.TabBarTitleColor" Value="White"/>
+                <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource Transition}"/>
             </Style>
             <Style TargetType="TabBar" BasedOn="{StaticResource BaseStyle}" />
             <Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />
@@ -32,7 +32,7 @@
             https://docs.microsoft.com/xamarin/xamarin-forms/app-fundamentals/shell/flyout#flyoutitem-and-menuitem-style-classes
             -->
             <Style Class="FlyoutItemLabelStyle" TargetType="Label">
-                <Setter Property="TextColor" Value="White"></Setter>
+                <Setter Property="TextColor" Value="{StaticResource Secondary}"></Setter>
             </Style>
             <Style Class="FlyoutItemLayoutStyle" TargetType="Layout" ApplyToDerivedTypes="True">
                 <Setter Property="VisualStateManager.VisualStateGroups">
@@ -41,7 +41,7 @@
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
                                     <Setter Property="BackgroundColor" Value="{x:OnPlatform UWP=Transparent, iOS=White}" />
-                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Primary}" />
+                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Secondary}"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Selected">
@@ -63,7 +63,7 @@
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Primary}" />
+                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Secondary}" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
@@ -82,7 +82,7 @@
             <FontImageSource
                 FontFamily="FA-Solid"
                 Glyph="{Static fontAwesome:FontAwesomeIcons.Home}"
-                Color="LightGray"
+                Color="{StaticResource Secondary}"
                 Size="12"/>
         </FlyoutItem.Icon>
         <ShellContent Route="HomeView" ContentTemplate="{DataTemplate local:HomeView}" />
@@ -97,7 +97,7 @@
             <FontImageSource
                 FontFamily="FA-Solid"
                 Glyph="{Static fontAwesome:FontAwesomeIcons.ShoppingCart}"
-                Color="Green"/>
+                Color="{StaticResource Secondary}"/>
         </FlyoutItem.Icon>
         <ShellContent Route="DisplayAllShoppingListsView"  ContentTemplate="{DataTemplate local:DisplayAllShoppingListsView}"/>
     </FlyoutItem>
@@ -119,7 +119,7 @@
             <FontImageSource
                 FontFamily="FA-Solid"
                 Glyph="{Static fontAwesome:FontAwesomeIcons.Cog}"
-                Color="LightGray"
+                Color="{StaticResource Secondary}"
                 Size="15"/>
         </FlyoutItem.Icon>
         <ShellContent Route="SettingsView" ContentTemplate="{DataTemplate local:SettingsView}" />
@@ -129,7 +129,7 @@
             <FontImageSource
                 FontFamily="FA-Solid"
                 Glyph="{Static fontAwesome:FontAwesomeIcons.InfoCircle}"
-                Color="LightGray"
+                Color="{StaticResource Secondary}"
                 Size="20"/>
         </FlyoutItem.Icon>
         <ShellContent Route="AboutView" ContentTemplate="{DataTemplate local:AboutView}" />

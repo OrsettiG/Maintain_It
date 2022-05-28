@@ -13,12 +13,12 @@
 
                 <Label Text="Step Name"/>
                 <Entry Text="{Binding Name}"
-                   HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
+                   HorizontalOptions="FillAndExpand" VerticalOptions="Center" MaxLength="30"/>
                 
                 <Label Text="Step Description"/>
                 <Editor Text="{Binding Description}"
                        HorizontalOptions="FillAndExpand" VerticalOptions="Center"
-                       HeightRequest="100"/>
+                       HeightRequest="100" MaxLength="300"/>
                 
                 <Label Text="Time Required"/>
                 <Entry Keyboard="Numeric" Text="{Binding TimeRequired}" Placeholder="10"

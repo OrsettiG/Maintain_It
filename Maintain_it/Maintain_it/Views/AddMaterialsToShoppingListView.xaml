@@ -16,7 +16,7 @@
                         <VisualState x:Name="Selected">
                             <VisualState.Setters>
                                 <Setter Property="BackgroundColor"
-                                        Value="Orange" />
+                                        Value="{StaticResource Cue}" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -86,8 +86,7 @@
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Frame BorderColor="Black" 
-                                       Margin="10" Padding="10"
+                                <Frame Margin="10" Padding="10"
                                        VerticalOptions="Center"
                                        HorizontalOptions="Center"
                                        WidthRequest="325"
@@ -117,7 +116,6 @@
                                         <!--Image-->
                                         <Frame Grid.Column="0" Grid.ColumnSpan="2"
                                                Grid.Row="1" Grid.RowSpan="3"
-                                               BorderColor="Black"
                                                HorizontalOptions="Start"
                                                VerticalOptions="Start"
                                                WidthRequest="75"
@@ -179,9 +177,7 @@
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Frame BorderColor="Black"
-                                       BackgroundColor="LightSlateGray"
-                                       Margin="10" Padding="10"
+                                <Frame Margin="10" Padding="10"
                                        VerticalOptions="Center"
                                        HorizontalOptions="Center"
                                        WidthRequest="325"
@@ -251,12 +247,10 @@
                                             <Button Text="{Static fontawesome:FontAwesomeIcons.Minus}" 
                                                     FontFamily="FA-Solid" FontSize="10"
                                                     Grid.Column="1"
-                                                    CornerRadius="2"
                                                     WidthRequest="40"
                                                     HeightRequest="40"/>
                                             <Frame Grid.Column="2" 
-                                                   Padding="0" Margin="0" 
-                                                   BorderColor="Black" CornerRadius="0" 
+                                                   Padding="0" Margin="0"
                                                    HorizontalOptions="FillAndExpand">
                                                 <Entry Text="{Binding Quantity}" FontSize="Medium"
                                                    HorizontalOptions="Center"

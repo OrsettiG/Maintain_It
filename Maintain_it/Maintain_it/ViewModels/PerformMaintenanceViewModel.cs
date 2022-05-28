@@ -29,14 +29,17 @@ namespace Maintain_it.ViewModels
         private string description;
         public string Description { get => description; set => SetProperty( ref description, value ); }
 
-        private ObservableRangeCollection<Note> notes;
-        public ObservableRangeCollection<Note> Notes { get => notes; set => SetProperty( ref notes, value ); }
+        private ObservableRangeCollection<NoteViewModel> notes;
+        public ObservableRangeCollection<NoteViewModel> Notes { get => notes; set => SetProperty( ref notes, value ); }
 
         private bool isCompleted;
         public bool IsCompleted { get => isCompleted; set => SetProperty( ref isCompleted, value ); }
 
         private double timeRequired;
         public double TimeRequired { get => timeRequired; set => SetProperty( ref timeRequired, value ); }
+
+        private DateTime createdOn;
+        public DateTime CreatedOn {  get => createdOn; set => SetProperty( ref createdOn, value ); }
 
         private StepViewModel stepViewModel;
         public StepViewModel StepViewModel { get => stepViewModel; private set => SetProperty( ref stepViewModel, value ); }
@@ -63,7 +66,7 @@ namespace Maintain_it.ViewModels
         public ICommand NextStepCommand => nextStepCommand ??= new AsyncCommand( NextStep );
         private async Task NextStep()
         {
-            if( Step.NextNodeId != 0 )
+            if( Step != null && Step.NextNodeId != 0 )
             {
                 Step step = await StepManager.GetItemRecursiveAsync( (int)Step.NextNodeId );
 
@@ -80,7 +83,7 @@ namespace Maintain_it.ViewModels
         public ICommand PreviousStepCommand => previousStepCommand ??= new AsyncCommand( PreviousStep );
         private async Task PreviousStep()
         {
-            if( Step.PreviousNodeId != 0 )
+            if( Step != null && Step.PreviousNodeId != 0 )
             {
                 Step step = await StepManager.GetItemRecursiveAsync( (int)Step.PreviousNodeId );
 
@@ -114,7 +117,7 @@ namespace Maintain_it.ViewModels
             Step = await StepManager.GetItemRecursiveAsync( Step.Id );
             StepViewModel = new StepViewModel()
             {
-                Step = Step
+                Step = Step    
             };
 
             StepNumber = Step.Index.ToString();
@@ -149,7 +152,13 @@ namespace Maintain_it.ViewModels
                     {
                         maintenanceItem = await MaintenanceItemManager.GetItemRecursiveAsync( maintenanceItemId );
 
-                        Step = maintenanceItem.Steps.Where( x => x.Index == 1 ).FirstOrDefault();
+                        if( maintenanceItem.Steps.Count > 0 )
+                        {
+                            int stepId = maintenanceItem.Steps.Where( x => x.Index == 1 ).FirstOrDefault().Id;
+                            Step = await StepManager.GetItemRecursiveAsync( stepId );
+
+                            StepViewModel svm = new StepViewModel(Step);
+                        }
                     }
 
                     await Refresh();

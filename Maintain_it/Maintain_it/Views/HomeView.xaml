@@ -13,9 +13,8 @@
             <Label Text="Maintain It!" 
                        FontSize="32" 
                        HorizontalOptions="CenterAndExpand"
-                       TextColor="Black"
                        Padding="5"/>
-            <BoxView BackgroundColor="LightGray" 
+            <BoxView  
                          WidthRequest="600" HeightRequest="1"
                          HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>
             <StackLayout x:DataType="viewmodel:HomeViewModel">
@@ -34,60 +33,55 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="{x:Type viewmodel:MaintenanceItemViewModel}">
-                            <Frame BorderColor="Gray" WidthRequest="350">
-                                <Grid Padding="5">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="200"/>
-                                        <RowDefinition Height="100"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                            <Frame WidthRequest="350">
+                                <StackLayout>
+                                    <ScrollView>
+                                        <StackLayout>
+                                            <Grid Padding="5">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
 
-                                    <!--Edit-->
-                                    <Button   Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
-                                              FontFamily="FA-Solid" TextColor="DarkRed"
-                                              CornerRadius="20" HeightRequest="40" WidthRequest="40"
-                                              Grid.Column="3" Grid.Row="0" 
-                                              HorizontalOptions="Center" VerticalOptions="Center"
-                                              BackgroundColor="LightGray"
-                                              Command="{Binding EditCommand}"
-                                              />
-                                    <!--Delete-->
-                                    <Button   Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
-                                              FontFamily="FA-Solid" TextColor="DarkRed"
+                                                <!--Delete-->
+                                                <Button   Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
+                                              FontFamily="FA-Solid"
+                                              TextColor="{StaticResource Warning}"
+                                              BorderColor="{StaticResource Warning}"
+                                              BorderWidth="1"
                                               CornerRadius="20" HeightRequest="40" WidthRequest="40"
                                               Grid.Column="0" Grid.Row="0" 
                                               HorizontalOptions="Center" VerticalOptions="Center"
-                                              BackgroundColor="LightGray"
                                               Command="{Binding DeleteCommand}"
                                               />
-                                    <!--Name-->
-                                    <Label  Text="{Binding Name}"
+
+                                                <!--Edit-->
+                                                <Button   Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
+                                              FontFamily="FA-Solid"
+                                              TextColor="{StaticResource Warning}"
+                                              BorderColor="{StaticResource Warning}"
+                                              CornerRadius="20" HeightRequest="40" WidthRequest="40"
+                                              Grid.Column="3" Grid.Row="0" 
+                                              HorizontalOptions="Center" VerticalOptions="Center"
+                                              Command="{Binding EditCommand}"
+                                              />
+
+                                                <!--Name-->
+                                                <Label  Text="{Binding Name}"
                                             FontSize="Medium" HorizontalTextAlignment="Center"
                                             Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" 
                                             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
-                                            />
-                                    
-                                    <Label Text="Next Service Date:" Padding="0, 5"
-                                           Grid.Row="1" Grid.Column="1" 
-                                           HorizontalOptions="CenterAndExpand" VerticalOptions="Center" 
-                                           />
-                                    
-                                    <Label Text="{Binding NextServiceDate, StringFormat='{0:MMM dd, yyyy}'}" Padding="0, 5"
-                                           Grid.Row="1" Grid.Column="2" 
-                                           HorizontalOptions="Start" VerticalOptions="Center" 
-                                           />
+                                            MaxLines="1"/>
 
-                                    <!--Step Column Headers-->
 
-                                    <Grid Grid.Row="2" Grid.ColumnSpan="4">
+                                                <!--Step Column Headers-->
+
+                                                <!--<Grid Grid.Row="2" Grid.ColumnSpan="4">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="0.5*"/>
@@ -96,15 +90,14 @@
 
                                         <Label Grid.Column="0" Text="Step Name" FontSize="Subtitle" TextDecorations="Underline" HorizontalOptions="StartAndExpand" Padding="25,0,0,0"/>
                                         <Label Grid.Column="2" Text="Step Description" FontSize="Subtitle" TextDecorations="Underline" HorizontalOptions="StartAndExpand"/>
-                                    </Grid>
+                                    </Grid>-->
 
-                                    <!--Step CollectionView-->
-                                    <CollectionView ItemsSource="{Binding StepViewModels, Mode=OneWay}" 
+                                                <!--Step CollectionView-->
+                                                <!--<CollectionView ItemsSource="{Binding StepViewModels, Mode=OneWay}" 
                                                     ItemSizingStrategy="MeasureFirstItem" 
                                                     HorizontalOptions="Center" 
                                                     VerticalOptions="Start" 
                                                     Margin="0, 5" 
-                                                    BackgroundColor="White"  
                                                     Grid.Row="3" Grid.ColumnSpan="4">
                                         <CollectionView.ItemsLayout>
                                             <GridItemsLayout 
@@ -130,39 +123,70 @@
                                                         <ColumnDefinition Width="80"/>
                                                     </Grid.ColumnDefinitions>
 
-                                                    <Label Grid.Column="2" Text="{Binding Name}" HorizontalOptions="Start" VerticalOptions="Center" Margin="5" BackgroundColor="Aquamarine"/>
-                                                    <Label Grid.Column="3" Text="{Binding NextStep}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                                    <Label Grid.Column="2" 
+                                                           Text="{Binding Name}" 
+                                                           HorizontalOptions="Start" 
+                                                           VerticalOptions="Center" 
+                                                           Margin="5"/>
+                                                    <Label Grid.Column="3" 
+                                                           Text="{Binding IsCompleted}" 
+                                                           VerticalOptions="Center"   
+                                                           HorizontalOptions="Center"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </CollectionView.ItemTemplate>
-                                    </CollectionView>
+                                    </CollectionView>-->
 
-                                    <!--Add to Shopping list Button-->
-                                    <!--<Label Text="Add to Shopping List"
+                                                <!--Add to Shopping list Button-->
+                                                <!--<Label Text="Add to Shopping List"
                                            Grid.Row="4" Grid.Column="3"
                                            VerticalOptions="Start"
                                            WidthRequest="60"/>-->
+                                            </Grid>
+
+                                            <Frame>
+                                                <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
+                                                    <Label Text="Next Service Date:"
+                                                           Grid.Row="1" Grid.Column="1" 
+                                                           HorizontalOptions="Start" VerticalOptions="Center"/>
+
+                                                    <Label Text="{Binding NextServiceDate, StringFormat='{0:MMM dd, yyyy}'}" Padding="0, 5"
+                                                           Grid.Row="1" Grid.Column="2" 
+                                                           HorizontalOptions="Start" VerticalOptions="Center"/>
+                                                </StackLayout>
+                                            </Frame>
+
+                                            <Frame>
+                                                <StackLayout Orientation="Horizontal">
+                                                    <Label Text="Steps:"/>
+                                                    <Label Text="{Binding StepViewModels.Count}"/>
+                                                </StackLayout>
+                                            </Frame>
+
+                                        </StackLayout>
+                                    </ScrollView>
                                     <Button 
                                         Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" 
                                         Text="{Static fontAwesome:FontAwesomeIcons.CartPlus}" 
-                                        FontFamily="FA-Solid" TextColor="Green"
+                                        FontFamily="FA-Solid"
                                         Command="{Binding AddMaterialsToShoppingCartCommand}"
                                         VerticalOptions="Start" HorizontalOptions="FillAndExpand" 
-                                        BackgroundColor="LightGray" HeightRequest="45"/>
-                                    
+                                        HeightRequest="45"/>
+
                                     <!--Start Maintenance Button-->
                                     <Button 
                                         Grid.Row="4" Grid.Column="0"  Grid.ColumnSpan="4" 
                                         Text="Start Maintenance"
                                         Command="{Binding StartMaintenanceCommand}"
-                                        VerticalOptions="End" HorizontalOptions="FillAndExpand" 
-                                        BackgroundColor="Green"/>
-                                </Grid>
+                                        VerticalOptions="End" HorizontalOptions="FillAndExpand"/>
+                                </StackLayout>
                             </Frame>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-                <BoxView BackgroundColor="Black" HorizontalOptions="CenterAndExpand" HeightRequest="1" WidthRequest="350"/>
+
+                <BoxView HorizontalOptions="CenterAndExpand" HeightRequest="1" WidthRequest="350"/>
+
             </StackLayout>
             <Grid Margin="5" Padding="5">
                 <Grid.RowDefinitions>
@@ -175,10 +199,23 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Text="Add New" Command="{Binding AddCommand}" HorizontalOptions="Center" HeightRequest="50"/>
-                <Button Grid.Column="1" Text="Refresh" Command="{Binding RefreshCommand}" HorizontalOptions="Center"/>
-                <Button Grid.Column="2" Text="Delete All" Command="{Binding DeleteAllCommand}" HorizontalOptions="Center"/>
-                <Button Grid.Column="3" Text="Update All" Command="{Binding UpdateCommand}" HorizontalOptions="Center"/>
+                <Button Grid.Column="0" 
+                        Text="Add New" 
+                        Command="{Binding AddCommand}" 
+                        HorizontalOptions="Center" 
+                        HeightRequest="50"/>
+                <Button Grid.Column="1" 
+                        Text="Refresh" 
+                        Command="{Binding RefreshCommand}" 
+                        HorizontalOptions="Center"/>
+                <Button Grid.Column="2" 
+                        Text="Delete All" 
+                        Command="{Binding DeleteAllCommand}" 
+                        HorizontalOptions="Center"/>
+                <Button Grid.Column="3" 
+                        Text="Update All" 
+                        Command="{Binding UpdateCommand}" 
+                        HorizontalOptions="Center"/>
             </Grid>
         </StackLayout>
     </ContentPage.Content>

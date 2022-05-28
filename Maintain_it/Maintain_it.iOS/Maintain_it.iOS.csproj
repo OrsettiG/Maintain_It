@@ -143,11 +143,11 @@
     </PackageReference>
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2083" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Maintain_it\Maintain_it.csproj">
-      <Project>{9B458B9E-6558-484C-84B4-D88214BA245B}</Project>
+      <Project>{e6d6f521-556f-4bd9-b8cb-b415ca869b07}</Project>
       <Name>Maintain_it</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

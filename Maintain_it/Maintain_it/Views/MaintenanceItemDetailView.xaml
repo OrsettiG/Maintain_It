@@ -93,7 +93,6 @@
                     
 
                     <Frame Grid.ColumnSpan="3" Grid.Row="9"
-                           BackgroundColor="LightGray"
                            Padding=" 10">
                         <CollectionView
                                         ItemsSource="{Binding StepViewModels}"
@@ -112,7 +111,7 @@
                             </CollectionView.ItemsLayout>
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="{x:Type viewmodels:StepViewModel}">
-                                    <Frame BackgroundColor="SlateGray" WidthRequest="250" Padding="5">
+                                    <Frame WidthRequest="250" Padding="5">
                                         <Frame.GestureRecognizers>
                                             <DragGestureRecognizer DragStartingCommand="{Binding DragStartingCommand}"
                                                                    DragStartingCommandParameter="{Binding .}"
@@ -124,7 +123,7 @@
                                                            DragOverCommand="{Binding DragOverCommand}"
                                                            DragOverCommandParameter="{Binding .}"/>
                                         </Frame.GestureRecognizers>
-                                        <Grid BackgroundColor="White" Padding="3">
+                                        <Grid Padding="3">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="50"/>
                                                 <RowDefinition/>
@@ -136,7 +135,7 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
 
-                                            <Label Text="{Binding StepNum}" BackgroundColor="LightGray"
+                                            <Label Text="{Binding StepNum}"
                                                    Grid.Row="0" Grid.Column="0"
                                                    HorizontalOptions="Start" VerticalOptions="Start"
                                                    Padding="5"/>

@@ -8,7 +8,7 @@ using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
 {
-    internal class NoteViewModel : BaseViewModel
+    public class NoteViewModel : BaseViewModel
     {
         private Note note;
 

@@ -590,6 +590,11 @@ namespace Maintain_it.Helpers
 
             step.MaintenanceItem = step.MaintenanceItemId == 0 ? null : await MaintenanceItemManager.GetItemAsync( step.MaintenanceItemId );
 
+            foreach( StepMaterial stepMat in step.StepMaterials )
+            {
+                stepMat.Material = await MaterialManager.GetItemAsync( stepMat.MaterialId );
+            }
+
             return step;
         }
 
