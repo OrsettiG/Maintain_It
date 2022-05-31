@@ -161,23 +161,23 @@ namespace Maintain_it.ViewModels
 
         private async Task ProcessMaterialIds( string encodedKvps )
         {
-            string[] kvps = HttpUtility.HtmlDecode( encodedKvps ).Split(";");
+            string[] kvps = HttpUtility.UrlDecode( encodedKvps ).Split(";");
 
             foreach( string kvp in kvps )
             {
                 string[] KeyValuePair = kvp.Split("=");
                 if( int.TryParse( KeyValuePair[0], out int k ) && int.TryParse( KeyValuePair[1], out int v ) )
                 {
-
                     preSelectedMaterialsAndQuantities.Add( k, v );
                 }
             }
 
-            await AddPreselectedMaterialsToShoppingList();
+
+            //await AddPreselectedMaterialsToShoppingList();
         }
 
 
-        //!!!Pick Up Here!!! The preSelectedMaterialsAndQuantities Dictionary should be populated with the material ids and required quanties for each preselected material. rewrite this method to take that dictionary and create a new shoppingListMaterial for this shopping list that has the correct quantity in it. You will need to write a ShoppingListMaterialManager for this bit. Also there is a NullReferenceException in MaintenanceItemViewModel line 243.
+        //!!!Pick Up Here!!! The preSelectedMaterialsAndQuantities Dictionary should be populated with the material ids and required quanties for each preselected material. rewrite this method to take that dictionary and create a new shoppingListMaterial for this shopping list that has the correct quantity in it. You will need to write a ShoppingListMaterialManager for this bit.
 
         private async Task AddPreselectedMaterialsToShoppingList()
         {

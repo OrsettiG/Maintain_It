@@ -245,37 +245,49 @@ namespace Maintain_it.ViewModels
             if( item != null )
             {
                 ConcurrentDictionary<int, int> materialIdsAndQuantitysRequired = new ConcurrentDictionary<int, int>();
-                
-                _ = Parallel.ForEach( item.Steps, async x =>
+
+                foreach( Step step in item.Steps )
                 {
-                    Step step = await StepManager.GetItemRecursiveAsync(x.Id);
-                    
-                    foreach( StepMaterial stepMaterial in x.StepMaterials )
+                    Step s = await StepManager.GetItemRecursiveAsync( step.Id );
+
+                    _ = Parallel.ForEach( s.StepMaterials, async x =>
                     {
-                        int quantityRequired = stepMaterial.Quantity;
-                        int quantityOwned = stepMaterial.Material.QuantityOwned;
-                        
+                        int quantityRequired = x.Quantity;
+                        int quantityOwned = x.Material.QuantityOwned;
+
                         if( quantityRequired > quantityOwned )
                         {
                             int diff = quantityRequired - quantityOwned;
-                            _ = materialIdsAndQuantitysRequired.AddOrUpdate( stepMaterial.MaterialId, diff, (key, oldValue) => oldValue + diff );
+                            _ = materialIdsAndQuantitysRequired.AddOrUpdate( x.MaterialId, diff, ( key, oldValue ) => oldValue + diff );
                         }
-                    }
-                } );
+                    } );
+                }
+
 
                 StringBuilder sb = new StringBuilder();
 
-                foreach(KeyValuePair<int,int> kvp in materialIdsAndQuantitysRequired )
+                if( materialIdsAndQuantitysRequired.Count > 0 )
                 {
-                    _ = sb.Append( kvp.Key );
-                    _ = sb.Append( "=" );
-                    _ = sb.Append( kvp.Value );
-                    _ = sb.Append( ";" );
+                    foreach( KeyValuePair<int, int> kvp in materialIdsAndQuantitysRequired )
+                    {
+                        _ = sb.Append( kvp.Key );
+                        _ = sb.Append( "=" );
+                        _ = sb.Append( kvp.Value );
+                        _ = sb.Append( ";" );
+                    }
                 }
 
                 string encodedQuery = HttpUtility.UrlEncode( sb.ToString() );
-                Console.WriteLine( encodedQuery );
-                await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.PreSelectedMaterialIds}={encodedQuery}" );
+
+                if( encodedQuery != string.Empty )
+                {
+                    Console.WriteLine( encodedQuery );
+                    await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.PreSelectedMaterialIds}={encodedQuery}" );
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert( "Information", "You already have all the materials required for this project. You can get right to work, no need for shopping.", "Ok" );
+                }
             }
         }
 
