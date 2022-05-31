@@ -8,6 +8,9 @@
     <ContentPage.BindingContext>
         <viewmodel:HomeViewModel/>
     </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="New Project" Command="{Binding AddCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <StackLayout>
             <Label Text="Maintain It!" 
@@ -24,18 +27,16 @@
                                     HeightRequest="35"/>
                 <CollectionView x:Name="Items" 
                                     ItemsSource="{Binding DisplayedMaintenanceItems}"
-                                    VerticalOptions="Start" HorizontalOptions="CenterAndExpand" 
-                                    Margin="10"
-                                    HeightRequest="400"
-                                    BackgroundColor="White">
+                                    VerticalOptions="FillAndExpand" HorizontalOptions="CenterAndExpand" 
+                                    Margin="10">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="{x:Type viewmodel:MaintenanceItemViewModel}">
-                            <Frame WidthRequest="350">
+                            <Frame WidthRequest="350" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Padding="20,10">
                                 <StackLayout>
-                                    <ScrollView>
+                                    <ScrollView VerticalOptions="FillAndExpand">
                                         <StackLayout>
                                             <Grid Padding="5">
                                                 <Grid.RowDefinitions>
@@ -76,147 +77,65 @@
                                             FontSize="Medium" HorizontalTextAlignment="Center"
                                             Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" 
                                             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
-                                            MaxLines="1"/>
+                                            MaxLines="2"/>
 
-
-                                                <!--Step Column Headers-->
-
-                                                <!--<Grid Grid.Row="2" Grid.ColumnSpan="4">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition Width="0.5*"/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <Label Grid.Column="0" Text="Step Name" FontSize="Subtitle" TextDecorations="Underline" HorizontalOptions="StartAndExpand" Padding="25,0,0,0"/>
-                                        <Label Grid.Column="2" Text="Step Description" FontSize="Subtitle" TextDecorations="Underline" HorizontalOptions="StartAndExpand"/>
-                                    </Grid>-->
-
-                                                <!--Step CollectionView-->
-                                                <!--<CollectionView ItemsSource="{Binding StepViewModels, Mode=OneWay}" 
-                                                    ItemSizingStrategy="MeasureFirstItem" 
-                                                    HorizontalOptions="Center" 
-                                                    VerticalOptions="Start" 
-                                                    Margin="0, 5" 
-                                                    Grid.Row="3" Grid.ColumnSpan="4">
-                                        <CollectionView.ItemsLayout>
-                                            <GridItemsLayout 
-                                                Orientation="Horizontal" 
-                                                Span="5" 
-                                                HorizontalItemSpacing="0" 
-                                                SnapPointsType="MandatorySingle" 
-                                                SnapPointsAlignment="Start" 
-                                                BindingContext="{Binding StepViewModels}"/>
-                                        </CollectionView.ItemsLayout>
-
-                                        <CollectionView.ItemTemplate>
-                                            <DataTemplate x:DataType="{x:Type viewmodel:StepViewModel}">
-                                                <Grid HeightRequest="40">
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition Height="40"/>
-                                                    </Grid.RowDefinitions>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="35"/>
-                                                        <ColumnDefinition Width="35"/>
-                                                        <ColumnDefinition Width="175"/>
-                                                        <ColumnDefinition Width="75"/>
-                                                        <ColumnDefinition Width="80"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <Label Grid.Column="2" 
-                                                           Text="{Binding Name}" 
-                                                           HorizontalOptions="Start" 
-                                                           VerticalOptions="Center" 
-                                                           Margin="5"/>
-                                                    <Label Grid.Column="3" 
-                                                           Text="{Binding IsCompleted}" 
-                                                           VerticalOptions="Center"   
-                                                           HorizontalOptions="Center"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>-->
-
-                                                <!--Add to Shopping list Button-->
-                                                <!--<Label Text="Add to Shopping List"
-                                           Grid.Row="4" Grid.Column="3"
-                                           VerticalOptions="Start"
-                                           WidthRequest="60"/>-->
                                             </Grid>
 
                                             <Frame>
                                                 <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
                                                     <Label Text="Next Service Date:"
-                                                           Grid.Row="1" Grid.Column="1" 
-                                                           HorizontalOptions="Start" VerticalOptions="Center"/>
+                                                           VerticalOptions="Center"/>
 
-                                                    <Label Text="{Binding NextServiceDate, StringFormat='{0:MMM dd, yyyy}'}" Padding="0, 5"
-                                                           Grid.Row="1" Grid.Column="2" 
-                                                           HorizontalOptions="Start" VerticalOptions="Center"/>
+                                                    <Label Text="{Binding NextServiceDate.DayOfWeek}" VerticalOptions="Center" />
+
+                                                    <Label Text="{Binding NextServiceDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                                           VerticalOptions="Center"/>
                                                 </StackLayout>
                                             </Frame>
 
                                             <Frame>
                                                 <StackLayout Orientation="Horizontal">
-                                                    <Label Text="Steps:"/>
-                                                    <Label Text="{Binding StepViewModels.Count}"/>
+                                                    <Label Text="Steps:" VerticalOptions="Center"/>
+                                                    <Label Text="{Binding StepViewModels.Count}" VerticalOptions="Center"/>
+                                                    <Label Text="Est. Service Time:" VerticalOptions="Center" HorizontalOptions="EndAndExpand"/>
+                                                    <Label Text="{Binding CompletionTimeEstimate}" VerticalOptions="Center" HorizontalOptions="End"/>
+                                                </StackLayout>
+                                            </Frame>
+
+                                            <Frame>
+                                                <StackLayout>
+                                                    <Label Text="Comment:" TextDecorations="Underline" FontSize="Subtitle"/>
+                                                    <Label Text="{Binding Comment}"/>
                                                 </StackLayout>
                                             </Frame>
 
                                         </StackLayout>
                                     </ScrollView>
-                                    <Button 
-                                        Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" 
-                                        Text="{Static fontAwesome:FontAwesomeIcons.CartPlus}" 
-                                        FontFamily="FA-Solid"
-                                        Command="{Binding AddMaterialsToShoppingCartCommand}"
-                                        VerticalOptions="Start" HorizontalOptions="FillAndExpand" 
-                                        HeightRequest="45"/>
 
                                     <!--Start Maintenance Button-->
-                                    <Button 
-                                        Grid.Row="4" Grid.Column="0"  Grid.ColumnSpan="4" 
+                                    <Button                                         
                                         Text="Start Maintenance"
+                                        FontSize="Body"
                                         Command="{Binding StartMaintenanceCommand}"
-                                        VerticalOptions="End" HorizontalOptions="FillAndExpand"/>
+                                        VerticalOptions="EndAndExpand" HorizontalOptions="FillAndExpand"
+                                        BorderColor="{StaticResource Cue}"
+                                        TextColor="{StaticResource Cue}"
+                                        FontAttributes="Bold"
+                                        HeightRequest="45"/>
+                                    
+                                    <!--Add Items To Cart-->
+                                    <Button 
+                                        Text="Create Shopping List"
+                                        FontSize="Body"
+                                        Command="{Binding AddMaterialsToShoppingCartCommand}"
+                                        HorizontalOptions="FillAndExpand" 
+                                        HeightRequest="45"/>
                                 </StackLayout>
                             </Frame>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-
-                <BoxView HorizontalOptions="CenterAndExpand" HeightRequest="1" WidthRequest="350"/>
-
             </StackLayout>
-            <Grid Margin="5" Padding="5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0" 
-                        Text="Add New" 
-                        Command="{Binding AddCommand}" 
-                        HorizontalOptions="Center" 
-                        HeightRequest="50"/>
-                <Button Grid.Column="1" 
-                        Text="Refresh" 
-                        Command="{Binding RefreshCommand}" 
-                        HorizontalOptions="Center"/>
-                <Button Grid.Column="2" 
-                        Text="Delete All" 
-                        Command="{Binding DeleteAllCommand}" 
-                        HorizontalOptions="Center"/>
-                <Button Grid.Column="3" 
-                        Text="Update All" 
-                        Command="{Binding UpdateCommand}" 
-                        HorizontalOptions="Center"/>
-            </Grid>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

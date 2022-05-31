@@ -53,6 +53,7 @@ namespace Maintain_it.ViewModels
         }
 
         private List<int> preSelectecMaterialIds;
+        private Dictionary<int, int> preSelectedMaterialsAndQuantities = new Dictionary<int, int>();
         HashSet<int> shoppingListMaterialIds = new HashSet<int>();
         #endregion
 
@@ -136,7 +137,7 @@ namespace Maintain_it.ViewModels
             
             switch( kvp.Key )
             {
-                case nameof( preSelectecMaterialIds ):
+                case RoutingPath.PreSelectedMaterialIds:
                     await ProcessMaterialIds( kvp.Value );
                     break;
 
@@ -158,20 +159,25 @@ namespace Maintain_it.ViewModels
 
         }
 
-        private async Task ProcessMaterialIds( string encodedIds )
+        private async Task ProcessMaterialIds( string encodedKvps )
         {
-            string[] ids = HttpUtility.HtmlDecode( encodedIds ).Split(",");
+            string[] kvps = HttpUtility.HtmlDecode( encodedKvps ).Split(";");
 
-            foreach( string id in ids )
+            foreach( string kvp in kvps )
             {
-                if( int.TryParse( id, out int n ) )
+                string[] KeyValuePair = kvp.Split("=");
+                if( int.TryParse( KeyValuePair[0], out int k ) && int.TryParse( KeyValuePair[1], out int v ) )
                 {
-                    preSelectecMaterialIds.Add( n );
+
+                    preSelectedMaterialsAndQuantities.Add( k, v );
                 }
             }
 
             await AddPreselectedMaterialsToShoppingList();
         }
+
+
+        //!!!Pick Up Here!!! The preSelectedMaterialsAndQuantities Dictionary should be populated with the material ids and required quanties for each preselected material. rewrite this method to take that dictionary and create a new shoppingListMaterial for this shopping list that has the correct quantity in it. You will need to write a ShoppingListMaterialManager for this bit. Also there is a NullReferenceException in MaintenanceItemViewModel line 243.
 
         private async Task AddPreselectedMaterialsToShoppingList()
         {

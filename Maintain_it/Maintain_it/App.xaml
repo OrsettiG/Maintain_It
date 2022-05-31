@@ -61,7 +61,13 @@
                 <Setter Property="Color" Value="{StaticResource Primary}"/>
             </Style>
 
+            <!--Stack Layout-->
             <Style TargetType="StackLayout">
+                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
+            </Style>
+            
+            <!--Scroll View-->
+            <Style TargetType="ScrollView">
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
             

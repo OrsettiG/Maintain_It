@@ -30,9 +30,9 @@
                 <!-- Materials Label, CollectionView, and Inputs -->
                 <Label Text="Materials:" TextDecorations="Underline"  FontSize="Title" 
                        HorizontalOptions="Center"/>
-                <Frame BackgroundColor="LightGray" CornerRadius="5">
+                <Frame>
                     <StackLayout>
-                        <Frame BorderColor="Black">
+                        <Frame>
                             <CollectionView x:Name="StepMaterials" ItemsSource="{Binding StepMaterials}" HeightRequest="150">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="models:StepMaterial">
@@ -54,9 +54,7 @@
                             </CollectionView>
                         </Frame>
                         <Button Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="2"
-                                    Text="Select Materials" TextColor="CadetBlue"
-                                    BorderColor="CadetBlue" BorderWidth="3"
-                                    BackgroundColor="White"
+                                    Text="Select Materials"
                                     Command="{Binding SelectMaterialsCommand}"/>
                     </StackLayout>
                 </Frame>
@@ -64,17 +62,17 @@
                 <!-- Notes Label, CollectionView and Inputs -->
                 <Label Text="Notes:" TextDecorations="Underline" FontSize="Title"
                        HorizontalOptions="Center" VerticalOptions="Center"/>
-                <Frame BackgroundColor="LightGray" CornerRadius="5" HeightRequest="500">
+                <Frame HeightRequest="500">
                     <StackLayout>
 
-                        <Frame BorderColor="Black">
+                        <Frame>
                             <CarouselView x:Name="Notes" 
                                           ItemsSource="{Binding Notes}" 
                                           HeightRequest="300"
                                           Loop="False">
                                 <CarouselView.ItemTemplate>
                                     <DataTemplate x:DataType="models:Note">
-                                        <Frame BorderColor="Black" HasShadow="True" CornerRadius="10">
+                                        <Frame>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition/>
@@ -121,26 +119,20 @@
 
                             <Editor Grid.Row="0" Grid.RowSpan="2"  Grid.Column="0" Grid.ColumnSpan="3"
                                     Placeholder="Enter Note..." Text="{Binding NoteText}"
-                                    IsSpellCheckEnabled="True" MaxLength="300"
-                                    BackgroundColor="White"/>
+                                    IsSpellCheckEnabled="True" MaxLength="300"/>
 
                             <Button Grid.Row="2" Grid.Column="0" 
                                     HeightRequest="55"
-                                    Text="Take Photo"  FontAttributes="Bold"
-                                    BackgroundColor="White" TextColor="Black" 
-                                    BorderColor="Black" BorderWidth="3"/>
+                                    Text="Take Photo"  FontAttributes="Bold"/>
 
                             <Button Grid.Row="2" Grid.Column="1"
                                     HeightRequest="55"
-                                    Text="Select Photo" FontAttributes="Bold"
-                                    BackgroundColor="White" TextColor="DarkOliveGreen" 
-                                    BorderColor="DarkOliveGreen" BorderWidth="3"/>
+                                    Text="Select Photo" FontAttributes="Bold"/>
 
                             <Button Grid.Row="2" Grid.Column="2"
                                     HeightRequest="55"
                                     Text="Add" Command="{Binding AddNoteCommand}"
-                                    BorderColor="CadetBlue" BorderWidth="3"
-                                    BackgroundColor="White" TextColor="CadetBlue" FontAttributes="Bold"/>
+                                    FontAttributes="Bold"/>
                         </Grid>
                     </StackLayout>
                 </Frame>

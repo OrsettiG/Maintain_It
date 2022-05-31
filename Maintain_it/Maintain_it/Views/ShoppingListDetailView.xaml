@@ -24,7 +24,7 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <StackLayout Grid.RowSpan="2">
-                <Frame BorderColor="Gray" Margin="5">
+                <Frame  Margin="5">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -46,7 +46,7 @@
                     </Grid>
                 </Frame>
                 <Frame Padding="1" Margin="5" BorderColor="{Binding EditingStateColor}">
-                    <CollectionView ItemsSource="{Binding Materials}" Margin="10" BackgroundColor="White">
+                    <CollectionView ItemsSource="{Binding Materials}" Margin="10" >
                         <CollectionView.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -68,7 +68,7 @@
                                 <Line HeightRequest="1" 
                                       Grid.Column="0" Grid.ColumnSpan="4"
                                       Grid.Row="1"
-                                      BackgroundColor="Gray"
+                                      BackgroundColor="{StaticResource Secondary}"
                                       VerticalOptions="Center"/>
                             </Grid>
                         </CollectionView.Header>

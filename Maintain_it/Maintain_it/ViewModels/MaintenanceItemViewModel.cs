@@ -142,6 +142,24 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref _stepViewModels, value.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel> );
         }
 
+        private string completionTimeEstimate;
+        public string CompletionTimeEstimate
+        {
+            get
+            {
+                if( completionTimeEstimate == null )
+                {
+                    CalculateServiceCompletionTimeEstimate();
+                }
+
+                return completionTimeEstimate;
+            }
+
+            set => SetProperty( ref completionTimeEstimate, value );
+        }
+
+
+
         private bool canDrag = false;
         public bool CanDrag
         {
@@ -226,9 +244,38 @@ namespace Maintain_it.ViewModels
         {
             if( item != null )
             {
-                string encodedQuery = HttpUtility.UrlEncode( maintenanceItemId.ToString() );
+                ConcurrentDictionary<int, int> materialIdsAndQuantitysRequired = new ConcurrentDictionary<int, int>();
+                
+                _ = Parallel.ForEach( item.Steps, async x =>
+                {
+                    Step step = await StepManager.GetItemRecursiveAsync(x.Id);
+                    
+                    foreach( StepMaterial stepMaterial in x.StepMaterials )
+                    {
+                        int quantityRequired = stepMaterial.Quantity;
+                        int quantityOwned = stepMaterial.Material.QuantityOwned;
+                        
+                        if( quantityRequired > quantityOwned )
+                        {
+                            int diff = quantityRequired - quantityOwned;
+                            _ = materialIdsAndQuantitysRequired.AddOrUpdate( stepMaterial.MaterialId, diff, (key, oldValue) => oldValue + diff );
+                        }
+                    }
+                } );
 
-                //await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListFromMaintenanceItemView )}?{nameof( maintenanceItemId )}={encodedFinalStepId}" );
+                StringBuilder sb = new StringBuilder();
+
+                foreach(KeyValuePair<int,int> kvp in materialIdsAndQuantitysRequired )
+                {
+                    _ = sb.Append( kvp.Key );
+                    _ = sb.Append( "=" );
+                    _ = sb.Append( kvp.Value );
+                    _ = sb.Append( ";" );
+                }
+
+                string encodedQuery = HttpUtility.UrlEncode( sb.ToString() );
+                Console.WriteLine( encodedQuery );
+                await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.PreSelectedMaterialIds}={encodedQuery}" );
             }
         }
 
@@ -284,6 +331,60 @@ namespace Maintain_it.ViewModels
             vm.Init();
 
             return vm;
+        }
+
+        private void CalculateServiceCompletionTimeEstimate()
+        {
+            double minutes = 0;
+            TimeInMinutes largestTimeframe = TimeInMinutes.None;
+
+            foreach( Step step in item.Steps )
+            {
+                switch( (Timeframe)step.Timeframe )
+                {
+                    case Timeframe.Minutes:
+                        minutes += step.TimeRequired;
+
+                        if( largestTimeframe < TimeInMinutes.Minutes )
+                            largestTimeframe = TimeInMinutes.Minutes;
+                        break;
+
+                    case Timeframe.Hours:
+                        minutes += step.TimeRequired * 60;
+
+                        if( largestTimeframe < TimeInMinutes.Hours )
+                            largestTimeframe = TimeInMinutes.Hours;
+                        break;
+
+                    case Timeframe.Days:
+                        minutes += step.TimeRequired * 1440;
+
+                        if( largestTimeframe < TimeInMinutes.Days )
+                            largestTimeframe = TimeInMinutes.Days;
+                        break;
+
+                    case Timeframe.Weeks:
+                        minutes += step.TimeRequired * 10080;
+
+                        if( largestTimeframe < TimeInMinutes.Weeks )
+                            largestTimeframe = TimeInMinutes.Weeks;
+                        break;
+
+                    case Timeframe.Months:
+                        minutes += step.TimeRequired * 43800;
+                        if( largestTimeframe < TimeInMinutes.Months )
+                            largestTimeframe = TimeInMinutes.Months;
+                        break;
+
+                    case Timeframe.Years:
+                        minutes += step.TimeRequired * 525600;
+                        if( largestTimeframe < TimeInMinutes.Years )
+                            largestTimeframe = TimeInMinutes.Years;
+                        break;
+                }
+            }
+
+            CompletionTimeEstimate = largestTimeframe != TimeInMinutes.None ? $"{Math.Round( minutes / (int)largestTimeframe, 1 )} {largestTimeframe}" : "Unavailable";
         }
 
         private async Task<StepViewModel> CreateNewStepViewModel( int stepId )
@@ -372,6 +473,8 @@ namespace Maintain_it.ViewModels
                 {
                     StepViewModels.Add( await CreateNewStepViewModel( id ) );
                 }
+
+                CalculateServiceCompletionTimeEstimate();
 
                 //StepViewModels = StepViewModels.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel>;
 
