@@ -152,6 +152,10 @@ namespace Maintain_it.ViewModels
                     await AddShoppingListMaterialsToShoppingList();
                     break;
 
+                case RoutingPath.ItemName:
+                    Name = HttpUtility.UrlDecode( kvp.Value );
+                    break;
+
                 case RoutingPath.Refresh:
                     await Refresh();
                     break;
@@ -172,8 +176,7 @@ namespace Maintain_it.ViewModels
                 }
             }
 
-
-            //await AddPreselectedMaterialsToShoppingList();
+            await AddPreselectedMaterialsToShoppingList();
         }
 
 
@@ -181,16 +184,19 @@ namespace Maintain_it.ViewModels
 
         private async Task AddPreselectedMaterialsToShoppingList()
         {
-            ConcurrentBag<ShoppingListMaterialViewModel> vms = new ConcurrentBag<ShoppingListMaterialViewModel>();
+            List<ShoppingListMaterialViewModel> vms = new List<ShoppingListMaterialViewModel>();
 
-            ConcurrentBag<Material> materials = await DbServiceLocator.GetItemRangeRecursiveAsync<Material>(preSelectecMaterialIds) as ConcurrentBag<Material>;
+            List<Material> materials = await DbServiceLocator.GetItemRangeRecursiveAsync<Material>(preSelectedMaterialsAndQuantities.Keys) as List<Material>;
 
-            _ = Parallel.ForEach( preSelectecMaterialIds, id =>
+            foreach( int key in preSelectedMaterialsAndQuantities.Keys)
             {
-                Material m = materials.Where( x => x.Id == id ).First();
+                Material m = materials.Where( x => x.Id == key ).First();
 
-                vms.Add( new ShoppingListMaterialViewModel( m, shoppingList ) );
-            } );
+                vms.Add( new ShoppingListMaterialViewModel( m, shoppingList )
+                {
+                    Quantity = preSelectedMaterialsAndQuantities[key]
+                } );
+            }
 
             ShoppingListMaterials.AddRange( vms );
         }

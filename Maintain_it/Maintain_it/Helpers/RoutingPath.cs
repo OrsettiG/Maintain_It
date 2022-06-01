@@ -72,5 +72,13 @@ namespace Maintain_it.Helpers
         /// </list>
         /// </summary>
         public const string PreSelectedMaterialIds = "preSelectedMaterialIds";
+
+        /// <summary>
+        /// Query Param for:
+        /// <list type="bullet">
+        /// <item><see cref="CreateNewShoppingListViewModel"/></item>
+        /// </list>
+        /// </summary>
+        public const string ItemName = "itemName";
     }
 }

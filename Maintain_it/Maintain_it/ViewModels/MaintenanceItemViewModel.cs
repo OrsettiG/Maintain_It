@@ -281,12 +281,13 @@ namespace Maintain_it.ViewModels
 
                 if( encodedQuery != string.Empty )
                 {
-                    Console.WriteLine( encodedQuery );
+                    string encodedName = HttpUtility.UrlEncode( $"{item.Name} Shopping List" );
+                    
                     await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.PreSelectedMaterialIds}={encodedQuery}" );
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert( "Information", "You already have all the materials required for this project. You can get right to work, no need for shopping.", "Ok" );
+                    await Shell.Current.DisplayAlert( Alerts.Information, Alerts.MaterialsAlreadyOwned, Alerts.Confirmation );
                 }
             }
         }
