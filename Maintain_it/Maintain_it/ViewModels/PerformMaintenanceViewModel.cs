@@ -32,14 +32,28 @@ namespace Maintain_it.ViewModels
         private ObservableRangeCollection<NoteViewModel> notes;
         public ObservableRangeCollection<NoteViewModel> Notes { get => notes; set => SetProperty( ref notes, value ); }
 
+        private ObservableRangeCollection<StepMaterial> stepMaterials;
+        public ObservableRangeCollection<StepMaterial> StepMaterials
+        {
+            get => stepMaterials;
+            set => SetProperty( ref stepMaterials, value );
+        }
+
         private bool isCompleted;
         public bool IsCompleted { get => isCompleted; set => SetProperty( ref isCompleted, value ); }
 
         private double timeRequired;
         public double TimeRequired { get => timeRequired; set => SetProperty( ref timeRequired, value ); }
 
+        private int timeframe;
+        public string Timeframe
+        {
+            get => ( (Timeframe)timeframe ).ToString();
+            set => SetProperty( ref timeframe, int.Parse( value ) );
+        }
+
         private DateTime createdOn;
-        public DateTime CreatedOn {  get => createdOn; set => SetProperty( ref createdOn, value ); }
+        public DateTime CreatedOn { get => createdOn; set => SetProperty( ref createdOn, value ); }
 
         private StepViewModel stepViewModel;
         public StepViewModel StepViewModel { get => stepViewModel; private set => SetProperty( ref stepViewModel, value ); }
@@ -101,7 +115,8 @@ namespace Maintain_it.ViewModels
         public ICommand CompleteStepCommand => completeStepCommand ??= new AsyncCommand( CompleteStep );
         private async Task CompleteStep()
         {
-
+            await StepManager.CompleteStep( Step.Id );
+            await NextStep();
         }
 
         #endregion
@@ -117,15 +132,20 @@ namespace Maintain_it.ViewModels
             Step = await StepManager.GetItemRecursiveAsync( Step.Id );
             StepViewModel = new StepViewModel()
             {
-                Step = Step    
+                Step = Step
             };
 
             StepNumber = Step.Index.ToString();
+            // !!! PICK UP HERE !!! Get this viewmodel properly populated and then sort out the addition and subtraction of materials. After that figure out how/what to do when a service is completed.
+            IsCompleted = !Step.IsCompleted;
+            Description = Step.Description;
+            TimeRequired = Step.TimeRequired;
+            Timeframe = Step.Timeframe.ToString();
 
+            StepMaterials.Clear();
+            StepMaterials.AddRange( Step.StepMaterials );
+            
             await StepViewModel.InitAsync().ConfigureAwait( false );
-
-
-
         }
         #endregion
 
@@ -154,7 +174,9 @@ namespace Maintain_it.ViewModels
 
                         if( maintenanceItem.Steps.Count > 0 )
                         {
-                            int stepId = maintenanceItem.Steps.Where( x => x.Index == 1 ).FirstOrDefault().Id;
+                            int index = maintenanceItem.ServiceRecords.Last().CurrentStepIndex;
+
+                            int stepId = maintenanceItem.Steps.Where( x => x.Index == index ).FirstOrDefault().Id;
                             Step = await StepManager.GetItemRecursiveAsync( stepId );
 
                             StepViewModel svm = new StepViewModel(Step);

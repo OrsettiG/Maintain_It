@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Maintain_it.Helpers;
 using Maintain_it.ViewModels;
 using Maintain_it.Views;
 
@@ -31,9 +32,9 @@ namespace Maintain_it
             Routing.RegisterRoute( $"{nameof(PerformMaintenanceView)}", typeof( PerformMaintenanceView ) );
 
             //ShoppingList Views
-            Routing.RegisterRoute( $"{nameof( DisplayAllShoppingListsView )}/{nameof( CreateNewShoppingListView )}", typeof( CreateNewShoppingListView ) );
-
             Routing.RegisterRoute( $"{nameof(DisplayAllShoppingListsView)}/{nameof(ShoppingListDetailView)}", typeof( ShoppingListDetailView ) );
+
+            Routing.RegisterRoute( $"{nameof( DisplayAllShoppingListsView )}/{nameof( CreateNewShoppingListView )}", typeof( CreateNewShoppingListView ) );
 
             Routing.RegisterRoute( $"{nameof( ShoppingListMaterialDetailView )}", typeof( ShoppingListMaterialDetailView ) );
 

@@ -283,7 +283,7 @@ namespace Maintain_it.ViewModels
                 {
                     string encodedName = HttpUtility.UrlEncode( $"{item.Name} Shopping List" );
                     
-                    await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.PreSelectedMaterialIds}={encodedQuery}" );
+                    await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.PreSelectedMaterialIds}={encodedQuery}&{RoutingPath.ItemName}={encodedName}" );
                 }
                 else
                 {

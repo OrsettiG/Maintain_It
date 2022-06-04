@@ -9,7 +9,7 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class ShoppingList : IStorableObject
+    public class ShoppingList : IStorableObject, IEquatable<ShoppingList>
     {
 
         [PrimaryKey, AutoIncrement]
@@ -23,11 +23,17 @@ namespace Maintain_it.Models
         #endregion
 
         #region Properties
-#nullable enable
-        public string? Name { get; set; }
-#nullable disable
+
+        [Unique]
+        public string Name { get; set; }
         public DateTime CreatedOn { get; set; }
         public bool Active { get; set; }
+
         #endregion
+
+        public bool Equals( ShoppingList other )
+        {
+            return other.Id == Id;
+        }
     }
 }

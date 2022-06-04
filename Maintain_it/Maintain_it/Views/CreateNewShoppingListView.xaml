@@ -39,7 +39,10 @@
                        MaxLength="50"/>
 
 
-                        <CollectionView ItemsSource="{Binding ShoppingListMaterials}">
+                        <CollectionView ItemsSource="{Binding ShoppingListMaterials}" ItemSizingStrategy="MeasureAllItems">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="3"/>
+                            </CollectionView.ItemsLayout>
                             <CollectionView.Header>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -49,7 +52,8 @@
                                     </Grid.ColumnDefinitions>
                                     <Label Text="Name"
                                            FontSize="Medium"
-                                           Grid.Column="0"/>
+                                           Grid.Column="0"
+                                           Padding="10,0"/>
                                     <Label Text="Quantity Required" 
                                            FontSize="Medium"
                                            Grid.Column="1" Grid.ColumnSpan="2"/>
@@ -57,42 +61,49 @@
                             </CollectionView.Header>
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid HeightRequest="50">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.GestureRecognizers>
-                                            <SwipeGestureRecognizer Direction="Right"
+                                    <Frame Padding="15,5">
+                                        <Grid HeightRequest="50" VerticalOptions="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.GestureRecognizers>
+                                                <SwipeGestureRecognizer Direction="Right"
                                                                     CommandParameter="Right"
                                                                     Command="{Binding CrossOffCommand}"/>
-                                            <SwipeGestureRecognizer Direction="Left"
+                                                <SwipeGestureRecognizer Direction="Left"
                                                                     CommandParameter="Left"
                                                                     Command="{Binding UnCrossCommand}"/>
-                                            <TapGestureRecognizer Command="{Binding OpenCommand}"/>
-                                        </Grid.GestureRecognizers>
-                                        <!--<CheckBox IsChecked="{Binding Purchased}"/>-->
-                                        <Label Text="{Binding Name}" 
-                                               TextDecorations="{Binding TextDecoration}"/>
-                                        
-                                        <Label Text="{Binding Quantity}" 
-                                               TextDecorations="{Binding TextDecoration}"
-                                               Grid.Column="1"
-                                               HorizontalOptions="Center"/>
+                                                <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                                            </Grid.GestureRecognizers>
+                                            
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="Subtitle"
+                                                   TextDecorations="{Binding TextDecoration}"
+                                                   VerticalOptions="Center"/>
 
-                                        <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}" 
-                                               FontFamily="FA-Solid"
-                                               Grid.Column="2"
-                                               HorizontalOptions="End"/>
-                                    </Grid>
+                                            <Label Text="{Binding Quantity}" 
+                                                   FontSize="Subtitle"
+                                                   TextDecorations="{Binding TextDecoration}"
+                                                   Grid.Column="1"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+
+                                            <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}" 
+                                                   FontFamily="FA-Solid"
+                                                   Grid.Column="2"
+                                                   HorizontalOptions="End"
+                                                   VerticalOptions="Center"/>
+                                        </Grid>
+                                    </Frame>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                     </StackLayout>
                 </Frame>
             </ScrollView>
-            
+
             <Button Text="{Static fontawesome:FontAwesomeIcons.Plus}"
                     FontFamily="FA-Solid"
                     FontSize="24"

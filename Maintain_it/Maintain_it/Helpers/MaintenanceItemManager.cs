@@ -30,7 +30,10 @@ namespace Maintain_it.Helpers
             if( stepIds != null )
                 item.Steps = await UpdateStepSequence( stepIds );
 
-            return await DbServiceLocator.AddItemAndReturnIdAsync( item );
+            int id = await DbServiceLocator.AddItemAndReturnIdAsync( item );
+            _ = await InsertServiceRecord( id, firstServiceDate );
+            return id;
+                
         }
 
         private static DateTime? CalculateNextServiceDate( DateTime lastServiceDate, int recursEvery, int timeframe )
@@ -211,7 +214,7 @@ namespace Maintain_it.Helpers
 
             if( item.ServiceRecords.Count > 0 )
             {
-                item.NextServiceDate = CalculateNextServiceDate( item.ServiceRecords[^1].ServiceCompletionDate, item.RecursEvery, item.Timeframe );
+                item.NextServiceDate = CalculateNextServiceDate( item.ServiceRecords[^1].ActualServiceCompletionDate, item.RecursEvery, item.Timeframe );
             }
             await DbServiceLocator.UpdateItemAsync( item );
         }
@@ -219,12 +222,17 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Populates any non-null properties with the passed in value and updates the database.
         /// </summary>
-        public static async Task UpdateServiceRecord( int serviceRecordId, bool? serviceCompleted = null, DateTime? serviceCompletionDate = null )
+        public static async Task UpdateServiceRecord( int serviceRecordId, bool? serviceCompleted = null, bool? serviceStarted = null, int? currentStepIndex = null )
         {
             ServiceRecord record = await DbServiceLocator.GetItemRecursiveAsync<ServiceRecord>(serviceRecordId);
-
+            
             record.ServiceCompleted = serviceCompleted ?? record.ServiceCompleted;
-            record.ServiceCompletionDate = serviceCompletionDate ?? record.ServiceCompletionDate;
+            
+            record.ServiceStarted = ( serviceStarted ?? record.ServiceCompleted ) || record.ServiceStarted;
+            
+            record.CurrentStepIndex = currentStepIndex ?? record.CurrentStepIndex;
+            
+            record.ActualServiceCompletionDate = serviceCompleted == true ? DateTime.Now : record.ActualServiceCompletionDate;
 
             await DbServiceLocator.UpdateItemAsync( record );
         }
@@ -233,19 +241,20 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Inserts a new ServiceRecord to the <see cref="MaintenanceItem.ServiceRecords"/> collection with the passed in values. Updates both the MaintenanceItem and ServiceRecord in the database.
         /// </summary>
-        public static async Task<ServiceRecord> InsertServiceRecord( int maintenanceItemId, bool serviceCompleted, DateTime completionDate )
+        public static async Task<ServiceRecord> InsertServiceRecord( int maintenanceItemId, DateTime nextServiceDate, bool serviceCompleted = false, bool serviceStarted = false, int currentStepIndex = 1 )
         {
             MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
 
             ServiceRecord record = new ServiceRecord()
             {
-                Name = $"{item.Name}_Service_{item.ServiceRecords.Count + 1}",
+                Name = $"{item.Name}_Service#{item.ServiceRecords.Count + 1}",
                 ServiceCompleted = serviceCompleted,
-                TargetServiceCompletionDate = (DateTime)item.NextServiceDate,
-                ServiceCompletionDate = completionDate,
+                ServiceStarted = serviceStarted,
+                CurrentStepIndex = currentStepIndex,
+                TargetServiceCompletionDate = nextServiceDate,
+                ActualServiceCompletionDate = serviceCompleted ? DateTime.Now : DateTime.MinValue,
                 CreatedOn = DateTime.Now,
-                Item = item,
-                MaintenanceItemId = item.Id
+                Item = item
             };
 
             int recordId = await DbServiceLocator.AddItemAndReturnIdAsync( record );
@@ -255,9 +264,9 @@ namespace Maintain_it.Helpers
 
             if( serviceCompleted )
             {
-                DateTime? nextServiceDate = CalculateNextServiceDate( DateTime.Now, item.RecursEvery, item.Timeframe );
+                DateTime? nextService = CalculateNextServiceDate( DateTime.Now, item.RecursEvery, item.Timeframe );
 
-                item.NextServiceDate = nextServiceDate;
+                item.NextServiceDate = nextService;
             }
             await DbServiceLocator.UpdateItemAsync( item );
 

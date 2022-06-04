@@ -48,7 +48,19 @@ namespace Maintain_it.Models
             set;
         }
 
-        public DateTime ServiceCompletionDate
+        public bool ServiceStarted
+        {
+            get;
+            set;
+        }
+
+        public int CurrentStepIndex
+        {
+            get;
+            set;
+        }
+
+        public DateTime ActualServiceCompletionDate
         {
             get;
             set;

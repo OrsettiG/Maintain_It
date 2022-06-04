@@ -48,7 +48,7 @@ namespace Maintain_it.ViewModels
 
         private async Task CreateNewShoppingList()
         {
-            await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}" );
+            await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.NewItem}=true" );
         }
 
         // Open ShoppingList

@@ -52,15 +52,15 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref shoppingListMaterials, value );
         }
 
-        private List<int> preSelectecMaterialIds;
         private Dictionary<int, int> preSelectedMaterialsAndQuantities = new Dictionary<int, int>();
         HashSet<int> shoppingListMaterialIds = new HashSet<int>();
         #endregion
 
         #region COMMANDS
 
+        // --- Add Material(s) ---
         private AsyncCommand addShoppingListMaterialsCommand;
-        public ICommand AddShoppingListMaterialsCommand 
+        public ICommand AddShoppingListMaterialsCommand
         {
             get => addShoppingListMaterialsCommand ??= new AsyncCommand( AddShoppingListMaterials );
         }
@@ -71,6 +71,7 @@ namespace Maintain_it.ViewModels
             await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{RoutingPath.ShoppingListMaterialIds}={encodedIds}" );
         }
 
+        // --- Save List ---
         private AsyncCommand saveCommand;
         public ICommand SaveCommand { get => saveCommand ??= new AsyncCommand( Save ); }
         private async Task Save()
@@ -88,8 +89,14 @@ namespace Maintain_it.ViewModels
             shoppingList.CreatedOn = DateTime.Now;
             shoppingList.Active = true;
 
-            await DbServiceLocator.AddOrUpdateItemAsync( shoppingList );
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+            if( await ShoppingListManager.UpdateShoppingListAsync( shoppingList.Id, Name, materials: shoppingList.Materials ) )
+            {
+                await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert( Alerts.Error, Alerts.DatabaseErrorMessage, Alerts.Confirmation );
+            }
         }
         #endregion
 
@@ -134,9 +141,13 @@ namespace Maintain_it.ViewModels
         #region Query Handling
         private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
         {
-            
+
             switch( kvp.Key )
             {
+                case RoutingPath.NewItem:
+                    shoppingList.Id = await ShoppingListManager.NewShoppingList();
+                    break;
+
                 case RoutingPath.PreSelectedMaterialIds:
                     await ProcessMaterialIds( kvp.Value );
                     break;
@@ -176,11 +187,13 @@ namespace Maintain_it.ViewModels
                 }
             }
 
+            if( shoppingList.Id == 0 )
+            {
+                shoppingList.Id = await ShoppingListManager.NewShoppingList();
+            }
             await AddPreselectedMaterialsToShoppingList();
         }
 
-
-        //!!!Pick Up Here!!! The preSelectedMaterialsAndQuantities Dictionary should be populated with the material ids and required quanties for each preselected material. rewrite this method to take that dictionary and create a new shoppingListMaterial for this shopping list that has the correct quantity in it. You will need to write a ShoppingListMaterialManager for this bit.
 
         private async Task AddPreselectedMaterialsToShoppingList()
         {
@@ -188,20 +201,21 @@ namespace Maintain_it.ViewModels
 
             List<Material> materials = await DbServiceLocator.GetItemRangeRecursiveAsync<Material>(preSelectedMaterialsAndQuantities.Keys) as List<Material>;
 
-            foreach( int key in preSelectedMaterialsAndQuantities.Keys)
+            foreach( int key in preSelectedMaterialsAndQuantities.Keys )
             {
                 Material m = materials.Where( x => x.Id == key ).First();
 
-                vms.Add( new ShoppingListMaterialViewModel( m, shoppingList )
-                {
-                    Quantity = preSelectedMaterialsAndQuantities[key]
-                } );
+                int id = await ShoppingListMaterialManager.NewShoppingListMaterial( m.Id, shoppingList.Id, m.Name, preSelectedMaterialsAndQuantities[key] );
+
+                ShoppingListMaterial sLM = await ShoppingListMaterialManager.GetItemAsync(id);
+
+                vms.Add( new ShoppingListMaterialViewModel( sLM ) );
             }
 
             ShoppingListMaterials.AddRange( vms );
         }
 
-        private async Task AddShoppingListMaterialsToShoppingList( )
+        private async Task AddShoppingListMaterialsToShoppingList()
         {
             ConcurrentBag<ShoppingListMaterialViewModel> vms = new ConcurrentBag<ShoppingListMaterialViewModel>();
 

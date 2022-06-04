@@ -17,7 +17,7 @@ using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
 {
-    public class ShoppingListMaterialDetailViewModel: BaseViewModel
+    public class ShoppingListMaterialDetailViewModel : BaseViewModel
     {
         #region Properties
         private ShoppingListMaterial shoppingListMaterial;
@@ -30,10 +30,10 @@ namespace Maintain_it.ViewModels
         }
 
         private string name;
-        public string Name 
-        { 
-            get => name; 
-            set => SetProperty( ref name, value ); 
+        public string Name
+        {
+            get => name;
+            set => SetProperty( ref name, value );
         }
 
         private int quantity;
@@ -83,19 +83,30 @@ namespace Maintain_it.ViewModels
             await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
         }
 
+        private AsyncCommand backCommand;
+        public ICommand BackCommand
+        {
+            get => backCommand ??= new AsyncCommand( Back );
+        }
+
+        private async Task Back()
+        {
+            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+        }
+
         private AsyncCommand openMaterialCommand;
         public ICommand OpenMaterialCommand
         {
             get => openMaterialCommand ??= new AsyncCommand( OpenMaterial );
         }
 
-        public async Task OpenMaterial()
+        private async Task OpenMaterial()
         {
             string encodedId = HttpUtility.UrlEncode($"{shoppingListMaterial.MaterialId}");
 
             await Shell.Current.GoToAsync( $"{nameof( MaterialDetailView )}?{RoutingPath.MaterialID}={encodedId}" );
-        }        
-        
+        }
+
         #endregion
         #region Methods
         #region Query Handling

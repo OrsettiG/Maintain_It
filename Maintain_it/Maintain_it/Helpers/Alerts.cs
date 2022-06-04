@@ -20,5 +20,15 @@ namespace Maintain_it.Helpers
         /// "Ok"
         /// </summary>
         public const string Confirmation = "Ok";
+
+        /// <summary>
+        /// "Error"
+        /// </summary>
+        public const string Error = "Error";
+
+        ///<summary>
+        ///
+        /// </summary>
+        public const string DatabaseErrorMessage = "Oops! Looks like something went wrong saving that. Make sure all the data is correct and try again.";
     }
 }

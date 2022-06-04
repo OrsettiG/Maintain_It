@@ -10,6 +10,9 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Save" Command="{Binding SaveCommand}"/>
     </ContentPage.ToolbarItems>
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding BackCommand}"/>
+    </Shell.BackButtonBehavior>
     <ContentPage.Content>
         <Frame>
             <StackLayout>

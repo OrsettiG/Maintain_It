@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Maintain_it.Models;
 using Maintain_it.Services;
 
+using Xamarin.Essentials;
+
 using static Maintain_it.Helpers.NullCheck;
 
 namespace Maintain_it.Helpers
@@ -81,8 +83,25 @@ namespace Maintain_it.Helpers
         }
 
 #nullable disable
-        #endregion
 
+        public static async Task CompleteStep( int id )
+        {
+            Step step = await GetItemRecursiveAsync(id);
+
+            await MaintenanceItemManager.UpdateServiceRecord( step.MaintenanceItem.ServiceRecords.Last().Id, step.NextNodeId == 0, true, step.Index );
+
+            foreach( StepMaterial stepMaterial in step.StepMaterials )
+            {
+                int quantityOwned = stepMaterial.Material.QuantityOwned -= stepMaterial.Quantity;
+                
+                await MaterialManager.UpdateMaterial( stepMaterial.Material.Id, quantityOwned: quantityOwned );
+            }
+
+            await UpdateItemAsync( id, isCompleted: true );
+        }
+
+
+        #endregion
         #region MaintenanceItem Management
         /// <summary>
         /// Changes the passed in Step's MaintenanceItem to match the passed in stepId and updates database. DOES NOT MODIFY THE <see cref="MaintenanceItem"/> MAKE SURE TO UPDATE THAT AS WELL.
@@ -324,7 +343,7 @@ namespace Maintain_it.Helpers
         #endregion
 
         #region Node Management
-        public static async Task UpdateItemIndexAsync(int stepId, int newIndex, int? newNextNodeId = null, int? newPreviousNodeId = null)
+        public static async Task UpdateItemIndexAsync( int stepId, int newIndex, int? newNextNodeId = null, int? newPreviousNodeId = null )
         {
             Step step = await GetItemRecursiveAsync( stepId );
             await UpdateItemIndexAsync( step, newIndex, newNextNodeId, newPreviousNodeId );
