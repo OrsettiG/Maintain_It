@@ -60,6 +60,12 @@ namespace Maintain_it.Models
             set;
         }
 
+        public double ServiceTime
+        {
+            get;
+            set;
+        }
+
         public DateTime ActualServiceCompletionDate
         {
             get;

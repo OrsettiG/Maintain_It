@@ -88,7 +88,7 @@ namespace Maintain_it.Helpers
         {
             Step step = await GetItemRecursiveAsync(id);
 
-            await MaintenanceItemManager.UpdateServiceRecord( step.MaintenanceItem.ServiceRecords.Last().Id, step.NextNodeId == 0, true, step.Index );
+            await MaintenanceItemManager.UpdateServiceRecord( step.MaintenanceItem.ServiceRecords.Last().Id, false, true, step.Index );
 
             foreach( StepMaterial stepMaterial in step.StepMaterials )
             {

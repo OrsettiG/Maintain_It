@@ -31,7 +31,7 @@ namespace Maintain_it.Helpers
                 item.Steps = await UpdateStepSequence( stepIds );
 
             int id = await DbServiceLocator.AddItemAndReturnIdAsync( item );
-            _ = await InsertServiceRecord( id, firstServiceDate );
+            _ = await InsertServiceRecord( id );
             return id;
                 
         }
@@ -146,6 +146,8 @@ namespace Maintain_it.Helpers
         }
 
 
+
+
         /// <summary>
         /// Retrieves the passed in <see cref="MaintenanceItem"/> and <see cref="Step"/> from the Db. Adds the Step to the MaintenanceItem's Steps List, if it is not already there, and updates the Db. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
         /// </summary>
@@ -179,12 +181,11 @@ namespace Maintain_it.Helpers
         public static async Task UpdateSteps( int maintenanceItemId, IEnumerable<int> stepIds )
         {
             MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
-            List<Step> newSteps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>(stepIds) as List<Step>;
 
             item.Steps = await UpdateStepSequence( stepIds );
             Console.WriteLine( $"LAST STEP NEXT STEP ID: {item.Steps[^1].NextNodeId} SHOULD BE NULL" );
             await DbServiceLocator.UpdateItemAsync( item );
-            MaintenanceItem m = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( item.Id );
+            _ = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( item.Id );
         }
 
 
@@ -222,7 +223,7 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Populates any non-null properties with the passed in value and updates the database.
         /// </summary>
-        public static async Task UpdateServiceRecord( int serviceRecordId, bool? serviceCompleted = null, bool? serviceStarted = null, int? currentStepIndex = null )
+        public static async Task UpdateServiceRecord( int serviceRecordId, bool? serviceCompleted = null, bool? serviceStarted = null, int? currentStepIndex = null, double? serviceTime = null )
         {
             ServiceRecord record = await DbServiceLocator.GetItemRecursiveAsync<ServiceRecord>(serviceRecordId);
             
@@ -238,10 +239,31 @@ namespace Maintain_it.Helpers
         }
 #nullable disable
 
+        public static async Task CompleteMaintenance( int maintenanceItemId, double timeTaken )
+        {
+            MaintenanceItem item = await GetItemRecursiveAsync( maintenanceItemId );
+            ServiceRecord record = item.ServiceRecords.Last();
+
+            await UpdateServiceRecord( record.Id, true, serviceTime: timeTaken );
+            DateTime? nextServiceDate = CalculateNextServiceDate( DateTime.Now, item.RecursEvery, item.Timeframe );
+            
+            /* Should a new service record be inserted here, or when the user starts the service?
+             * It probably makes sense to have the record inserted when the users starts a new service
+             * because that way we always know that the last record is current and complete/in
+             * progress. If we insert a new record now then we need to check every time we get the 
+             * last service record whether or not that service record is the one we want. Whereas if
+             * we insert the new service record when the users starts a service, we know that the last
+             * record has the most recent data, even if we access is 2 months later.
+             */
+            
+            // TODO: Set notification up for next service here
+            
+        }
+
         /// <summary>
         /// Inserts a new ServiceRecord to the <see cref="MaintenanceItem.ServiceRecords"/> collection with the passed in values. Updates both the MaintenanceItem and ServiceRecord in the database.
         /// </summary>
-        public static async Task<ServiceRecord> InsertServiceRecord( int maintenanceItemId, DateTime nextServiceDate, bool serviceCompleted = false, bool serviceStarted = false, int currentStepIndex = 1 )
+        public static async Task<ServiceRecord> InsertServiceRecord( int maintenanceItemId, bool serviceCompleted = false, bool serviceStarted = false, int currentStepIndex = 1 )
         {
             MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
 
@@ -250,8 +272,9 @@ namespace Maintain_it.Helpers
                 Name = $"{item.Name}_Service#{item.ServiceRecords.Count + 1}",
                 ServiceCompleted = serviceCompleted,
                 ServiceStarted = serviceStarted,
+                ServiceTime = 0,
                 CurrentStepIndex = currentStepIndex,
-                TargetServiceCompletionDate = nextServiceDate,
+                TargetServiceCompletionDate = (DateTime)item.NextServiceDate,
                 ActualServiceCompletionDate = serviceCompleted ? DateTime.Now : DateTime.MinValue,
                 CreatedOn = DateTime.Now,
                 Item = item
@@ -333,7 +356,7 @@ namespace Maintain_it.Helpers
         public static async Task UpdateItemStepsAsync( int itemId, IEnumerable<int> stepIds )
         {
             MaintenanceItem item = await GetItemRecursiveAsync(itemId);
-            List<Step> steps = await StepManager.GetItemRangeRecursiveAsync( stepIds ) as List<Step>;
+            List<Step> steps = (List<Step>)await StepManager.GetItemRangeRecursiveAsync( stepIds );
 
             await UpdateItemStepsAsync( item, steps );
         }

@@ -221,6 +221,8 @@ namespace Maintain_it.ViewModels
 
         private async Task StartMaintenance()
         {
+            _ = await MaintenanceItemManager.InsertServiceRecord( maintenanceItemId );
+
             string encodedId = HttpUtility.UrlEncode($"{maintenanceItemId}");
 
             await Shell.Current.GoToAsync( $"{nameof( PerformMaintenanceView )}?{RoutingPath.MaintenanceItemId}={encodedId}" );

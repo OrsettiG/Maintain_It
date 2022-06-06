@@ -45,6 +45,13 @@ namespace Maintain_it.ViewModels
         private double timeRequired;
         public double TimeRequired { get => timeRequired; set => SetProperty( ref timeRequired, value ); }
 
+        private double timeTaken;
+        public double TimeTaken
+        {
+            get => timeTaken;
+            set => SetProperty(ref timeTaken, value );
+        }
+
         private int timeframe;
         public string Timeframe
         {
@@ -116,7 +123,15 @@ namespace Maintain_it.ViewModels
         private async Task CompleteStep()
         {
             await StepManager.CompleteStep( Step.Id );
-            await NextStep();
+
+            if( Step.NextNodeId != 0 )
+            {
+                await NextStep();
+            }
+            else
+            {
+                await MaintenanceItemManager.CompleteMaintenance( Step.MaintenanceItemId, TimeTaken );
+            }
         }
 
         #endregion
