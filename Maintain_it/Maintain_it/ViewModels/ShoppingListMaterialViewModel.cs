@@ -216,7 +216,7 @@ namespace Maintain_it.ViewModels
             ShoppingListMaterial.Material = Material;
             ShoppingListMaterial.Purchased = Purchased;
             ShoppingListMaterial.ShoppingList = ShoppingList;
-            ShoppingListMaterial.CreatedOn = ShoppingListMaterial.CreatedOn != null ? ShoppingListMaterial.CreatedOn : DateTime.Now;
+            ShoppingListMaterial.CreatedOn = ShoppingListMaterial.CreatedOn != null ? ShoppingListMaterial.CreatedOn : DateTime.UtcNow;
 
             return await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( ShoppingListMaterial );
         }

@@ -16,7 +16,7 @@ namespace Maintain_it.Helpers
                 Material = mat.Material,
                 Name = mat.Name,
                 Quantity = mat.Quantity,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 Step = step,
                 StepId = step.Id
             };
@@ -32,7 +32,7 @@ namespace Maintain_it.Helpers
                 Material = mat.Material,
                 Name = mat.Name,
                 Quantity = quantity,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 Step = step,
                 StepId = step.Id
             };
@@ -49,7 +49,7 @@ namespace Maintain_it.Helpers
                 Name = mat.Name,
                 Quantity = mat.Quantity,
                 Purchased = false,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ShoppingList = sList,
                 ShoppingListId = sList.Id
             };
@@ -65,7 +65,7 @@ namespace Maintain_it.Helpers
                 Name = mat.Name,
                 Quantity = quantity,
                 Purchased = false,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ShoppingList = sList,
                 ShoppingListId = sList.Id
             };
@@ -82,7 +82,7 @@ namespace Maintain_it.Helpers
                 Retailer = retailer,
                 RetailerId = retailer.Id,
                 Name = mat.Name,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             return retMat;
@@ -96,7 +96,7 @@ namespace Maintain_it.Helpers
                 Retailer = retailer,
                 RetailerId = retailer.Id,
                 Name = mat.Name,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             return retMat;

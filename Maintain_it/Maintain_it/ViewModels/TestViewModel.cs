@@ -14,6 +14,7 @@ using Maintain_it.Services;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
 
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
@@ -22,6 +23,7 @@ namespace Maintain_it.ViewModels
     {
         public TestViewModel()
         {
+            Console.WriteLine( $"PACKAGE NAME = {AppInfo.PackageName}" );
         }
 
         private string name;

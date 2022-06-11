@@ -31,7 +31,7 @@ namespace Maintain_it.Models
     {
         public NodeList()
         {
-            CreatedOn = DateTime.Now;
+            CreatedOn = DateTime.UtcNow;
             Name = $"{typeof( T )} NodeList";
             Type = typeof( T );
         }

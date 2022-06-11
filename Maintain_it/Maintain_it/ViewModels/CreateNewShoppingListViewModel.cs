@@ -86,7 +86,7 @@ namespace Maintain_it.ViewModels
             }
 
             shoppingList.Name = Name;
-            shoppingList.CreatedOn = DateTime.Now;
+            shoppingList.CreatedOn = DateTime.UtcNow;
             shoppingList.Active = true;
 
             if( await ShoppingListManager.UpdateShoppingListAsync( shoppingList.Id, Name, materials: shoppingList.Materials ) )
@@ -105,7 +105,7 @@ namespace Maintain_it.ViewModels
         private async Task Init()
         {
             shoppingList.Materials = new List<ShoppingListMaterial>();
-            shoppingList.CreatedOn = DateTime.Now;
+            shoppingList.CreatedOn = DateTime.UtcNow;
 
 
             await Refresh();
@@ -131,7 +131,7 @@ namespace Maintain_it.ViewModels
             } );
 
             shoppingList.Name = Name;
-            shoppingList.CreatedOn = DateTime.Now;
+            shoppingList.CreatedOn = DateTime.UtcNow;
             shoppingList.Materials = new List<ShoppingListMaterial>( mats );
             shoppingList.Active = true;
 

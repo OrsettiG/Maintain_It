@@ -53,6 +53,8 @@ namespace Maintain_it.Services
             _ = await db.DropTableAsync<Material>().ConfigureAwait(false);
             _ = await db.DropTableAsync<Tag>().ConfigureAwait(false);
             _ = await db.DropTableAsync<MaterialTag>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<NotificationEventArgs>().ConfigureAwait( false );
+            _ = await db.DropTableAsync<ShutdownDateTime>().ConfigureAwait( false );
         }
 
         /// <summary>
@@ -91,6 +93,8 @@ namespace Maintain_it.Services
                 _ = await database.CreateTableAsync<RetailerMaterial>().ConfigureAwait(false);
                 _ = await database.CreateTableAsync<Tag>().ConfigureAwait(false);
                 _ = await database.CreateTableAsync<MaterialTag>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<NotificationEventArgs>().ConfigureAwait( false );
+                _ = await database.CreateTableAsync<ShutdownDateTime>().ConfigureAwait( false );
 
                 return instance;
             });

@@ -11,21 +11,31 @@ namespace Maintain_it.Helpers
 {
     internal static class MaintenanceItemManager
     {
-        public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, int timeframe = 0, bool notifyOfNextServiceDate = false, IEnumerable<int> stepIds = null )
+        public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, int serviceTimeframe = 0, int timesToRepeat = 0, bool notifyOfNextServiceDate = false, int advanceNotice = 1, int noticeTimeframe = 3, IEnumerable<int> stepIds = null )
         {
             MaintenanceItem item = new MaintenanceItem()
             {
                 Name = name == "" ? "New Project" : name,
                 FirstServiceDate = firstServiceDate,
-                NextServiceDate = CalculateNextServiceDate( firstServiceDate, recursEvery, timeframe ),
+                NextServiceDate = CalculateNextServiceDate( firstServiceDate, recursEvery, serviceTimeframe ),
                 Comment = comment,
                 RecursEvery = recursEvery,
-                Timeframe = timeframe,
+                ServiceTimeframe = serviceTimeframe,
                 NotifyOfNextServiceDate = notifyOfNextServiceDate,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 Steps = new List<Step>(),
-                ServiceRecords = new List<ServiceRecord>()
+                ServiceRecords = new List<ServiceRecord>(),
+                NotificationEventArgsId = 0,
+                AdvanceNotice = advanceNotice,
+                NoticeTimeframe = noticeTimeframe,
+                TimesToRepeat = timesToRepeat
             };
+
+            if( notifyOfNextServiceDate )
+            {
+
+                item.NotificationEventArgsId = await LocalNotificationManager.GetNewScheduledNotification( item.Name, firstServiceDate, advanceNotice, noticeTimeframe );
+            }
 
             if( stepIds != null )
                 item.Steps = await UpdateStepSequence( stepIds );
@@ -33,12 +43,16 @@ namespace Maintain_it.Helpers
             int id = await DbServiceLocator.AddItemAndReturnIdAsync( item );
             _ = await InsertServiceRecord( id );
             return id;
-                
+
         }
 
+        /// <summary>
+        /// Calculates the next service date based on the passed in recurrance parameters.
+        /// </summary>
+        /// <returns>The next service date if recurrance params allow it, null otherwise.</returns>
         private static DateTime? CalculateNextServiceDate( DateTime lastServiceDate, int recursEvery, int timeframe )
         {
-            if( timeframe == 0 )
+            if( timeframe == 0 || recursEvery == 0 )
                 return null;
 
             Timeframe Timeframe = (Timeframe)timeframe;
@@ -183,7 +197,6 @@ namespace Maintain_it.Helpers
             MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
 
             item.Steps = await UpdateStepSequence( stepIds );
-            Console.WriteLine( $"LAST STEP NEXT STEP ID: {item.Steps[^1].NextNodeId} SHOULD BE NULL" );
             await DbServiceLocator.UpdateItemAsync( item );
             _ = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( item.Id );
         }
@@ -195,7 +208,7 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Populates any non-null properties with the passed in value and updates the database.
         /// </summary>
-        public static async Task UpdateProperties( int maintenanceItemId, string? name = null, DateTime? firstServiceDate = null, string? comment = null, int? recursEvery = null, int? timeframe = null, bool? notifyOfNextServiceDate = null, IEnumerable<int>? steps = null )
+        public static async Task UpdateProperties( int maintenanceItemId, string? name = null, DateTime? firstServiceDate = null, string? comment = null, int? recursEvery = null, int? timeframe = null, bool? notifyOfNextServiceDate = null, int? timesToRepeat = null, int? advanceNotice = null, int? noticeTimeframe = null, IEnumerable<int>? steps = null )
         {
             MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
 
@@ -203,8 +216,11 @@ namespace Maintain_it.Helpers
             item.FirstServiceDate = firstServiceDate ?? item.FirstServiceDate;
             item.Comment = comment ?? item.Comment;
             item.RecursEvery = recursEvery ?? item.RecursEvery;
-            item.Timeframe = timeframe ?? item.Timeframe;
+            item.ServiceTimeframe = timeframe ?? item.ServiceTimeframe;
             item.NotifyOfNextServiceDate = notifyOfNextServiceDate ?? item.NotifyOfNextServiceDate;
+            item.TimesToRepeat = timesToRepeat ?? item.TimesToRepeat;
+            item.AdvanceNotice = advanceNotice ?? item.AdvanceNotice;
+            item.NoticeTimeframe = noticeTimeframe ?? item.NoticeTimeframe;
 
             if( steps != null )
             {
@@ -215,7 +231,7 @@ namespace Maintain_it.Helpers
 
             if( item.ServiceRecords.Count > 0 )
             {
-                item.NextServiceDate = CalculateNextServiceDate( item.ServiceRecords[^1].ActualServiceCompletionDate, item.RecursEvery, item.Timeframe );
+                item.NextServiceDate = CalculateNextServiceDate( item.ServiceRecords[^1].ActualServiceCompletionDate, item.RecursEvery, item.ServiceTimeframe );
             }
             await DbServiceLocator.UpdateItemAsync( item );
         }
@@ -226,14 +242,14 @@ namespace Maintain_it.Helpers
         public static async Task UpdateServiceRecord( int serviceRecordId, bool? serviceCompleted = null, bool? serviceStarted = null, int? currentStepIndex = null, double? serviceTime = null )
         {
             ServiceRecord record = await DbServiceLocator.GetItemRecursiveAsync<ServiceRecord>(serviceRecordId);
-            
+
             record.ServiceCompleted = serviceCompleted ?? record.ServiceCompleted;
-            
+
             record.ServiceStarted = ( serviceStarted ?? record.ServiceCompleted ) || record.ServiceStarted;
-            
+
             record.CurrentStepIndex = currentStepIndex ?? record.CurrentStepIndex;
-            
-            record.ActualServiceCompletionDate = serviceCompleted == true ? DateTime.Now : record.ActualServiceCompletionDate;
+
+            record.ActualServiceCompletionDate = serviceCompleted == true ? DateTime.UtcNow : record.ActualServiceCompletionDate;
 
             await DbServiceLocator.UpdateItemAsync( record );
         }
@@ -245,8 +261,13 @@ namespace Maintain_it.Helpers
             ServiceRecord record = item.ServiceRecords.Last();
 
             await UpdateServiceRecord( record.Id, true, serviceTime: timeTaken );
-            DateTime? nextServiceDate = CalculateNextServiceDate( DateTime.Now, item.RecursEvery, item.Timeframe );
-            
+
+            DateTime? nextServiceDate = null;
+            if( item.ServiceRecords.Count < item.TimesToRepeat )
+            {
+                nextServiceDate = CalculateNextServiceDate( DateTime.UtcNow, item.RecursEvery, item.ServiceTimeframe );
+            }
+
             /* Should a new service record be inserted here, or when the user starts the service?
              * It probably makes sense to have the record inserted when the users starts a new service
              * because that way we always know that the last record is current and complete/in
@@ -255,9 +276,15 @@ namespace Maintain_it.Helpers
              * we insert the new service record when the users starts a service, we know that the last
              * record has the most recent data, even if we access is 2 months later.
              */
-            
+
             // TODO: Set notification up for next service here
-            
+            if( nextServiceDate.HasValue )
+            {
+                DateTime serviceDate = nextServiceDate.Value;
+
+                await LocalNotificationManager.UpdateScheduledNotification( item.NotificationEventArgsId, item.Name, serviceDate, item.AdvanceNotice, item.NoticeTimeframe );
+            }
+
         }
 
         /// <summary>
@@ -275,8 +302,8 @@ namespace Maintain_it.Helpers
                 ServiceTime = 0,
                 CurrentStepIndex = currentStepIndex,
                 TargetServiceCompletionDate = (DateTime)item.NextServiceDate,
-                ActualServiceCompletionDate = serviceCompleted ? DateTime.Now : DateTime.MinValue,
-                CreatedOn = DateTime.Now,
+                ActualServiceCompletionDate = serviceCompleted ? DateTime.UtcNow : DateTime.MinValue,
+                CreatedOn = DateTime.UtcNow,
                 Item = item
             };
 
@@ -287,7 +314,7 @@ namespace Maintain_it.Helpers
 
             if( serviceCompleted )
             {
-                DateTime? nextService = CalculateNextServiceDate( DateTime.Now, item.RecursEvery, item.Timeframe );
+                DateTime? nextService = CalculateNextServiceDate( DateTime.UtcNow, item.RecursEvery, item.ServiceTimeframe );
 
                 item.NextServiceDate = nextService;
             }

@@ -39,7 +39,7 @@ namespace Maintain_it.Helpers
                 Units = units,
                 Description = description,
                 PartNumber = partNumber,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 Tags = new List<Tag>(),
                 RetailerMaterials = new List<RetailerMaterial>(),
                 ShoppingListMaterials = new List<ShoppingListMaterial>(),

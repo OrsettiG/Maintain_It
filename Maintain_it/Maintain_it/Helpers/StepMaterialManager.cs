@@ -38,7 +38,7 @@ namespace Maintain_it.Helpers
             {
                 Name = name,
                 Quantity = quantity,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 MaterialId = materialId,
                 Material = material
             };
@@ -52,7 +52,7 @@ namespace Maintain_it.Helpers
             {
                 Name = name,
                 Quantity = quantity,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 MaterialId = materialId,
                 Material = material,
                 StepId = stepId,

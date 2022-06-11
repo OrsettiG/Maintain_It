@@ -71,7 +71,11 @@
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2083" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NotificationActivity.cs" />
+    <Compile Include="Notification\AlarmHandler.cs" />
+    <Compile Include="Notification\AndroidNotificationManager.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="Notification\NotificationJobService.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

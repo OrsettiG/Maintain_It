@@ -40,7 +40,7 @@ namespace Maintain_it.ViewModels
         public double? Size { get => size; set => SetProperty( ref size, value ); }
 #nullable disable
 
-        private DateTime createdOn = DateTime.Now;
+        private DateTime createdOn = DateTime.UtcNow;
 
         private Material material;
 

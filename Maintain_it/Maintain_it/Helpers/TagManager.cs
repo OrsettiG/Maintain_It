@@ -37,7 +37,7 @@ namespace Maintain_it.Helpers
             {
                 Name = name,
                 TagType = tagType,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             return await DbServiceLocator.AddItemAndReturnIdAsync( tag );

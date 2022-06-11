@@ -32,7 +32,7 @@ namespace Maintain_it.Helpers
                 Timeframe = timeframe,
                 NextNodeId = 0,
                 PreviousNodeId = 0,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             if( isFirstStep )

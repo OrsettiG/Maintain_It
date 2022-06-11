@@ -28,8 +28,8 @@ namespace Maintain_it.Helpers
                 Name = name,
                 Text = text,
                 ImagePath = ImagePath,
-                CreatedOn = DateTime.Now,
-                LastUpdated = DateTime.Now
+                CreatedOn = DateTime.UtcNow,
+                LastUpdated = DateTime.UtcNow
             };
 
             return await DbServiceLocator.AddItemAndReturnIdAsync( note );

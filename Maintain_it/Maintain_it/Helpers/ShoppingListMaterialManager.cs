@@ -28,7 +28,7 @@ namespace Maintain_it.Helpers
                 Name = name,
                 Quantity = quantityRequired,
                 Purchased = purchased,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             return await DbServiceLocator.AddItemAndReturnIdAsync( mat );

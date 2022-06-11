@@ -28,7 +28,7 @@ namespace Maintain_it.Helpers
                 {
                     Name = name,
                     Active = active,
-                    CreatedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
                     Materials = new List<ShoppingListMaterial>()
                 };
 

@@ -66,7 +66,7 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref comment, value );
         }
 
-        private DateTime firstServiceDate = DateTime.Now;
+        private DateTime firstServiceDate = DateTime.UtcNow;
         public DateTime FirstServiceDate
         {
             get => firstServiceDate;
@@ -80,7 +80,7 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref previousServiceDate, value );
         }
 
-        private DateTime nextServiceDate = DateTime.Now;
+        private DateTime nextServiceDate = DateTime.UtcNow;
         public DateTime NextServiceDate
         {
             get => nextServiceDate;
@@ -308,7 +308,7 @@ namespace Maintain_it.ViewModels
             else
             {
 
-                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, (int)Frequency, NotifyOfNextServiceDate, stepIds );
+                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, (int)Frequency, notifyOfNextServiceDate: NotifyOfNextServiceDate, stepIds: stepIds );
             }
 
 
@@ -432,7 +432,7 @@ namespace Maintain_it.ViewModels
             FirstServiceDate = item.FirstServiceDate;
             RecursEvery = item.RecursEvery;
 
-            Frequency = (Timeframe)item.Timeframe;
+            Frequency = (Timeframe)item.ServiceTimeframe;
             TimesServiced = item.ServiceRecords.Count;
             PreviousServiceCompleted = TimesServiced > 0 && item.ServiceRecords[^1].ServiceCompleted;
             NotifyOfNextServiceDate = item.NotifyOfNextServiceDate;
@@ -460,9 +460,9 @@ namespace Maintain_it.ViewModels
 
                 Name = string.Empty;
                 Comment = string.Empty;
-                FirstServiceDate = DateTime.Now;
-                PreviousServiceDate = DateTime.Now;
-                NextServiceDate = DateTime.Now.AddDays( 1 );
+                FirstServiceDate = DateTime.UtcNow.ToLocalTime();
+                PreviousServiceDate = DateTime.UtcNow.ToLocalTime();
+                NextServiceDate = DateTime.UtcNow.AddDays( 1 ).ToLocalTime();
                 IsRecurring = false;
                 RecursEvery = 0;
                 Frequency = Timeframe.Months;
@@ -573,7 +573,7 @@ namespace Maintain_it.ViewModels
         {
             if( item == null )
             {
-                maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, TimesServiced, NotifyOfNextServiceDate );
+                maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
                 item = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
             }
 

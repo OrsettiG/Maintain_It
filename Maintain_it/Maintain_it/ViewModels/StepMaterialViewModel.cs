@@ -29,7 +29,7 @@ namespace Maintain_it.ViewModels
             stepMaterial = new StepMaterial()
             {
                 Name = material.Name,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 MaterialId = material.Id,
                 Material = material
             };
