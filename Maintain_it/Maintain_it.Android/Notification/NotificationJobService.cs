@@ -14,16 +14,13 @@ namespace Maintain_it.Droid
     [Service( Exported = true, Permission = "android.permission.BIND_JOB_SERVICE" )]
     public class NotificationJobService : JobService
     {
-        [return: GeneratedEnum]
-        public override StartCommandResult OnStartCommand( Intent intent, [GeneratedEnum] StartCommandFlags flags, int startId )
-        {
-            return base.OnStartCommand( intent, flags, startId );
-        }
 
         public override bool OnStartJob( JobParameters jobParams )
         {
             _ = Task.Run( () =>
             {
+                //await LocalNotificationManager.
+
                 LocalNotificationManager.ShowNotification( "Test Notification", $"This is test number {jobParams.Extras.GetInt("num", 1)}" );
 
                 JobFinished( jobParams, false );
@@ -37,6 +34,12 @@ namespace Maintain_it.Droid
         {
             return true;
         }
+
+        public void Schedule()
+        {
+
+        }
+
     }
 
     public static class JobScheduleHelpers

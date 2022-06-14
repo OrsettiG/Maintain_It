@@ -30,8 +30,7 @@ namespace Maintain_it.Droid
     {
         public override void OnReceive( Context context, Intent intent )
         {
-            //PICK UP HERE:
-            //context.CreateJobBuilderUsingJobId<NotificationJobService>();
+            context.CreateJobBuilderUsingJobId<NotificationJobService>( 1 );
 
             //_ = Task.Run( async () => {
             //    await LocalNotificationManager.ReScheduleUnsentNotifications();

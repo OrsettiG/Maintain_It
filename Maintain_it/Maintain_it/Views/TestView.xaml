@@ -13,7 +13,7 @@
             <Label Text="TESTING" 
                    FontSize="Title" TextColor="Red"
                    HorizontalOptions="Center"/>
-            <Frame BackgroundColor="Gray">
+            <Frame>
                 <StackLayout>
                     <Entry Text="{Binding Name}"/>
                     <Entry Text="{Binding NextNodeId}" Keyboard="Numeric"/>
@@ -29,37 +29,7 @@
                 </StackLayout>
             </Frame>
 
-            <Button Text="Add" Command="{Binding NewStepCommand}"/>
-            <Button Text="Update" Command="{Binding UpdateStepCommand}"/>
+            <Button Text="Notify" Command="{Binding NotifyCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
-
-<!--<StackLayout
-                                Padding="2">
-    <StackLayout.GestureRecognizers>
-        <DropGestureRecognizer
-                                        AllowDrop="True"
-                                        DropCommand="{Binding BindingContext.DropCommand, Source={x:Reference TestCollection}}"
-                                        DropCommandParameter="{Binding}"/>
-    </StackLayout.GestureRecognizers>
-    <Grid BackgroundColor="LightBlue">
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="4*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.GestureRecognizers>
-            <DragGestureRecognizer 
-                                            DragStartingCommand="{Binding DragStartingCommand}"
-                                                               DragStartingCommandParameter="{Binding}"/>
-        </Grid.GestureRecognizers>
-        <Label Grid.Column="0" WidthRequest="50" 
-                                       Text="{Static fontawesome:FontAwesomeIcons.GripLines}" FontFamily="FA-Solid"
-                                       FontSize="Large"
-                                       HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-        <Label Grid.Column="1" Text="{Binding Name}" FontSize="Large"/>
-    </Grid>
-</StackLayout>-->

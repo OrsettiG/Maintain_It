@@ -4,6 +4,11 @@ using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
+using Android.App.Job;
+
+using Maintain_it.Helpers;
+using Google.Android.Material.Snackbar;
+using Maintain_it.Services;
 
 namespace Maintain_it.Droid
 {
@@ -12,6 +17,7 @@ namespace Maintain_it.Droid
     {
         protected override void OnCreate( Bundle savedInstanceState )
         {
+
 
         }
     }

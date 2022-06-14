@@ -26,6 +26,7 @@ namespace Maintain_it.Services
 
         public static void ShowNotification( string title, string message )
         {
+            notificationManager.SendNotification( title, message );
             Console.WriteLine( $"Notification Recieved: \n{title}:\n{message}" );
         }
 
@@ -131,6 +132,11 @@ namespace Maintain_it.Services
             int id = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( dT );
             Console.WriteLine( id );
 
+        }
+
+        public static void Log( string data )
+        {
+            Console.WriteLine( data );
         }
     }
 }
