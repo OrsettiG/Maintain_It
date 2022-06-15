@@ -30,6 +30,20 @@ namespace Maintain_it.Services
             Console.WriteLine( $"Notification Recieved: \n{title}:\n{message}" );
         }
 
+        public static async Task NotifyOfScheduledWork()
+        {
+            List<NotificationEventArgs> notifications = await DbServiceLocator.GetAllItemsAsync<NotificationEventArgs>() as List<NotificationEventArgs>;
+
+            DateTime NotificationWindow = DateTime.UtcNow.AddHours(12);
+            
+            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindow, x.NotifyTime) >= 0 && x.Triggered != true ).ToList();
+
+            foreach( NotificationEventArgs notification in pendingNotifications )
+            {
+                notificationManager.SendNotification( "Maintain It!", notification.Message );
+            }
+        }
+
         public static void ScheduleNotification( object sender, EventArgs e )
         {
             NotificationEventArgs args = (NotificationEventArgs)e;
@@ -46,9 +60,10 @@ namespace Maintain_it.Services
             List<NotificationEventArgs> notifications = await DbServiceLocator.GetAllItemsAsync<NotificationEventArgs>() as List<NotificationEventArgs>;
 
             List<ShutdownDateTime> dTs = await DbServiceLocator.GetAllItemsAsync<ShutdownDateTime>() as List<ShutdownDateTime>;
-            ShutdownDateTime dT = dTs.OrderBy(x => x.Id).Last();
 
             //We use the CreatedOn property to store the shutdown DateTime. There should only ever be one record in this table because when we set the values at shutdown we just update the record with Id == 1. However for safety sake we grab the last record.
+            ShutdownDateTime dT = dTs.OrderBy(x => x.Id).Last();
+
             NotificationEventArgs[] unsentNotifications = notifications.Where( x => DateTime.Compare(x.NotifyTime, dT.CreatedOn) > 0).ToArray();
 
             foreach( NotificationEventArgs notification in unsentNotifications )
@@ -69,6 +84,7 @@ namespace Maintain_it.Services
                 Name = name,
                 Message = message,
                 NotifyTime = notifyDate,
+                Triggered = false,
                 CreatedOn = DateTime.UtcNow
             };
 

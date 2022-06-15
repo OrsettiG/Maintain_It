@@ -75,7 +75,7 @@ namespace Maintain_it.Droid
 
                 long triggerTime = GetNotifyTime( notifyTime );
                 AlarmManager alarmManager = AndroidApp.Context.GetSystemService(Context.AlarmService) as AlarmManager;
-                alarmManager.SetAndAllowWhileIdle( AlarmType.Rtc, triggerTime, pendingIntent );
+                alarmManager.SetAndAllowWhileIdle( AlarmType.RtcWakeup, triggerTime, pendingIntent );
                 //alarmManager.Set(  );
             }
             else

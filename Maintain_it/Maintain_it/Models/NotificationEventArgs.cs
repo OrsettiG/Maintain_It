@@ -18,6 +18,7 @@ namespace Maintain_it.Models
         public string Message { get; set; }
         public DateTime NotifyTime { get; set; }
         public DateTime CreatedOn { get; set; }
+        public bool Triggered { get; set; }
         #endregion
     }
 }

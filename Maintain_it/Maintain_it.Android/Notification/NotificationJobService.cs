@@ -19,8 +19,6 @@ namespace Maintain_it.Droid
         {
             _ = Task.Run( () =>
             {
-                //await LocalNotificationManager.
-
                 LocalNotificationManager.ShowNotification( "Test Notification", $"This is test number {jobParams.Extras.GetInt("num", 1)}" );
 
                 JobFinished( jobParams, false );
