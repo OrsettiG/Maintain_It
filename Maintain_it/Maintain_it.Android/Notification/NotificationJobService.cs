@@ -5,6 +5,7 @@ using Android.App.Job;
 using Android.Content;
 using Android.Runtime;
 
+using Maintain_it.Helpers;
 using Maintain_it.Services;
 
 using Xamarin.Essentials;
@@ -15,15 +16,31 @@ namespace Maintain_it.Droid
     public class NotificationJobService : JobService
     {
 
+        [return: GeneratedEnum]
+        public override StartCommandResult OnStartCommand( Intent intent, [GeneratedEnum] StartCommandFlags flags, int startId )
+        {
+            if( intent.Action.Equals( Config.REMIND_LATER ) )
+            {
+                LocalNotificationManager.Log( "________________ CLOSE NOTIFICATION ________________" );
+            }
+            else if( intent.Action.Equals( Config.DO_NOT_REMIND ) )
+            {
+                LocalNotificationManager.Log( "################## MARK AS TRIGGERED ##################" );
+            }
+
+            return StartCommandResult.NotSticky;
+        }
+
         public override bool OnStartJob( JobParameters jobParams )
         {
-            _ = Task.Run( () =>
+            LocalNotificationManager.Log( "Running Notification Job Service" );
+
+            _ = Task.Run( async () =>
             {
-                LocalNotificationManager.ShowNotification( "Test Notification", $"This is test number {jobParams.Extras.GetInt("num", 1)}" );
+                await LocalNotificationManager.NotifyOfScheduledWork();
 
                 JobFinished( jobParams, false );
             } );
-
 
             return true;
         }

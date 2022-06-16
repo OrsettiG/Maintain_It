@@ -33,38 +33,23 @@ namespace Maintain_it.Droid
 
         private void ScheduleNotificationJobService()
         {
+            // Get the JobScheduler
             JobScheduler jobScheduler = (JobScheduler)GetSystemService(JobSchedulerService);
 
+            // Make sure the service is not already running
             if( jobScheduler.GetPendingJob( (int)Config.JobServiceIds.Notification ) == null )
             {
+                // Create our Notification Service with the Notification Id so that next time we start the app we can verify that the service is still running.
                 JobInfo.Builder builder = this.CreateJobBuilderUsingJobId<NotificationJobService>((int)Config.JobServiceIds.Notification);
 
+                // Set the service to run every 12 hours and persist through restarts
                 _ = builder.SetPeriodic( (int)Config.MilliTimeIntervals.Hour * 12, (int)Config.MilliTimeIntervals.Hour ).SetPersisted( true );
 
-                PersistableBundle extras = new PersistableBundle();
-                extras.PutInt( "num", 100 );
-
-                _ = builder.SetExtras( extras );
-
+                // Build the JobInfo Object that tells the service how and when to run.
                 JobInfo jobInfo = builder.Build();
 
-                LocalNotificationManager.Log( $"NOTIFICATION JOBINFO FLEXMILI VALUE: {jobInfo.FlexMillis}" );
-                LocalNotificationManager.Log( $"NOTIFICATION JOBINFO INTERVALMILI : {jobInfo.IntervalMillis}" );
-
-                int result = jobScheduler.Schedule( jobInfo );
-
-                if( result == JobScheduler.ResultSuccess )
-                {
-                    LocalNotificationManager.Log( "---------------------- JOB SUCCESSFULLY SCHEDULED ----------------------" );
-                }
-                else
-                {
-                    LocalNotificationManager.Log( "---------------------- JOB SCHEDULING FAILURE ----------------------" );
-                }
-            }
-            else
-            {
-                LocalNotificationManager.Log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! JOB ALREADY SCHEDULED  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+                // Start the service
+                _ = jobScheduler.Schedule( jobInfo );
             }
         }
     }

@@ -7,6 +7,7 @@ using Android.OS;
 
 using AndroidX.Core.App;
 
+using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
 
@@ -32,7 +33,9 @@ namespace Maintain_it.Droid
         #region Fields
         bool channelInitialized = false;
         int messageId = 0;
-        int pendingIntentId = 0;
+        int mainActivityPendingIntentId = 0;
+        int remindLaterPendingIntentId = 0;
+        int doNotRemindPendingIntentId = 0;
 
         NotificationManager manager;
 
@@ -71,7 +74,7 @@ namespace Maintain_it.Droid
                 Intent intent = new Intent(AndroidApp.Context, typeof(AlarmHandler));
                 _ = intent.PutExtra( TitleKey, title ).PutExtra( MessageKey, message );
 
-                PendingIntent pendingIntent = PendingIntent.GetBroadcast(AndroidApp.Context, pendingIntentId++, intent, PendingIntentFlags.CancelCurrent );
+                PendingIntent pendingIntent = PendingIntent.GetBroadcast(AndroidApp.Context, mainActivityPendingIntentId++, intent, PendingIntentFlags.CancelCurrent );
 
                 long triggerTime = GetNotifyTime( notifyTime );
                 AlarmManager alarmManager = AndroidApp.Context.GetSystemService(Context.AlarmService) as AlarmManager;
@@ -97,21 +100,50 @@ namespace Maintain_it.Droid
 
         public void Show( string title, string message )
         {
+            // Main Notification Intent
             Intent intent = new Intent(AndroidApp.Context, typeof(MainActivity) );
             _ = intent.PutExtra( TitleKey, title ).PutExtra( MessageKey, message );
 
-            PendingIntent pendingIntent = PendingIntent.GetActivity(AndroidApp.Context, pendingIntentId++, intent, PendingIntentFlags.UpdateCurrent);
+            PendingIntent pendingIntent = PendingIntent.GetActivity(AndroidApp.Context, mainActivityPendingIntentId++, intent, PendingIntentFlags.UpdateCurrent);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(AndroidApp.Context, channelId)
                 .SetContentIntent(pendingIntent)
                 .SetContentTitle(title)
-                .SetContentText(message)
                 .SetLargeIcon(BitmapFactory.DecodeResource(AndroidApp.Context.Resources, Resource.Drawable.xamarin_logo))
                 .SetSmallIcon(Resource.Drawable.xamarin_logo)
-                .SetDefaults((int)NotificationDefaults.Sound | (int)NotificationDefaults.Vibrate);
+                .SetDefaults((int)NotificationDefaults.Sound);
+
+            // Big Text Style
+            NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+            
+            _ = bigText.BigText( message ).SetSummaryText("Upcoming Maintenance.");
+            _ = builder.SetStyle( bigText );
+
+
+            // Remind Me Later Action
+            _ = builder.AddAction( CreateRemindMeAction() );
+
+            // Don't Remind Me Action
+
+
 
             Notification notification = builder.Build();
             manager.Notify( messageId++, notification );
+        }
+
+        private NotificationCompat.Action CreateRemindMeAction()
+        {
+            // Create our intent in this context and of the NotificationJobService Type so that it we can pick it up when the button is clicked.
+            Intent remindMeIntent = new Intent(AndroidApp.Context, typeof(NotificationJobService));
+            
+            // Add a const value to the button click so that when the user clicks it we know to just clear the notification.
+            _ = remindMeIntent.SetAction( Config.REMIND_LATER );
+
+            // Create the pendingIntent. The pending intent id ensures that we always get a unique intent.
+            PendingIntent pendingIntent = PendingIntent.GetService(AndroidApp.Context, remindLaterPendingIntentId, remindMeIntent, PendingIntentFlags.UpdateCurrent);
+
+            // Return the action
+            return new NotificationCompat.Action.Builder( 1, "Remind Me Later", pendingIntent ).Build();
         }
 
         #endregion

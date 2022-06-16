@@ -40,18 +40,23 @@ namespace Maintain_it.Services
 
             foreach( NotificationEventArgs notification in pendingNotifications )
             {
-                notificationManager.SendNotification( "Maintain It!", notification.Message );
+                ScheduleNotification( null, notification );
+
+                //notification.Triggered = true;
+
+                //await DbServiceLocator.UpdateItemAsync( notification );
             }
+
+            notificationManager.SendNotification( "Maintain It!", "NOTIFY OF SCHEDULED WORK TEST" );
         }
 
         public static void ScheduleNotification( object sender, EventArgs e )
         {
             NotificationEventArgs args = (NotificationEventArgs)e;
 
-            string title = args.Name;
             string message = args.Message;
 
-            notificationManager.SendNotification( title, message, args.NotifyTime );
+            notificationManager.SendNotification( "Maintain It!", message, args.NotifyTime );
         }
 
         // Called by AndroidNotificationManager on re-boot so that notifications are not lost on restart.
