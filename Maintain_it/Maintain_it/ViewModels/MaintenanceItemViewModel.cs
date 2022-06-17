@@ -284,7 +284,7 @@ namespace Maintain_it.ViewModels
                 if( encodedQuery != string.Empty )
                 {
                     string encodedName = HttpUtility.UrlEncode( $"{item.Name} Shopping List" );
-                    
+
                     await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.PreSelectedMaterialIds}={encodedQuery}&{RoutingPath.ItemName}={encodedName}" );
                 }
                 else
@@ -542,8 +542,9 @@ namespace Maintain_it.ViewModels
         {
             if( item != null )
             {
-                await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
-                await _homeViewModel.ItemDeleted( maintenanceItemId );
+                await MaintenanceItemManager.DeleteItem( item.Id );
+                //await _homeViewModel.ItemDeleted( maintenanceItemId );
+                _homeViewModel.RefreshCommand.Execute( null );
             }
         }
 

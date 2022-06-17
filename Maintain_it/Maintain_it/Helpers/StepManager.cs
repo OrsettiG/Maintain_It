@@ -93,7 +93,7 @@ namespace Maintain_it.Helpers
             foreach( StepMaterial stepMaterial in step.StepMaterials )
             {
                 int quantityOwned = stepMaterial.Material.QuantityOwned -= stepMaterial.Quantity;
-                
+
                 await MaterialManager.UpdateMaterial( stepMaterial.Material.Id, quantityOwned: quantityOwned );
             }
 
@@ -661,17 +661,48 @@ namespace Maintain_it.Helpers
         #region Item Deletion
 
         /// <summary>
-        /// Not Implemented
+        /// Deletes the step from the database along with any associated notes.
         /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
         public static async Task DeleteItem( int id )
         {
             Step step = await GetItemRecursiveAsync(id);
 
-            if( step.MaintenanceItem.Steps.Contains( step ) )
-            {
+            await DeleteItem( step );
+        }
 
+        /// <summary>
+        /// Deletes all steps from database along with any associated notes.
+        /// </summary>
+        /// <param name="ids"></param>
+        public static async Task DeleteItemRange( IEnumerable<int> ids )
+        {
+            List<Step> steps = await GetItemRangeRecursiveAsync(ids) as List<Step>;
+
+            foreach( Step step in steps )
+            {
+                await DeleteItem( step );
             }
+        }
+
+        /// <summary>
+        /// Deletes the step and its notes from the database.
+        /// </summary>
+        private static async Task DeleteItem( Step step )
+        {
+            if( step.Notes != null )
+            {
+                foreach( Note note in step.Notes )
+                {
+                    await DbServiceLocator.DeleteItemAsync<Note>( note.Id );
+                }
+            }
+
+            if( step.StepMaterials != null )
+            {
+                await StepMaterialManager.DeleteItemRange( step.StepMaterials.GetIds() );
+            }
+
+            await DbServiceLocator.DeleteItemAsync<Step>( step.Id );
         }
 
         #endregion

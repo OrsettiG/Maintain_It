@@ -30,22 +30,21 @@ namespace Maintain_it.Droid
             {
                 if( id > 0 )
                 {
-                    if( manager.Cancel( messageId ) )
+                    _ = manager.Cancel( messageId );
+
+                    _ = Task.Run( async () =>
                     {
-                        _ = Task.Run( async () =>
-                        {
-                            await LocalNotificationManager.UpdateNotificationActiveStatus( id, false );
-                        } );
-                    }
+                        await LocalNotificationManager.UpdateNotificationActiveStatus( id, true );
+                    } );
                 }
             }
             else if( intent.Action.Equals( NotificationActions.DO_NOT_REMIND_ME.ToString() ) )
             {
-                manager.Cancel( messageId );
+                _ = manager.Cancel( messageId );
 
                 _ = Task.Run( async () =>
                 {
-                    await LocalNotificationManager.UpdateNotificationActiveStatus( id, true );
+                    await LocalNotificationManager.UpdateNotificationActiveStatus( id, false );
                     LocalNotificationManager.Log( "Trigger Updated" );
                 } );
             }

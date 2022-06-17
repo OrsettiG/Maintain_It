@@ -9,6 +9,8 @@ using Maintain_it.Models;
 
 using Xamarin.Forms;
 
+using static Maintain_it.Helpers.Config;
+
 namespace Maintain_it.Services
 {
     public static class LocalNotificationManager
@@ -37,7 +39,7 @@ namespace Maintain_it.Services
 
             DateTime NotificationWindow = DateTime.UtcNow.AddHours(12);
 
-            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindow, x.NotifyTime) >= 0 && x.Active != true ).ToList();
+            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindow, x.NotifyTime) >= 0 && x.Active ).ToList();
 
             foreach( NotificationEventArgs notification in pendingNotifications )
             {
@@ -104,13 +106,17 @@ namespace Maintain_it.Services
                 Name = name,
                 Message = message,
                 NotifyTime = notifyDate,
-                Active = false,
+                Active = true,
+                TimesCalled = 0,
                 CreatedOn = DateTime.UtcNow
             };
 
             int id = await DbServiceLocator.AddItemAndReturnIdAsync(args);
-
-            ScheduleNotification( null, args );
+            
+            if( notifyDate.Ticks < (long)TickTimeIntervals.Hour * 12 )
+            {
+                ScheduleNotification( null, args );
+            }
 
             return id;
         }
@@ -152,6 +158,8 @@ namespace Maintain_it.Services
             notification.Name = name;
             notification.Message = message;
             notification.NotifyTime = notifyDate;
+            notification.TimesCalled = 0;
+            notification.Active = true;
 
             await DbServiceLocator.UpdateItemAsync( notification );
         }

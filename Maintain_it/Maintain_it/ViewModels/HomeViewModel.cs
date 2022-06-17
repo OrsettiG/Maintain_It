@@ -126,9 +126,6 @@ namespace Maintain_it.ViewModels
 
         internal async Task ItemDeleted( int id )
         {
-            // This should basically just call Refresh() on the view so that the item gets correctly removed from the UI.
-            Console.WriteLine( $"Maintenance Item Delete Button pushed on item with id: {id}" );
-
             await Refresh();
         }
 

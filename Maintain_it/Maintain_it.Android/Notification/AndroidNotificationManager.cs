@@ -100,6 +100,8 @@ namespace Maintain_it.Droid
 
         public void Show( string title, string message, int notificationId )
         {
+            LocalNotificationManager.Log( $"TITLE: {title}\nMessage: {message}\nNotificationId: {notificationId}\nMessageID: {messageId}" );
+
             // Main Notification Intent
             Intent intent = new Intent(AndroidApp.Context, typeof(MainActivity) );
             _ = intent.PutExtra( Config.TitleKey, title ).PutExtra( Config.MessageKey, message ).PutExtra(IdKey, notificationId );
@@ -152,7 +154,7 @@ namespace Maintain_it.Droid
             Intent actionIntent = new Intent(AndroidApp.Context, typeof(NotificationJobService));
 
             // Add the notificationId to intent so that if the user clicks this button we know which notification to cancel.
-            _ = actionIntent.PutExtra( Config.NotificationIdKey, notificationId ).PutExtra(MessageIdKey, messageId);
+            _ = actionIntent.PutExtra( NotificationIdKey, notificationId ).PutExtra(MessageIdKey, messageId);
 
             // Add a const value to the button click so that when the user clicks it we know to just clear the notification.
             _ = actionIntent.SetAction( action.ToString() );

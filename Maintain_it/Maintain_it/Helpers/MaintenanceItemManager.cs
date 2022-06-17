@@ -277,7 +277,6 @@ namespace Maintain_it.Helpers
              * record has the most recent data, even if we access is 2 months later.
              */
 
-            // TODO: Set notification up for next service here
             if( nextServiceDate.HasValue )
             {
                 DateTime serviceDate = nextServiceDate.Value;
@@ -397,12 +396,46 @@ namespace Maintain_it.Helpers
 #nullable disable
 
         /// <summary>
-        /// Not Implemented
+        /// Deletes the MaintenanceItem with the passed in id and all the unique data associated with it (does not delete Materials but does delete Steps, StepMaterials, Notes etc.)
         /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
         public static async Task DeleteItem( int id )
         {
-            throw new NotImplementedException();
+            MaintenanceItem item = await GetItemRecursiveAsync(id);
+
+            if( item.Steps != null )
+            {
+                await StepManager.DeleteItemRange( item.Steps.GetIds() );
+            }
+
+            if( item.ServiceRecords != null )
+            {
+                await DeleteServiceRecordRange( item.ServiceRecords );
+            }
+
+            await DbServiceLocator.DeleteItemAsync<NotificationEventArgs>( item.NotificationEventArgsId );
+
+            await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
+        }
+
+        public static async Task DeleteServiceRecord( int id )
+        {
+            await DbServiceLocator.DeleteItemAsync<ServiceRecord>( id );
+        }
+
+        public static async Task DeleteServiceRecordRange( IEnumerable<int> ids )
+        {
+            foreach( int id in ids )
+            {
+                await DeleteServiceRecord( id );
+            }
+        }
+
+        private static async Task DeleteServiceRecordRange( IEnumerable<ServiceRecord> records )
+        {
+            foreach( ServiceRecord record in records )
+            {
+                await DeleteServiceRecord( record.Id );
+            }
         }
     }
 }

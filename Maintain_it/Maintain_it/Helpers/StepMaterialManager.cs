@@ -127,39 +127,49 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Not Implemented
+        /// Deletes the StepMaterial with the passed in id
         /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
         public static async Task DeleteItem( int id )
         {
-            throw new NotImplementedException();
+            await DbServiceLocator.DeleteItemAsync<StepMaterial>( id );
         }
 
         /// <summary>
-        /// Not Implemented
+        /// Deletes all the StepMaterials with the passed in ids
         /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
-        public static async Task<StepMaterial> GetItemAsync( int id )
+        public static async Task DeleteItemRange( IEnumerable<int> ids )
         {
-            throw new NotImplementedException();
+            foreach( int id in ids )
+            {
+                await DeleteItem( id );
+            }
         }
 
-        /// <summary>
-        /// Not Implemented
-        /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
-        public static async Task<List<StepMaterial>> GetAllItemsAsync()
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// Not Implemented
+        ///// </summary>
+        ///// <exception cref="NotImplementedException"></exception>
+        //public static async Task<StepMaterial> GetItemAsync( int id )
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <summary>
-        /// Not Implemented
-        /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
-        public static async Task<List<StepMaterial>> GetAllItemsRecursiveAsync()
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// Not Implemented
+        ///// </summary>
+        ///// <exception cref="NotImplementedException"></exception>
+        //public static async Task<List<StepMaterial>> GetAllItemsAsync()
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        ///// <summary>
+        ///// Not Implemented
+        ///// </summary>
+        ///// <exception cref="NotImplementedException"></exception>
+        //public static async Task<List<StepMaterial>> GetAllItemsRecursiveAsync()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
