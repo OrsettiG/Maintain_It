@@ -14,7 +14,7 @@ using static Maintain_it.Helpers.Config;
 
 namespace Maintain_it.Droid
 {
-    [Service( Exported = true, Permission = "android.permission.BIND_JOB_SERVICE" )]
+    [Service( Exported = true, Permission = "android.permission.BIND_JOB_SERVICE", DirectBootAware = true )]
     public class NotificationJobService : JobService
     {
 
@@ -23,33 +23,25 @@ namespace Maintain_it.Droid
         {
             AndroidNotificationManager manager = AndroidNotificationManager.Instance;
 
+            int messageId = intent.GetIntExtra(MessageIdKey, 0);
+            int id = intent.GetIntExtra(NotificationIdKey, 0);
 
             if( intent.Action.Equals( NotificationActions.REMIND_ME_LATER.ToString() ) )
             {
-                int messageId = intent.GetIntExtra(MessageIdKey, 0);
-                int id = intent.GetIntExtra(NotificationIdKey, 0);
+                _ = manager.Cancel( messageId );
 
-                if( id > 0 )
+                _ = Task.Run( async () =>
                 {
-                    _ = manager.Cancel( messageId );
-
-                    _ = Task.Run( async () =>
-                    {
-                        await LocalNotificationManager.UpdateNotificationActiveStatus( id, true );
-                    } );
-                }
+                    await LocalNotificationManager.UpdateNotificationActiveStatus( id, true );
+                } );
             }
             else if( intent.Action.Equals( NotificationActions.DO_NOT_REMIND_ME.ToString() ) )
             {
-                int messageId = intent.GetIntExtra(MessageIdKey, 0);
-                int id = intent.GetIntExtra(NotificationIdKey, 0);
-
                 _ = manager.Cancel( messageId );
 
                 _ = Task.Run( async () =>
                 {
                     await LocalNotificationManager.UpdateNotificationActiveStatus( id, false );
-                    LocalNotificationManager.Log( "Trigger Updated" );
                 } );
             }
 
@@ -84,6 +76,43 @@ namespace Maintain_it.Droid
             Java.Lang.Class javaClass = Java.Lang.Class.FromType(typeof(T));
             ComponentName compName = new ComponentName( context, javaClass );
             return new JobInfo.Builder( jobId, compName );
+        }
+    }
+
+    [BroadcastReceiver( DirectBootAware = true, Exported = true, Enabled = true )]
+    [IntentFilter( new[] { Intent.ActionBootCompleted, Intent.ActionLockedBootCompleted } )]
+    public class BootReciever : BroadcastReceiver
+    {
+        public override void OnReceive( Context context, Intent intent )
+        {
+
+            LocalNotificationManager.Log( "BOOT RECIEVER: ON RECIEVE START " );
+
+            // Get the JobScheduler
+            JobScheduler jobScheduler = (JobScheduler)context.GetSystemService(Context.JobSchedulerService);
+
+            // Make sure the service is not already running
+            if( jobScheduler.GetPendingJob( (int)Config.JobServiceIds.Notification ) == null )
+            {
+                LocalNotificationManager.Log( "BOOT RECIEVER: STARTING NOTIFICATION SERVICE" );
+                // Create our Notification Service with the Notification Id so that next time we start the app we can verify that the service is still running.
+                JobInfo.Builder builder = context.CreateJobBuilderUsingJobId<NotificationJobService>((int)Config.JobServiceIds.Notification);
+
+                // Set the service to run every 12 hours and persist through restarts
+                _ = builder.SetPeriodic( (int)Config.MilliTimeIntervals.Hour * 12, (int)Config.MilliTimeIntervals.Hour ).SetPersisted( true );
+
+                // Build the JobInfo Object that tells the service how and when to run.
+                JobInfo jobInfo = builder.Build();
+
+                // Start the service
+                _ = jobScheduler.Schedule( jobInfo );
+            }
+            else
+            {
+                LocalNotificationManager.Log( "BOOT RECIEVER: NOTIFICATION SERVICE ALREADY RUNNING" );
+            }
+
+            LocalNotificationManager.Log( "BOOT RECIEVER: ON RECIEVE COMPLETED" );
         }
     }
 }

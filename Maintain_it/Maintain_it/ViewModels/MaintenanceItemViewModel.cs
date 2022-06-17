@@ -129,6 +129,34 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref notifyOfNextServiceDate, value );
         }
 
+        private bool notificationActive = true;
+        public bool NotificationActive
+        {
+            get => notificationActive;
+            set => SetProperty( ref notificationActive, value );
+        }
+
+        private Timeframe noticeTimeframe = Timeframe.Days;
+        public Timeframe NoticeTimeframe
+        {
+            get => noticeTimeframe;
+            set => SetProperty( ref noticeTimeframe, value );
+        }
+
+        private int advanceNotice = 3;
+        public int AdvanceNotice
+        {
+            get => advanceNotice;
+            set => SetProperty( ref advanceNotice, value );
+        }
+
+        private int maxReminders = Config.MaxReminders;
+        public int MaxReminders
+        {
+            get => maxReminders;
+            set => SetProperty( ref maxReminders, value );
+        }
+
         #region QUERY PARAMS
         private readonly List<int> stepIds = new List<int>();
         private int maintenanceItemId;
@@ -521,7 +549,6 @@ namespace Maintain_it.ViewModels
             if( item != null )
             {
                 await MaintenanceItemManager.DeleteItem( item.Id );
-                //await _homeViewModel.ItemDeleted( maintenanceItemId );
                 _homeViewModel.RefreshCommand.Execute( null );
             }
         }

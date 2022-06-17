@@ -100,8 +100,6 @@ namespace Maintain_it.Droid
 
         public void Show( string title, string message, int notificationId )
         {
-            LocalNotificationManager.Log( $"TITLE: {title}\nMessage: {message}\nNotificationId: {notificationId}\nMessageID: {messageId}" );
-
             // Main Notification Intent
             Intent intent = new Intent(AndroidApp.Context, typeof(MainActivity) );
             _ = intent.PutExtra( Config.TitleKey, title ).PutExtra( Config.MessageKey, message ).PutExtra(IdKey, notificationId );
@@ -154,7 +152,6 @@ namespace Maintain_it.Droid
             Intent actionIntent = new Intent(AndroidApp.Context, typeof(NotificationJobService));
 
             // Add the notificationId to intent so that if the user clicks this button we know which notification to cancel.
-            LocalNotificationManager.Log( $"Putting Notification Id Key {notificationId} on Action {action} with MessageIdKey {messageId}" );
             _ = actionIntent.PutExtra( NotificationIdKey, notificationId ).PutExtra(MessageIdKey, messageId);
 
             // Add a const value to the button click so that when the user clicks it we know to just clear the notification.
@@ -189,12 +186,6 @@ namespace Maintain_it.Droid
             channelInitialized = true;
         }
 
-        private void ScheduleNotificationJob( int num )
-        {
-            PersistableBundle jobParams = new PersistableBundle();
-            jobParams.PutInt( "num", num );
-        }
-
         // Epoch time conversion to milliseconds
         private long GetNotifyTime( DateTime notifyTime )
         {
@@ -205,8 +196,7 @@ namespace Maintain_it.Droid
             // i.e.
             // Epoch = 500
             // Alarm = 800
-            // utcAlarmTime = 800 - 500 = 300
-            //
+            // utcAlarmTime = 800 - 500 = 300 AFTER the epoch (basically treats the epoch as zero).
             long utcAlarmTime = utcTime.AddSeconds(-epochDiff).Ticks / TimeSpan.TicksPerMillisecond;
             return utcAlarmTime;
         }

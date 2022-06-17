@@ -33,6 +33,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -41,7 +42,10 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Comment Label and Entry -->
-                    <Label Text="Comment:" Grid.Column="0" Grid.Row="0"/>
+                    <Label Text="Comment:" 
+                           Grid.Column="0" 
+                           Grid.Row="0"/>
+
                     <Editor Text="{Binding Comment}" Placeholder=""
                             Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" 
                             MaxLength="250"
@@ -49,98 +53,180 @@
                             />
 
                     <!-- First Service Date Label and Picker -->
-                    <Label Text="First Service Date:" Grid.Column="0" Grid.Row="2"/>
-                    <DatePicker Date="{Binding FirstServiceDate}" IsEnabled="True" IsVisible="True" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2"/>
+                    <Label Text="First Service Date:" 
+                           Grid.Column="0" 
+                           Grid.Row="2"/>
+
+                    <DatePicker Date="{Binding FirstServiceDate}" 
+                                IsEnabled="True" 
+                                IsVisible="True" 
+                                Grid.Column="1" 
+                                Grid.ColumnSpan="2" 
+                                Grid.Row="2"/>
 
                     <!-- Is Recurring Label and Checkbox -->
-                    <Label Text="Is Recurring:" Grid.Column="0" Grid.Row="3"/>
-                    <CheckBox IsChecked="{Binding IsRecurring}" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" />
+                    <Label Text="Is Recurring:" 
+                           Grid.Column="0"
+                           Grid.Row="3"/>
+
+                    <CheckBox IsChecked="{Binding IsRecurring}" 
+                              Grid.Column="1" 
+                              Grid.ColumnSpan="2" 
+                              Grid.Row="3" />
 
                     <!-- Next Service Date Label and Picker -->
-                    <Label Text="Next Service Date:" Grid.Column="0" Grid.Row="4" IsVisible="{Binding IsRecurring}"/>
-                    <DatePicker Date="{Binding NextServiceDate}" IsEnabled="False" IsVisible="{Binding IsRecurring}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2"/>
+                    <!--
+                    <Label Text="Next Service Date:" 
+                           Grid.Column="0" 
+                           Grid.Row="4" 
+                           IsVisible="{Binding IsRecurring}"/>
+
+                    <DatePicker Date="{Binding NextServiceDate}" 
+                                IsEnabled="False" 
+                                IsVisible="{Binding IsRecurring}" 
+                                Grid.Column="1" 
+                                Grid.Row="4" 
+                                Grid.ColumnSpan="2"/>-->
 
                     <!-- Previous Service Date Label and Picker -->
-                    <Label Text="Previous Service Date:" Grid.Column="0" Grid.Row="5" IsVisible="{Binding IsRecurring}"/>
-                    <DatePicker Date="{Binding PreviousServiceDate}" IsEnabled="False" IsVisible="{Binding IsRecurring}" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5"/>
+                    <!--
+                    <Label Text="Previous Service Date:" 
+                           Grid.Column="0" 
+                           Grid.Row="5" 
+                           IsVisible="{Binding IsRecurring}"/>
+
+                    <DatePicker Date="{Binding PreviousServiceDate}" 
+                                IsEnabled="False" 
+                                IsVisible="{Binding IsRecurring}" 
+                                Grid.Column="1" 
+                                Grid.ColumnSpan="2" 
+                                Grid.Row="5"/>-->
 
                     <!-- Recurrs Every X Label and Input -->
-                    <Label Text="Recurs Every:" Grid.Column="0" Grid.Row="6" HorizontalOptions="Start" IsVisible="{Binding IsRecurring}"/>
-                    <Entry Text="{Binding RecursEvery}" Keyboard="Numeric" IsVisible="{Binding IsRecurring}"
-                           Grid.Column="1" Grid.Row="6" 
-                           HorizontalOptions="Start" WidthRequest="50" VerticalOptions="Center" 
-                           FontSize="Medium" TextColor="Black"/>
-                    <Button Text="+" IsVisible="{Binding IsRecurring}"
-                            Grid.Column="2" Grid.Row="6"
-                            HorizontalOptions="End" VerticalOptions="Center"
-                            HeightRequest="35" WidthRequest="75"
-                            Command="{Binding OnIncrementCommand}"/>
-                    <Button Text="-" IsVisible="{Binding IsRecurring}"
-                            Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="2"
-                            HorizontalOptions="Center" VerticalOptions="Center"
-                            HeightRequest="35" WidthRequest="75"
-                            Command="{Binding OnDecrementCommand}"/>
+                    <Label Text="Recurs Every:" 
+                           Grid.Column="0" 
+                           Grid.Row="4"
+                           HorizontalOptions="Start" 
+                           IsVisible="{Binding IsRecurring}"/>
 
-                    <Picker Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="7" IsVisible="{Binding IsRecurring}"
+                    <Entry Text="{Binding RecursEvery}" Keyboard="Numeric" IsVisible="{Binding IsRecurring}"
+                           Grid.Column="1" Grid.Row="4" 
+                           HorizontalOptions="Center" WidthRequest="50" VerticalOptions="Center" 
+                           FontSize="Medium"/>
+
+                    <Picker Grid.Column="2" Grid.Row="4" IsVisible="{Binding IsRecurring}"
                             HorizontalOptions="StartAndExpand" VerticalOptions="Center" WidthRequest="300"
                             ItemsSource="{Binding Timeframes}" SelectedItem="{Binding Frequency}"/>
 
+                    <!-- Reminder Time Before Service Date -->
+                    <Label Text="Remind Me"
+                           Grid.Column="0"
+                           Grid.Row="6"
+                           HorizontalOptions="Start"/>
 
-                    <Label Text="Steps" FontSize="Large"
-                           Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="8"
+                    <CheckBox IsChecked="{Binding NotificationActive}"
+                              Grid.Row="6"
+                              Grid.Column="1"/>
+
+
+                    <!-- Reminder Count -->
+
+                    <Entry Text="{Binding MaxReminders}" Keyboard="Numeric"
+                           Grid.Column="1" Grid.Row="6" 
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           WidthRequest="50" 
+                           VerticalOptions="Center" 
+                           FontSize="Medium"
+                           IsVisible="{Binding NotificationActive}"/>
+
+                    <Label Text="Times"
+                           FontSize="Medium"
+                           VerticalOptions="Center"
+                           Grid.Row="6"
+                           Grid.Column="2"
+                           HorizontalOptions="Start"
+                           IsVisible="{Binding NotificationActive}"/>
+
+                    <Entry Text="{Binding AdvanceNotice}"
+                           Grid.Row="7"
+                           Grid.Column="0"
+                           IsVisible="{Binding NotificationActive}"
+                           Keyboard="Numeric"
+                           HorizontalTextAlignment="Center"/>
+
+                    <Picker Grid.Row="7" 
+                            Grid.Column="1"
+                            Grid.ColumnSpan="1"
+                            ItemsSource="{Binding Timeframes}"
+                            SelectedItem="{Binding NoticeTimeframe}"
+                            IsVisible="{Binding NotificationActive}"
+                            HorizontalTextAlignment="Center"/>
+
+                    <Label Text="Before Service Date"
+                           FontSize="Medium"
+                           VerticalOptions="Center"
+                           Grid.Row="7"
+                           Grid.Column="2"
+                           IsVisible="{Binding NotificationActive}"/>
+
+
+                    <!-- Step Display -->
+
+                        <Label Text="Steps" FontSize="Large"
+                           Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="9"
                            HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
                            TextDecorations="Underline"/>
-                    
 
-                    <Frame Grid.ColumnSpan="3" Grid.Row="9"
+                        <Frame Grid.ColumnSpan="3" Grid.Row="10"
                            Padding=" 10">
-                        <CollectionView
+                            <CollectionView
                                         ItemsSource="{Binding StepViewModels}"
                                         ItemSizingStrategy="MeasureFirstItem"
                                         HorizontalOptions="Center"
                                         Margin="5"
                                         HeightRequest="300"
                                         SelectionMode="Single">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout 
+                                <CollectionView.ItemsLayout>
+                                    <GridItemsLayout 
                                     Orientation="Horizontal" 
                                     HorizontalItemSpacing="15"
                                     SnapPointsAlignment="End"
                                     SnapPointsType="None"
                                     Span="1"/>
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="{x:Type viewmodels:StepViewModel}">
-                                    <Frame WidthRequest="250" Padding="5">
-                                        <Frame.GestureRecognizers>
-                                            <DragGestureRecognizer DragStartingCommand="{Binding DragStartingCommand}"
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="{x:Type viewmodels:StepViewModel}">
+                                        <Frame WidthRequest="250" Padding="5">
+                                            <Frame.GestureRecognizers>
+                                                <DragGestureRecognizer DragStartingCommand="{Binding DragStartingCommand}"
                                                                    DragStartingCommandParameter="{Binding .}"
                                                                    DropCompletedCommand="{Binding DropCompleteCommand}"
                                                                    DropCompletedCommandParameter="{Binding .}"
                                                                    CanDrag="{Binding CanDrag}"/>
-                                            <DropGestureRecognizer DropCommand="{Binding DropCommand}"
+                                                <DropGestureRecognizer DropCommand="{Binding DropCommand}"
                                                            DropCommandParameter="{Binding .}"
                                                            DragOverCommand="{Binding DragOverCommand}"
                                                            DragOverCommandParameter="{Binding .}"/>
-                                        </Frame.GestureRecognizers>
-                                        <Grid Padding="3">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="50"/>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
-                                            </Grid.RowDefinitions>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition/>
-                                                <ColumnDefinition/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
+                                            </Frame.GestureRecognizers>
+                                            <Grid Padding="3">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="50"/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
 
-                                            <Label Text="{Binding StepNum}"
+                                                <Label Text="{Binding StepNum}"
                                                    Grid.Row="0" Grid.Column="0"
                                                    HorizontalOptions="Start" VerticalOptions="Start"
                                                    Padding="5"/>
 
-                                            <Label Text="{Binding Name}"
+                                                <Label Text="{Binding Name}"
                                                    FontSize="Large"
                                                    TextDecorations="Underline"
                                                    HorizontalTextAlignment="Center" 
@@ -149,54 +235,54 @@
                                                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
                                                    WidthRequest="50"/>
 
-                                            <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition/>
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition/>
-                                                    <RowDefinition/>
-                                                    <RowDefinition/>
-                                                    <RowDefinition/>
-                                                </Grid.RowDefinitions>
-                                                
-                                                <Label Text="Materials Required"
+                                                <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Label Text="Materials Required"
                                                        Grid.Row="0" Grid.Column="0"
                                                        VerticalOptions="Start"/>
-                                                <Label Text="{Binding StepMaterials.Count}"
+                                                    <Label Text="{Binding StepMaterials.Count}"
                                                        Grid.Row="0" Grid.Column="1"/>
-                                                
-                                                <Label Text="Notes" 
+
+                                                    <Label Text="Notes" 
                                                        Grid.Column="0" Grid.Row="1"/>
-                                                <Label Text="{Binding Notes.Count}" 
+                                                    <Label Text="{Binding Notes.Count}" 
                                                        Grid.Row="1" Grid.Column="1"/>
-                                            </Grid>
+                                                </Grid>
 
-                                            <Label Text="{Binding Description}" 
+                                                <Label Text="{Binding Description}" 
                                                    Grid.Row="2" Grid.ColumnSpan="3"/>
-                                            
-                                        </Grid>
-                                    </Frame>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </Frame>
 
-                    <Grid Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="1"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Button Text="Add New Step" Command="{Binding NewStepCommand}"
+                                            </Grid>
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Frame>
+
+                        <Grid Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="1"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button Text="Add New Step" Command="{Binding NewStepCommand}"
                             Grid.Column="0"
                             HorizontalOptions="FillAndExpand"/>
-                        
-                        <Button Text="Re-Order" Command="{Binding ToggleCanDragCommand}"
+
+                            <Button Text="Re-Order" Command="{Binding ToggleCanDragCommand}"
                             Grid.Column="2"
                             HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
-                    </Grid>
+                        </Grid>
                 </Grid>
             </ScrollView>
 
