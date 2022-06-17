@@ -10,7 +10,7 @@ namespace Maintain_it.Services
     {
         event EventHandler NotificationRecieved;
         void Initialize();
-        void SendNotification( string title, string message, DateTime notifyTime = default );
+        void SendNotification( string title, string message, int notificationId, DateTime notifyTime = default );
         void RecieveNotification( string title, string message );
     }
 }

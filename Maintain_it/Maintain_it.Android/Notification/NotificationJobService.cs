@@ -10,6 +10,8 @@ using Maintain_it.Services;
 
 using Xamarin.Essentials;
 
+using static Maintain_it.Helpers.Config;
+
 namespace Maintain_it.Droid
 {
     [Service( Exported = true, Permission = "android.permission.BIND_JOB_SERVICE" )]
@@ -19,16 +21,34 @@ namespace Maintain_it.Droid
         [return: GeneratedEnum]
         public override StartCommandResult OnStartCommand( Intent intent, [GeneratedEnum] StartCommandFlags flags, int startId )
         {
-            if( intent.Action.Equals( Config.REMIND_LATER ) )
+            AndroidNotificationManager manager = AndroidNotificationManager.Instance;
+
+            if( intent.Action.Equals( NotificationActions.REMIND_ME_LATER.ToString() ) )
             {
-                LocalNotificationManager.Log( "________________ CLOSE NOTIFICATION ________________" );
+                int id = intent.GetIntExtra(IdKey, 0);
+                
+                if( id > 0 )
+                {
+                    if( AndroidNotificationManager.Instance.Cancel( id ) )
+                    {
+                        _ = Task.Run( async () =>
+                        {
+                            await LocalNotificationManager.UpdateNotificationActiveStatus( id, false );
+                        } );
+                    }
+                }
             }
-            else if( intent.Action.Equals( Config.DO_NOT_REMIND ) )
+            else if( intent.Action.Equals( NotificationActions.DO_NOT_REMIND_ME.ToString() ) )
             {
-                LocalNotificationManager.Log( "################## MARK AS TRIGGERED ##################" );
+                int id = intent.GetIntExtra(IdKey, 0);
+
+                _ = Task.Run( async () =>
+                {
+                    await LocalNotificationManager.UpdateNotificationActiveStatus( id, true );
+                } );
             }
 
-            return StartCommandResult.NotSticky;
+            return StartCommandResult.Sticky;
         }
 
         public override bool OnStartJob( JobParameters jobParams )
@@ -48,11 +68,6 @@ namespace Maintain_it.Droid
         public override bool OnStopJob( JobParameters jobParams )
         {
             return true;
-        }
-
-        public void Schedule()
-        {
-
         }
 
     }

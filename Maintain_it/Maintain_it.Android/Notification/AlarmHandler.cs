@@ -3,6 +3,7 @@
 using Android.App;
 using Android.Content;
 
+using Maintain_it.Helpers;
 using Maintain_it.Services;
 
 namespace Maintain_it.Droid
@@ -16,38 +17,12 @@ namespace Maintain_it.Droid
             {
                 string title = intent.GetStringExtra(AndroidNotificationManager.TitleKey);
                 string message = intent.GetStringExtra(AndroidNotificationManager.MessageKey);
+                int id = intent.GetIntExtra( Config.IdKey, 0);
+                AndroidNotificationManager manager = AndroidNotificationManager.Instance;
+                
 
-                AndroidNotificationManager manager = AndroidNotificationManager.Instance ?? new AndroidNotificationManager();
-
-                manager.Show( title, message );
+                manager.Show( title, message, id );
             }
-        }
-    }
-
-    [BroadcastReceiver( Enabled = true, DirectBootAware = true, Exported = true, Label = "Boot Broadcast Receiver" )]
-    [IntentFilter( new[] { Intent.ActionBootCompleted } )]
-    public class BootReciever : BroadcastReceiver
-    {
-        public override void OnReceive( Context context, Intent intent )
-        {
-            context.CreateJobBuilderUsingJobId<NotificationJobService>( 1 );
-
-            //_ = Task.Run( async () => {
-            //    await LocalNotificationManager.ReScheduleUnsentNotifications();
-            //} );
-        }
-    }
-
-    [BroadcastReceiver(Enabled = true, Label = "Shutdown Broadcast Reciever")]
-    [IntentFilter( new[] { Intent.ActionShutdown })]
-    public class ShutdownReciever : BroadcastReceiver
-    {
-        public override void OnReceive( Context context, Intent intent )
-        {
-            _ = Task.Run( async () =>
-            {
-                await LocalNotificationManager.SaveShutdownDateTimeUtc();
-            } );
         }
     }
 }

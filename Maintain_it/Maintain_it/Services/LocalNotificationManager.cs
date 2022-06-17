@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Maintain_it.Helpers;
 using Maintain_it.Models;
 
 using Xamarin.Forms;
@@ -26,7 +27,7 @@ namespace Maintain_it.Services
 
         public static void ShowNotification( string title, string message )
         {
-            notificationManager.SendNotification( title, message );
+            notificationManager.SendNotification( title, message, 0 );
             Console.WriteLine( $"Notification Recieved: \n{title}:\n{message}" );
         }
 
@@ -35,28 +36,42 @@ namespace Maintain_it.Services
             List<NotificationEventArgs> notifications = await DbServiceLocator.GetAllItemsAsync<NotificationEventArgs>() as List<NotificationEventArgs>;
 
             DateTime NotificationWindow = DateTime.UtcNow.AddHours(12);
-            
-            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindow, x.NotifyTime) >= 0 && x.Triggered != true ).ToList();
+
+            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindow, x.NotifyTime) >= 0 && x.Active != true ).ToList();
 
             foreach( NotificationEventArgs notification in pendingNotifications )
             {
                 ScheduleNotification( null, notification );
 
-                //notification.Triggered = true;
+                if( ++notification.TimesCalled >= Config.MaxReminders )
+                {
+                    notification.Active = true;
+                }
+                
+                await DbServiceLocator.UpdateItemAsync( notification );
+            }
+        }
 
-                //await DbServiceLocator.UpdateItemAsync( notification );
+        public static async Task UpdateNotificationActiveStatus( int notificationId, bool isTriggered )
+        {
+            NotificationEventArgs notification = await DbServiceLocator.GetItemAsync<NotificationEventArgs>( notificationId );
+
+            if(notification.TimesCalled >= Config.MaxReminders && !isTriggered )
+            {
+                Log( $"TimesCalled - {notification.TimesCalled}" );
+                notification.TimesCalled = 0;
             }
 
-            notificationManager.SendNotification( "Maintain It!", "NOTIFY OF SCHEDULED WORK TEST" );
+            notification.Active = isTriggered;
+
+            await DbServiceLocator.UpdateItemAsync( notification );
         }
 
         public static void ScheduleNotification( object sender, EventArgs e )
         {
             NotificationEventArgs args = (NotificationEventArgs)e;
 
-            string message = args.Message;
-
-            notificationManager.SendNotification( "Maintain It!", message, args.NotifyTime );
+            notificationManager.SendNotification( "Maintain It!", args.Message, args.Id, args.NotifyTime );
         }
 
         // Called by AndroidNotificationManager on re-boot so that notifications are not lost on restart.
@@ -89,7 +104,7 @@ namespace Maintain_it.Services
                 Name = name,
                 Message = message,
                 NotifyTime = notifyDate,
-                Triggered = false,
+                Active = false,
                 CreatedOn = DateTime.UtcNow
             };
 

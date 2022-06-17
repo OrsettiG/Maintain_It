@@ -9,7 +9,7 @@ using Maintain_it.Services;
 
 namespace Maintain_it.Helpers
 {
-    internal static class ExtensionMethods
+    public static class ExtensionMethods
     {
         /// <summary>
         /// Converts the objects in the IEnumerable to a List<T> if possible. If no conversion exists then this will probably fail and crash the program.
@@ -143,6 +143,15 @@ namespace Maintain_it.Helpers
             }
 
             return false;
+        }
+
+        public static string FirstLetterToUpper( this string text )
+        {
+            char[] chars = text.ToCharArray();
+
+            chars[0] = char.ToUpperInvariant( chars[0] );
+
+            return new string( chars );
         }
     }
 }
