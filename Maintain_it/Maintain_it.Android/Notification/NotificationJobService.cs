@@ -23,11 +23,12 @@ namespace Maintain_it.Droid
         {
             AndroidNotificationManager manager = AndroidNotificationManager.Instance;
 
-            int messageId = intent.GetIntExtra(MessageIdKey, 0);
-            int id = intent.GetIntExtra(NotificationIdKey, 0);
 
             if( intent.Action.Equals( NotificationActions.REMIND_ME_LATER.ToString() ) )
             {
+                int messageId = intent.GetIntExtra(MessageIdKey, 0);
+                int id = intent.GetIntExtra(NotificationIdKey, 0);
+
                 if( id > 0 )
                 {
                     _ = manager.Cancel( messageId );
@@ -40,6 +41,9 @@ namespace Maintain_it.Droid
             }
             else if( intent.Action.Equals( NotificationActions.DO_NOT_REMIND_ME.ToString() ) )
             {
+                int messageId = intent.GetIntExtra(MessageIdKey, 0);
+                int id = intent.GetIntExtra(NotificationIdKey, 0);
+
                 _ = manager.Cancel( messageId );
 
                 _ = Task.Run( async () =>

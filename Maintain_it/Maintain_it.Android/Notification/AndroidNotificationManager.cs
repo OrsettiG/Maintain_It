@@ -154,13 +154,14 @@ namespace Maintain_it.Droid
             Intent actionIntent = new Intent(AndroidApp.Context, typeof(NotificationJobService));
 
             // Add the notificationId to intent so that if the user clicks this button we know which notification to cancel.
+            LocalNotificationManager.Log( $"Putting Notification Id Key {notificationId} on Action {action} with MessageIdKey {messageId}" );
             _ = actionIntent.PutExtra( NotificationIdKey, notificationId ).PutExtra(MessageIdKey, messageId);
 
             // Add a const value to the button click so that when the user clicks it we know to just clear the notification.
             _ = actionIntent.SetAction( action.ToString() );
 
             // Create the pendingActionIntent. The pending intent id ensures that we always get a unique intent.
-            PendingIntent pendingActionIntent = PendingIntent.GetService(AndroidApp.Context, notificationActionPendingIntentId, actionIntent, PendingIntentFlags.UpdateCurrent);
+            PendingIntent pendingActionIntent = PendingIntent.GetService(AndroidApp.Context, notificationActionPendingIntentId++, actionIntent, PendingIntentFlags.UpdateCurrent);
 
             // Return the action
             string buttonText = action.ToString().ToLowerInvariant().Replace("_", " ").FirstLetterToUpper().Trim();

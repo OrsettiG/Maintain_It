@@ -45,26 +45,25 @@ namespace Maintain_it.Services
             {
                 ScheduleNotification( null, notification );
 
-                if( ++notification.TimesCalled >= Config.MaxReminders )
+                if( ++notification.TimesReminded >= notification.TimesToRemind )
                 {
-                    notification.Active = true;
+                    notification.Active = false;
                 }
                 
                 await DbServiceLocator.UpdateItemAsync( notification );
             }
         }
 
-        public static async Task UpdateNotificationActiveStatus( int notificationId, bool isTriggered )
+        public static async Task UpdateNotificationActiveStatus( int notificationId, bool isActive )
         {
             NotificationEventArgs notification = await DbServiceLocator.GetItemAsync<NotificationEventArgs>( notificationId );
 
-            if(notification.TimesCalled >= Config.MaxReminders && !isTriggered )
+            if( notification.TimesReminded >= notification.TimesToRemind && isActive )
             {
-                Log( $"TimesCalled - {notification.TimesCalled}" );
-                notification.TimesCalled = 0;
+                notification.TimesReminded = 0;
             }
 
-            notification.Active = isTriggered;
+            notification.Active = isActive;
 
             await DbServiceLocator.UpdateItemAsync( notification );
         }
@@ -107,7 +106,8 @@ namespace Maintain_it.Services
                 Message = message,
                 NotifyTime = notifyDate,
                 Active = true,
-                TimesCalled = 0,
+                TimesReminded = 0,
+                TimesToRemind = Config.MaxReminders,
                 CreatedOn = DateTime.UtcNow
             };
 
@@ -158,7 +158,7 @@ namespace Maintain_it.Services
             notification.Name = name;
             notification.Message = message;
             notification.NotifyTime = notifyDate;
-            notification.TimesCalled = 0;
+            notification.TimesReminded = 0;
             notification.Active = true;
 
             await DbServiceLocator.UpdateItemAsync( notification );

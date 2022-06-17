@@ -491,28 +491,6 @@ namespace Maintain_it.ViewModels
 
                 CalculateServiceCompletionTimeEstimate();
 
-                //StepViewModels = StepViewModels.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel>;
-
-                //List<Step> newStepList = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ) as List<Step>;
-
-                //List<StepViewModel> data = new List<StepViewModel>();
-                //foreach( Step step in newStepList )
-                //{
-
-                //    try
-                //    {
-                //        Task<StepViewModel> task = CreateNewStepViewModel( step );
-                //        data.Add( task.Result );
-                //    }
-                //    catch( AggregateException ex )
-                //    {
-                //        Console.WriteLine( $"EXEPTION: {ex.InnerExceptions}" );
-                //    }
-
-                //}
-
-                //StepViewModels.AddRange( data.OrderBy( x => x.StepNum ) );
-
                 locked = false;
             }
         }

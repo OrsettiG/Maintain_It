@@ -19,7 +19,8 @@ namespace Maintain_it.Models
         public DateTime NotifyTime { get; set; }
         public DateTime CreatedOn { get; set; }
         public bool Active { get; set; }
-        public int TimesCalled { get; set; }
+        public int TimesReminded { get; set; }
+        public int TimesToRemind { get; set; }
         #endregion
     }
 }
