@@ -23,13 +23,14 @@ namespace Maintain_it.Droid
         {
             AndroidNotificationManager manager = AndroidNotificationManager.Instance;
 
+            int messageId = intent.GetIntExtra(MessageIdKey, 0);
+            int id = intent.GetIntExtra(NotificationIdKey, 0);
+
             if( intent.Action.Equals( NotificationActions.REMIND_ME_LATER.ToString() ) )
             {
-                int id = intent.GetIntExtra(IdKey, 0);
-                
                 if( id > 0 )
                 {
-                    if( AndroidNotificationManager.Instance.Cancel( id ) )
+                    if( manager.Cancel( messageId ) )
                     {
                         _ = Task.Run( async () =>
                         {
@@ -40,11 +41,12 @@ namespace Maintain_it.Droid
             }
             else if( intent.Action.Equals( NotificationActions.DO_NOT_REMIND_ME.ToString() ) )
             {
-                int id = intent.GetIntExtra(IdKey, 0);
+                manager.Cancel( messageId );
 
                 _ = Task.Run( async () =>
                 {
                     await LocalNotificationManager.UpdateNotificationActiveStatus( id, true );
+                    LocalNotificationManager.Log( "Trigger Updated" );
                 } );
             }
 

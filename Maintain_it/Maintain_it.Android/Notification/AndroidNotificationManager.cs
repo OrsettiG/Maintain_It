@@ -73,7 +73,7 @@ namespace Maintain_it.Droid
             if( notifyTime != DateTime.MinValue )
             {
                 Intent intent = new Intent(AndroidApp.Context, typeof(AlarmHandler));
-                _ = intent.PutExtra( Config.TitleKey, title ).PutExtra( Config.MessageKey, message ).PutExtra(Config.IdKey, notificationId);
+                _ = intent.PutExtra( Config.TitleKey, title ).PutExtra( Config.MessageKey, message ).PutExtra(Config.NotificationIdKey, notificationId);
 
                 PendingIntent pendingIntent = PendingIntent.GetBroadcast(AndroidApp.Context, mainActivityPendingIntentId++, intent, PendingIntentFlags.CancelCurrent );
 
@@ -152,7 +152,7 @@ namespace Maintain_it.Droid
             Intent actionIntent = new Intent(AndroidApp.Context, typeof(NotificationJobService));
 
             // Add the notificationId to intent so that if the user clicks this button we know which notification to cancel.
-            _ = actionIntent.PutExtra( Config.IdKey, notificationId );
+            _ = actionIntent.PutExtra( Config.NotificationIdKey, notificationId ).PutExtra(MessageIdKey, messageId);
 
             // Add a const value to the button click so that when the user clicks it we know to just clear the notification.
             _ = actionIntent.SetAction( action.ToString() );

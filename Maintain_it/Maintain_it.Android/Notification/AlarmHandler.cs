@@ -17,7 +17,7 @@ namespace Maintain_it.Droid
             {
                 string title = intent.GetStringExtra(AndroidNotificationManager.TitleKey);
                 string message = intent.GetStringExtra(AndroidNotificationManager.MessageKey);
-                int id = intent.GetIntExtra( Config.IdKey, 0);
+                int id = intent.GetIntExtra( Config.NotificationIdKey, 0);
                 AndroidNotificationManager manager = AndroidNotificationManager.Instance;
                 
 

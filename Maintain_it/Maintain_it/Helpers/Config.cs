@@ -12,7 +12,8 @@ namespace Maintain_it.Helpers
 
         public const string TitleKey = "title";
         public const string MessageKey = "message";
-        public const string IdKey = "id";
+        public const string NotificationIdKey = "notificationId";
+        public const string MessageIdKey = "messageId";
 
         private static int maxReminders = 3;
         public static int MaxReminders { get => maxReminders; set => maxReminders = value; }
