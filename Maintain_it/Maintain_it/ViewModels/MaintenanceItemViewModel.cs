@@ -43,11 +43,6 @@ namespace Maintain_it.ViewModels
         #region PROPERTIES
         private MaintenanceItem item;
 
-        public int ItemId
-        {
-            get => item.Id;
-        }
-
         public List<Timeframe> Timeframes => Options.timeframes;
 
         public bool locked { get; private set; }
@@ -151,15 +146,19 @@ namespace Maintain_it.ViewModels
         }
 
         private int maxReminders = Config.MaxReminders;
-        public int MaxReminders
+        public int TimesToRemind
         {
             get => maxReminders;
             set => SetProperty( ref maxReminders, value );
         }
 
+        //TODO: Update all the query params here to use the RoutingPath constants instead.
         #region QUERY PARAMS
+        private enum EditState { NewItem, Editing }
+        private EditState editState = EditState.NewItem;
         private readonly List<int> stepIds = new List<int>();
         private int maintenanceItemId;
+        //TODO: Get Rid of this and use the EditState Flag instead
         private bool update = false;
         #endregion
 
@@ -208,6 +207,31 @@ namespace Maintain_it.ViewModels
 
         private AsyncCommand deleteCommand;
         public AsyncCommand DeleteCommand => deleteCommand ??= new AsyncCommand( Delete );
+
+        private AsyncCommand backCommand;
+        public ICommand BackCommand => backCommand ??= new AsyncCommand( Back );
+
+        private async Task Back()
+        {
+            string choice = await Shell.Current.DisplayActionSheet( Alerts.DiscardChangesTitle, Alerts.Cancel, null, Alerts.Discard, Alerts.Save );
+
+            switch( choice )
+            {
+                case Alerts.Save:
+                    await Add();
+                    break;
+                case Alerts.Discard:
+                    if( editState == EditState.NewItem )
+                    {
+                        await Delete();
+                    }
+                    await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+                    break;
+                default:
+                    break;
+            }
+
+        }
 
         private AsyncCommand editCommand;
         public AsyncCommand EditCommand => editCommand ??= new AsyncCommand( Edit );
@@ -280,7 +304,7 @@ namespace Maintain_it.ViewModels
                 {
                     Step s = await StepManager.GetItemRecursiveAsync( step.Id );
 
-                    _ = Parallel.ForEach( s.StepMaterials, async x =>
+                    _ = Parallel.ForEach( s.StepMaterials, x =>
                     {
                         int quantityRequired = x.Quantity;
                         int quantityOwned = x.Material.QuantityOwned;
@@ -327,19 +351,12 @@ namespace Maintain_it.ViewModels
 
             if( item != null )
             {
-                await MaintenanceItemManager.UpdateProperties( item.Id, name: name, comment: comment, firstServiceDate: firstServiceDate, recursEvery: recursEvery, timeframe: (int)frequency, notifyOfNextServiceDate: notifyOfNextServiceDate, steps: stepIds );
-
-                //await MaintenanceItemManager.UpdateSteps( item.Id, stepIds );
-
-                item = await MaintenanceItemManager.GetItemRecursiveAsync( item.Id );
+                await MaintenanceItemManager.UpdateProperties( item.Id, name: name, comment: comment, firstServiceDate: firstServiceDate, recursEvery: recursEvery, timeframe: (int)frequency, notifyOfNextServiceDate: notifyOfNextServiceDate, advanceNotice: AdvanceNotice, advanceNoticeTimeframe: (int)NoticeTimeframe, timesToRemind: TimesToRemind, steps: stepIds );
             }
             else
             {
-
-                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, (int)Frequency, notifyOfNextServiceDate: NotifyOfNextServiceDate, stepIds: stepIds );
+                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, (int)Frequency, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
             }
-
-
 
             ClearData();
             await Shell.Current.GoToAsync( $"//{nameof( HomeView )}?Refresh=true" );
@@ -452,6 +469,7 @@ namespace Maintain_it.ViewModels
 
             if( _update )
             {
+                editState = EditState.Editing;
                 update = true;
             }
 
@@ -628,6 +646,12 @@ namespace Maintain_it.ViewModels
 
                         InitData( item, true );
                     }
+                    break;
+                case RoutingPath.NewItem:
+                    maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( string.Empty, DateTime.Now, string.Empty );
+                    item = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
+                    InitData( item );
+                    editState = EditState.NewItem;
                     break;
             }
         }

@@ -21,14 +21,24 @@ namespace Maintain_it.Helpers
         /// </summary>
         public const string Confirmation = "Ok";
 
+        public const string Cancel = "Cancel";
+
         /// <summary>
         /// "Error"
         /// </summary>
         public const string Error = "Error";
 
         ///<summary>
-        ///
+        /// "Oops! Looks like something went wrong saving that. Make sure all the data is correct and try again."
         /// </summary>
         public const string DatabaseErrorMessage = "Oops! Looks like something went wrong saving that. Make sure all the data is correct and try again.";
+
+        public const string DiscardChangesTitle = "Discard Changes?";
+
+        public const string SaveOrDiscardChangesMessage = "Would you like to save your changes, or discard them?";
+
+        public const string Discard = "Discard";
+
+        public const string Save = "Save";
     }
 }

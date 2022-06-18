@@ -11,7 +11,7 @@ namespace Maintain_it.Helpers
 {
     internal static class MaintenanceItemManager
     {
-        public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, int serviceTimeframe = 0, int timesToRepeat = 0, bool notifyOfNextServiceDate = false, int advanceNotice = 1, int noticeTimeframe = 3, IEnumerable<int> stepIds = null )
+        public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, int serviceTimeframe = 3, int timesToRemind = 0, bool notifyOfNextServiceDate = false, int advanceNotice = 1, int noticeTimeframe = 3, IEnumerable<int> stepIds = null )
         {
             MaintenanceItem item = new MaintenanceItem()
             {
@@ -28,13 +28,12 @@ namespace Maintain_it.Helpers
                 NotificationEventArgsId = 0,
                 AdvanceNotice = advanceNotice,
                 NoticeTimeframe = noticeTimeframe,
-                TimesToRepeat = timesToRepeat
+                TimesToRepeat = timesToRemind
             };
 
             if( notifyOfNextServiceDate )
             {
-
-                item.NotificationEventArgsId = await LocalNotificationManager.GetNewScheduledNotification( item.Name, firstServiceDate, advanceNotice, noticeTimeframe );
+                item.NotificationEventArgsId = await LocalNotificationManager.GetNewScheduledNotification( item.Name, firstServiceDate, advanceNotice, noticeTimeframe, timesToRemind );
             }
 
             if( stepIds != null )
@@ -208,7 +207,7 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Populates any non-null properties with the passed in value and updates the database.
         /// </summary>
-        public static async Task UpdateProperties( int maintenanceItemId, string? name = null, DateTime? firstServiceDate = null, string? comment = null, int? recursEvery = null, int? timeframe = null, bool? notifyOfNextServiceDate = null, int? timesToRepeat = null, int? advanceNotice = null, int? noticeTimeframe = null, IEnumerable<int>? steps = null )
+        public static async Task UpdateProperties( int maintenanceItemId, string? name = null, DateTime? firstServiceDate = null, string? comment = null, int? recursEvery = null, int? timeframe = null, bool? notifyOfNextServiceDate = null, int? timesToRepeat = null, int? advanceNotice = null, int? advanceNoticeTimeframe = null, int? noticeTimeframe = null, bool? notificationActive = null, int? timesToRemind = null, IEnumerable<int>? steps = null )
         {
             MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
 
@@ -229,10 +228,27 @@ namespace Maintain_it.Helpers
                 item.Steps = await UpdateStepSequence( item.Steps );
             }
 
+            DateTime? nextServiceDate = null;
+
             if( item.ServiceRecords.Count > 0 )
             {
-                item.NextServiceDate = CalculateNextServiceDate( item.ServiceRecords[^1].ActualServiceCompletionDate, item.RecursEvery, item.ServiceTimeframe );
+                nextServiceDate = CalculateNextServiceDate( item.ServiceRecords[^1].ActualServiceCompletionDate, item.RecursEvery, item.ServiceTimeframe );
+                item.NextServiceDate = nextServiceDate;
             }
+
+            if( item.NotificationEventArgsId > 0 )
+            {
+                NotificationEventArgs args = await DbServiceLocator.GetItemAsync<NotificationEventArgs>(item.NotificationEventArgsId);
+
+                args.Active = notificationActive ?? args.Active;
+                args.TimesToRemind = timesToRemind ?? args.TimesToRemind;
+                args.NotifyTime = nextServiceDate ?? args.NotifyTime;
+
+                await LocalNotificationManager.UpdateScheduledNotification( item.NotificationEventArgsId, item.Name, item.NextServiceDate ?? item.FirstServiceDate, advanceNotice ?? 2, advanceNoticeTimeframe ?? (int)Timeframe.Days, true, timesToRemind ?? int.MinValue );
+
+                await DbServiceLocator.UpdateItemAsync( args );
+            }
+
             await DbServiceLocator.UpdateItemAsync( item );
         }
 
@@ -281,7 +297,7 @@ namespace Maintain_it.Helpers
             {
                 DateTime serviceDate = nextServiceDate.Value;
 
-                await LocalNotificationManager.UpdateScheduledNotification( item.NotificationEventArgsId, item.Name, serviceDate, item.AdvanceNotice, item.NoticeTimeframe );
+                await LocalNotificationManager.UpdateScheduledNotification( item.NotificationEventArgsId, item.Name, serviceDate, item.AdvanceNotice, item.NoticeTimeframe, true, int.MinValue );
             }
 
         }

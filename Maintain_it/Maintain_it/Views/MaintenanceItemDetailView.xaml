@@ -11,6 +11,9 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Start Maintenance" Command="{Binding StartMaintenanceCommand}"/>
     </ContentPage.ToolbarItems>
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding BackCommand}"/>
+    </Shell.BackButtonBehavior>
     <ContentPage.Content>
         <StackLayout x:DataType="viewmodels:MaintenanceItemViewModel">
 
@@ -74,34 +77,6 @@
                               Grid.ColumnSpan="2" 
                               Grid.Row="3" />
 
-                    <!-- Next Service Date Label and Picker -->
-                    <!--
-                    <Label Text="Next Service Date:" 
-                           Grid.Column="0" 
-                           Grid.Row="4" 
-                           IsVisible="{Binding IsRecurring}"/>
-
-                    <DatePicker Date="{Binding NextServiceDate}" 
-                                IsEnabled="False" 
-                                IsVisible="{Binding IsRecurring}" 
-                                Grid.Column="1" 
-                                Grid.Row="4" 
-                                Grid.ColumnSpan="2"/>-->
-
-                    <!-- Previous Service Date Label and Picker -->
-                    <!--
-                    <Label Text="Previous Service Date:" 
-                           Grid.Column="0" 
-                           Grid.Row="5" 
-                           IsVisible="{Binding IsRecurring}"/>
-
-                    <DatePicker Date="{Binding PreviousServiceDate}" 
-                                IsEnabled="False" 
-                                IsVisible="{Binding IsRecurring}" 
-                                Grid.Column="1" 
-                                Grid.ColumnSpan="2" 
-                                Grid.Row="5"/>-->
-
                     <!-- Recurrs Every X Label and Input -->
                     <Label Text="Recurs Every:" 
                            Grid.Column="0" 
@@ -131,7 +106,7 @@
 
                     <!-- Reminder Count -->
 
-                    <Entry Text="{Binding MaxReminders}" Keyboard="Numeric"
+                    <Entry Text="{Binding TimesToRemind}" Keyboard="Numeric"
                            Grid.Column="1" Grid.Row="6" 
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"

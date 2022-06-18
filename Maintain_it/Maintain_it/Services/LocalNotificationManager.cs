@@ -75,25 +75,7 @@ namespace Maintain_it.Services
             notificationManager.SendNotification( "Maintain It!", args.Message, args.Id, args.NotifyTime );
         }
 
-        // Called by AndroidNotificationManager on re-boot so that notifications are not lost on restart.
-        public static async Task ReScheduleUnsentNotifications()
-        {
-            List<NotificationEventArgs> notifications = await DbServiceLocator.GetAllItemsAsync<NotificationEventArgs>() as List<NotificationEventArgs>;
-
-            List<ShutdownDateTime> dTs = await DbServiceLocator.GetAllItemsAsync<ShutdownDateTime>() as List<ShutdownDateTime>;
-
-            //We use the CreatedOn property to store the shutdown DateTime. There should only ever be one record in this table because when we set the values at shutdown we just update the record with Id == 1. However for safety sake we grab the last record.
-            ShutdownDateTime dT = dTs.OrderBy(x => x.Id).Last();
-
-            NotificationEventArgs[] unsentNotifications = notifications.Where( x => DateTime.Compare(x.NotifyTime, dT.CreatedOn) > 0).ToArray();
-
-            foreach( NotificationEventArgs notification in unsentNotifications )
-            {
-                ScheduleNotification( null, notification );
-            }
-        }
-
-        public static async Task<int> GetNewScheduledNotification( string name, DateTime serviceDate, int advanceNotice, int noticeTimeframe )
+        public static async Task<int> GetNewScheduledNotification( string name, DateTime serviceDate, int advanceNotice, int noticeTimeframe, int timesToRemind )
         {
             DateTime notifyDate = CalculateNotifyDate( serviceDate, advanceNotice, noticeTimeframe );
 
@@ -107,7 +89,7 @@ namespace Maintain_it.Services
                 NotifyTime = notifyDate,
                 Active = true,
                 TimesReminded = 0,
-                TimesToRemind = Config.MaxReminders,
+                TimesToRemind = timesToRemind,
                 CreatedOn = DateTime.UtcNow
             };
 
@@ -147,7 +129,7 @@ namespace Maintain_it.Services
             };
         }
 
-        public static async Task UpdateScheduledNotification( int notificationId, string name, DateTime serviceDate, int advanceNotice, int noticeTimeframe )
+        public static async Task UpdateScheduledNotification( int notificationId, string name, DateTime serviceDate, int advanceNotice, int noticeTimeframe, bool isActive, int maxReminders )
         {
             NotificationEventArgs notification = await DbServiceLocator.GetItemAsync<NotificationEventArgs>(notificationId);
 
@@ -159,7 +141,8 @@ namespace Maintain_it.Services
             notification.Message = message;
             notification.NotifyTime = notifyDate;
             notification.TimesReminded = 0;
-            notification.Active = true;
+            notification.TimesToRemind = maxReminders == int.MinValue ? notification.TimesToRemind : maxReminders;
+            notification.Active = isActive;
 
             await DbServiceLocator.UpdateItemAsync( notification );
         }
