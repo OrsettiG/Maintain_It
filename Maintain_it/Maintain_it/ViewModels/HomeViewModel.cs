@@ -72,7 +72,7 @@ namespace Maintain_it.ViewModels
 
         private async Task Add()
         {
-            await Shell.Current.GoToAsync( nameof( MaintenanceItemDetailView ) );
+            await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}?{RoutingPath.NewItem}=true" );
         }
         
         
@@ -178,7 +178,7 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case nameof( Refresh ):
+                case RoutingPath.Refresh:
                     await Refresh();
                     break;
             }

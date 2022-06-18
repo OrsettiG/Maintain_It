@@ -359,7 +359,7 @@ namespace Maintain_it.ViewModels
             }
 
             ClearData();
-            await Shell.Current.GoToAsync( $"//{nameof( HomeView )}?Refresh=true" );
+            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
         }
 
         private async Task<List<Step>> CreateStepList()
@@ -449,13 +449,6 @@ namespace Maintain_it.ViewModels
 
         private async Task<StepViewModel> CreateNewStepViewModel( int stepId )
         {
-            //StepViewModel vm = await MainThread.InvokeOnMainThreadAsync(() =>
-            //    new StepViewModel(this)
-            //    {
-            //        Step = step
-            //    }
-            //);
-
             StepViewModel vm = new StepViewModel(this);
 
             await vm.Init( stepId );
@@ -483,9 +476,12 @@ namespace Maintain_it.ViewModels
             PreviousServiceCompleted = TimesServiced > 0 && item.ServiceRecords[^1].ServiceCompleted;
             NotifyOfNextServiceDate = item.NotifyOfNextServiceDate;
 
-            stepIds.AddRange( GetStepIds() );
+            if( item.Steps != null || item.Steps.Count > 0 )
+            {
+                stepIds.AddRange( GetStepIds() );
+                _ = Task.Run( async () => await RefreshSteps() );
+            }
 
-            _ = Task.Run( async () => await RefreshSteps() );
         }
 
         private IEnumerable<int> GetStepIds()
@@ -567,7 +563,7 @@ namespace Maintain_it.ViewModels
             if( item != null )
             {
                 await MaintenanceItemManager.DeleteItem( item.Id );
-                _homeViewModel.RefreshCommand.Execute( null );
+                await Shell.Current.GoToAsync( $"{nameof( HomeView )}?{RoutingPath.Refresh}=true" );
             }
         }
 

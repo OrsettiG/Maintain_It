@@ -40,7 +40,7 @@ namespace Maintain_it.Helpers
                 item.Steps = await UpdateStepSequence( stepIds );
 
             int id = await DbServiceLocator.AddItemAndReturnIdAsync( item );
-            _ = await InsertServiceRecord( id );
+            //_ = await InsertServiceRecord( id );
             return id;
 
         }
@@ -418,17 +418,20 @@ namespace Maintain_it.Helpers
         {
             MaintenanceItem item = await GetItemRecursiveAsync(id);
 
-            if( item.Steps != null )
+            if( item.Steps != null && item.Steps.Count > 0 )
             {
                 await StepManager.DeleteItemRange( item.Steps.GetIds() );
             }
 
-            if( item.ServiceRecords != null )
+            if( item.ServiceRecords != null && item.ServiceRecords.Count > 0 )
             {
                 await DeleteServiceRecordRange( item.ServiceRecords );
             }
-
-            await DbServiceLocator.DeleteItemAsync<NotificationEventArgs>( item.NotificationEventArgsId );
+            // PICK UP HERE: Something is causing a null reference error after this point.
+            if( item.NotificationEventArgsId > 0 )
+            {
+                await DbServiceLocator.DeleteItemAsync<NotificationEventArgs>( item.NotificationEventArgsId );
+            }
 
             await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
         }
