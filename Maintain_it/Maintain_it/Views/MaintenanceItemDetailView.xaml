@@ -23,7 +23,16 @@
                        VerticalOptions="Start" HorizontalOptions="FillAndExpand"
                        HorizontalTextAlignment="Center"
                        IsSpellCheckEnabled="True"
-                       IsTextPredictionEnabled="True"/>
+                       IsTextPredictionEnabled="True"
+                       ClearButtonVisibility="WhileEditing">
+                    <Entry.Keyboard>
+                        <Keyboard x:FactoryMethod="Create">
+                            <x:Arguments>
+                                <KeyboardFlags>CapitalizeWord,Spellcheck,Suggestions</KeyboardFlags>
+                            </x:Arguments>
+                        </Keyboard>
+                    </Entry.Keyboard>
+                </Entry>
             </StackLayout>
             <ScrollView Margin="10" Orientation="Vertical" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
                 <Grid Padding="3">
@@ -57,6 +66,9 @@
                             MaxLength="250"
                             HeightRequest="125"
                             VerticalOptions="End"
+                            Keyboard="Text"
+                            IsSpellCheckEnabled="True"
+                            IsTextPredictionEnabled="True"
                             />
 
                     <!-- First Service Date Label and Picker -->

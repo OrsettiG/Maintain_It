@@ -86,7 +86,6 @@ namespace Maintain_it.ViewModels
         private async Task Notify()
         {
             await LocalNotificationManager.NotifyOfScheduledWork();
-            //NextNodeId = await LocalNotificationManager.GetNewScheduledNotification( "TEST", DateTime.Now.AddSeconds( 120 ), 1, (int)Timeframe.Minutes );
         }
 
         private AsyncCommand updateStepCommand;
