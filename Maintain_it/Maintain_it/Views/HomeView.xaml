@@ -86,9 +86,9 @@
                                                     <Label Text="Next Service Date:"
                                                            VerticalOptions="Center"/>
 
-                                                    <Label Text="{Binding NextServiceDate.DayOfWeek}" VerticalOptions="Center" />
+                                                    <Label Text="{Binding FirstServiceDate.DayOfWeek}" VerticalOptions="Center" />
 
-                                                    <Label Text="{Binding NextServiceDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                                    <Label Text="{Binding FirstServiceDate, StringFormat='{0:MMM dd, yyyy}'}"
                                                            VerticalOptions="Center"/>
                                                 </StackLayout>
                                             </Frame>

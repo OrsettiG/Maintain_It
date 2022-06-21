@@ -21,6 +21,9 @@ namespace Maintain_it.Helpers
         /// </summary>
         public const string Confirmation = "Ok";
 
+        /// <summary>
+        /// "Cancel"
+        /// </summary>
         public const string Cancel = "Cancel";
 
         /// <summary>
@@ -33,12 +36,44 @@ namespace Maintain_it.Helpers
         /// </summary>
         public const string DatabaseErrorMessage = "Oops! Looks like something went wrong saving that. Make sure all the data is correct and try again.";
 
+        /// <summary>
+        /// "Discard Changes?"
+        /// </summary>
         public const string DiscardChangesTitle = "Discard Changes?";
 
+        /// <summary>
+        /// "Would you like to save your changes, or discard them?"
+        /// </summary>
         public const string SaveOrDiscardChangesMessage = "Would you like to save your changes, or discard them?";
 
+        /// <summary>
+        /// "Discard"
+        /// </summary>
         public const string Discard = "Discard";
 
+        /// <summary>
+        /// "Save"
+        /// </summary>
         public const string Save = "Save";
+
+        ///<summary>
+        ///"Set Project Active?"
+        /// </summary>
+        public const string SetProjectActive = "Set Project Active?";
+
+        /// <summary>
+        /// "This project is currently not active and will not show up in your "Upcoming Projects". Would you like to mark it active?"
+        /// </summary>
+        public const string ProjectActiveStateMessage = "This project is currently not active and will not show up in your \"Upcoming Projects\". Would you like to mark it active?";
+
+        /// <summary>
+        /// "Yes"
+        /// </summary>
+        public const string Yes = "Yes";
+
+        /// <summary>
+        /// "No"
+        /// </summary>
+        public const string No = "No";
     }
 }

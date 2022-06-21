@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Maintain_it.Models;
+
 namespace Maintain_it.Helpers
 {
     public class Config
@@ -34,8 +36,27 @@ namespace Maintain_it.Helpers
         #endregion
 
         #region User Definable Settings
-        private static int maxReminders = 3;
-        public static int MaxReminders { get => maxReminders; set => maxReminders = value; }
+        private static int defaultReminders = 3;
+        public static int DefaultReminders 
+        { 
+            get => defaultReminders; 
+            set => defaultReminders = value; 
+        }
+
+        private static int defaultAdvanceNotice = 3;
+        public static int DefaultAdvanceNotice 
+        { 
+            get => defaultAdvanceNotice; 
+            set => defaultAdvanceNotice = value; 
+        }
+
+        private static Timeframe defaultNoticeTimeframe = Timeframe.Days;
+        public static Timeframe DefaultNoticeTimeframe
+        {
+            get => defaultNoticeTimeframe;
+            set => defaultNoticeTimeframe = value;
+        }
+
         #endregion
     }
 }

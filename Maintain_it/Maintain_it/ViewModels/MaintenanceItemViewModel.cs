@@ -68,25 +68,22 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref firstServiceDate, value );
         }
 
-        private DateTime previousServiceDate;
-        public DateTime PreviousServiceDate
+        private TimeSpan serviceTime = new TimeSpan( 8, 0, 0 );
+        public TimeSpan ServiceTime
         {
-            get => previousServiceDate;
-            set => SetProperty( ref previousServiceDate, value );
-        }
-
-        private DateTime nextServiceDate = DateTime.UtcNow;
-        public DateTime NextServiceDate
-        {
-            get => nextServiceDate;
-            set => SetProperty( ref nextServiceDate, value );
+            get => serviceTime;
+            set => SetProperty( ref serviceTime, value );
         }
 
         private bool isRecurring = false;
         public bool IsRecurring
         {
             get => isRecurring;
-            set => SetProperty( ref isRecurring, value );
+            set
+            {
+                _ = SetProperty( ref isRecurring, value );
+                HasServiceLimit = false;
+            }
         }
 
         private int recursEvery;
@@ -96,11 +93,25 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref recursEvery, ( value! > 0 && value! < 1000 ) ? value : 1 );
         }
 
-        private Timeframe frequency = Timeframe.Months;
-        public Timeframe Frequency
+        private Timeframe serviceTimeframe = Timeframe.Months;
+        public Timeframe ServiceTimeframe
         {
-            get => frequency;
-            set => SetProperty( ref frequency, value );
+            get => serviceTimeframe;
+            set => SetProperty( ref serviceTimeframe, value );
+        }
+
+        private bool hasServiceLimit;
+        public bool HasServiceLimit
+        {
+            get => hasServiceLimit;
+            set => SetProperty( ref hasServiceLimit, value );
+        }
+
+        private int timesToRepeatService;
+        public int TimesToRepeatService
+        {
+            get => timesToRepeatService;
+            set => SetProperty( ref timesToRepeatService, value );
         }
 
         private int timesServiced;
@@ -124,13 +135,6 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref notifyOfNextServiceDate, value );
         }
 
-        private bool notificationActive = true;
-        public bool NotificationActive
-        {
-            get => notificationActive;
-            set => SetProperty( ref notificationActive, value );
-        }
-
         private Timeframe noticeTimeframe = Timeframe.Days;
         public Timeframe NoticeTimeframe
         {
@@ -145,7 +149,7 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref advanceNotice, value );
         }
 
-        private int maxReminders = Config.MaxReminders;
+        private int maxReminders = Config.DefaultReminders;
         public int TimesToRemind
         {
             get => maxReminders;
@@ -221,11 +225,11 @@ namespace Maintain_it.ViewModels
                     await Add();
                     break;
                 case Alerts.Discard:
+                    // Delete sends the user back to their previous page, so we only need to call GoToAsync if they are discarding changes to an existing item
                     if( editState == EditState.NewItem )
-                    {
                         await Delete();
-                    }
-                    await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+                    else
+                        await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
                     break;
                 default:
                     break;
@@ -348,14 +352,20 @@ namespace Maintain_it.ViewModels
 
         private async Task Add()
         {
+            bool isActive = true;
+
+            if( item.IsActive != true )
+            {
+                isActive = Alerts.Yes == await Shell.Current.DisplayPromptAsync( Alerts.SetProjectActive, Alerts.ProjectActiveStateMessage, accept: Alerts.Yes, cancel: Alerts.No );
+            }
 
             if( item != null )
             {
-                await MaintenanceItemManager.UpdateProperties( item.Id, name: name, comment: comment, firstServiceDate: firstServiceDate, recursEvery: recursEvery, timeframe: (int)frequency, notifyOfNextServiceDate: notifyOfNextServiceDate, advanceNotice: AdvanceNotice, advanceNoticeTimeframe: (int)NoticeTimeframe, timesToRemind: TimesToRemind, steps: stepIds );
+                await MaintenanceItemManager.UpdateProperties( item.Id, name: Name, comment: Comment, firstServiceDate: FirstServiceDate, recursEvery: RecursEvery, timeframe: (int)ServiceTimeframe, hasServiceLimit: HasServiceLimit, timesToRepeatService: TimesToRepeatService, notifyOfNextServiceDate: NotifyOfNextServiceDate, advanceNotice: AdvanceNotice, advanceNoticeTimeframe: (int)NoticeTimeframe, reminders: TimesToRemind, steps: stepIds, isActive: isActive );
             }
             else
             {
-                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, (int)Frequency, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
+                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, true, (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
             }
 
             ClearData();
@@ -368,9 +378,6 @@ namespace Maintain_it.ViewModels
 
             foreach( StepViewModel model in StepViewModels )
             {
-                //await MainThread.InvokeOnMainThreadAsync( () =>
-                //  model.SaveStep() );
-
                 list.Add( model.Step );
             };
 
@@ -379,13 +386,6 @@ namespace Maintain_it.ViewModels
 
         private async Task<StepViewModel> CreateNewStepViewModel( Step step )
         {
-            //StepViewModel vm = await MainThread.InvokeOnMainThreadAsync(() =>
-            //    new StepViewModel(this)
-            //    {
-            //        Step = step
-            //    }
-            //);
-
             StepViewModel vm = new StepViewModel(this);
 
             vm.Init();
@@ -468,10 +468,13 @@ namespace Maintain_it.ViewModels
 
             Name = item.Name;
             Comment = item.Comment;
-            FirstServiceDate = item.FirstServiceDate;
+            FirstServiceDate = item.NextServiceDate ?? item.FirstServiceDate;
             RecursEvery = item.RecursEvery;
-
-            Frequency = (Timeframe)item.ServiceTimeframe;
+            ServiceTimeframe = (Timeframe)item.ServiceTimeframe;
+            TimesToRepeatService = item.TimesToRepeatService;
+            NotifyOfNextServiceDate = item.NotifyOfNextServiceDate;
+            AdvanceNotice = item.AdvanceNotice;
+            NoticeTimeframe = (Timeframe)item.NoticeTimeframe;
             TimesServiced = item.ServiceRecords.Count;
             PreviousServiceCompleted = TimesServiced > 0 && item.ServiceRecords[^1].ServiceCompleted;
             NotifyOfNextServiceDate = item.NotifyOfNextServiceDate;
@@ -503,11 +506,9 @@ namespace Maintain_it.ViewModels
                 Name = string.Empty;
                 Comment = string.Empty;
                 FirstServiceDate = DateTime.UtcNow.ToLocalTime();
-                PreviousServiceDate = DateTime.UtcNow.ToLocalTime();
-                NextServiceDate = DateTime.UtcNow.AddDays( 1 ).ToLocalTime();
                 IsRecurring = false;
                 RecursEvery = 0;
-                Frequency = Timeframe.Months;
+                ServiceTimeframe = Timeframe.Months;
                 TimesServiced = 0;
                 PreviousServiceCompleted = false;
                 NotifyOfNextServiceDate = false;
@@ -563,7 +564,7 @@ namespace Maintain_it.ViewModels
             if( item != null )
             {
                 await MaintenanceItemManager.DeleteItem( item.Id );
-                await Shell.Current.GoToAsync( $"{nameof( HomeView )}?{RoutingPath.Refresh}=true" );
+                await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
             }
         }
 
@@ -593,7 +594,7 @@ namespace Maintain_it.ViewModels
         {
             if( item == null )
             {
-                maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
+                maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, true, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
                 item = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
             }
 

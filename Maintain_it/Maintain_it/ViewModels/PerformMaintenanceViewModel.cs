@@ -35,7 +35,7 @@ namespace Maintain_it.ViewModels
         private ObservableRangeCollection<StepMaterial> stepMaterials;
         public ObservableRangeCollection<StepMaterial> StepMaterials
         {
-            get => stepMaterials;
+            get => stepMaterials ??= new ObservableRangeCollection<StepMaterial>();
             set => SetProperty( ref stepMaterials, value );
         }
 
@@ -145,10 +145,7 @@ namespace Maintain_it.ViewModels
                 return;
 
             Step = await StepManager.GetItemRecursiveAsync( Step.Id );
-            StepViewModel = new StepViewModel()
-            {
-                Step = Step
-            };
+            StepViewModel = new StepViewModel( Step );
 
             StepNumber = Step.Index.ToString();
             // !!! PICK UP HERE !!! Get this viewmodel properly populated and then sort out the addition and subtraction of materials. After that figure out how/what to do when a service is completed.
@@ -193,8 +190,6 @@ namespace Maintain_it.ViewModels
 
                             int stepId = maintenanceItem.Steps.Where( x => x.Index == index ).FirstOrDefault().Id;
                             Step = await StepManager.GetItemRecursiveAsync( stepId );
-
-                            StepViewModel svm = new StepViewModel(Step);
                         }
                     }
 
