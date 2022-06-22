@@ -13,19 +13,43 @@
 
                 <Label Text="Step Name"/>
                 <Entry Text="{Binding Name}"
-                   HorizontalOptions="FillAndExpand" VerticalOptions="Center" MaxLength="30"/>
-                
+                       HorizontalOptions="FillAndExpand" 
+                       VerticalOptions="Center" 
+                       MaxLength="30"
+                       ReturnType="Next"
+                       TabIndex="0">
+                    <!--<Entry.Keyboard>
+                        <Keyboard x:FactoryMethod="Create">
+                            <x:Arguments>
+                                <KeyboardFlags>All</KeyboardFlags>
+                            </x:Arguments>
+                        </Keyboard>
+                    </Entry.Keyboard>-->
+                </Entry>
+
                 <Label Text="Step Description"/>
                 <Editor Text="{Binding Description}"
-                       HorizontalOptions="FillAndExpand" VerticalOptions="Center"
-                       HeightRequest="100" MaxLength="300"/>
-                
+                        HorizontalOptions="FillAndExpand" 
+                        VerticalOptions="Center"
+                        HeightRequest="100" MaxLength="300"
+                        Keyboard="Text"
+                        IsTabStop="True"/>
+
                 <Label Text="Time Required"/>
-                <Entry Keyboard="Numeric" Text="{Binding TimeRequired}" Placeholder="10"
-                   HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
-                
-                <Picker ItemsSource="{Binding timeframes}" SelectedItem="{Binding Timeframe}"
-                HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
+                <Entry Keyboard="Numeric"
+                       Text="{Binding TimeRequired}" 
+                       Placeholder="15"
+                       HorizontalOptions="FillAndExpand" 
+                       VerticalOptions="Center"
+                       ClearButtonVisibility="WhileEditing"
+                       ReturnType="Next"
+                       IsTabStop="True"/>
+
+                <Picker ItemsSource="{Binding timeframes}" 
+                        SelectedItem="{Binding Timeframe}"
+                        HorizontalOptions="FillAndExpand" 
+                        VerticalOptions="Center"
+                        IsTabStop="True"/>
 
                 <!-- Materials Label, CollectionView, and Inputs -->
                 <Label Text="Materials:" TextDecorations="Underline"  FontSize="Title" 
@@ -34,6 +58,15 @@
                     <StackLayout>
                         <Frame>
                             <CollectionView x:Name="StepMaterials" ItemsSource="{Binding StepMaterials}" HeightRequest="150">
+                                <CollectionView.EmptyView>
+                                    <StackLayout>
+                                        <Label Text="Tap the 'Select Materials' button to add some materials to this step!"
+                                               HorizontalOptions="CenterAndExpand"
+                                               VerticalOptions="CenterAndExpand"
+                                               HorizontalTextAlignment="Center"/>
+                                    </StackLayout>
+                                </CollectionView.EmptyView>
+
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="models:StepMaterial">
                                         <Grid>
@@ -46,8 +79,8 @@
                                             <Label Text="{Binding Id}" Grid.Column="0"/>
                                             <Label Text="|" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1"/>
                                             <Label Text="{Binding Name}"
-                            Grid.Column="2"
-                            HorizontalOptions="Start" VerticalOptions="Center"/>
+                        Grid.Column="2"
+                        HorizontalOptions="Start" VerticalOptions="Center"/>
                                         </Grid>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
@@ -64,15 +97,33 @@
                        HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Frame HeightRequest="500">
                     <StackLayout>
-
-                        <Frame>
+                        <StackLayout>
                             <CarouselView x:Name="Notes" 
                                           ItemsSource="{Binding Notes}" 
                                           HeightRequest="300"
-                                          Loop="False">
+                                          Loop="False"
+                                          IndicatorView="NotesIndicatorView"
+                                          ItemsUpdatingScrollMode="KeepLastItemInView">
+                                <CarouselView.ItemsLayout>
+                                    <LinearItemsLayout ItemSpacing="5" 
+                                                       Orientation="Horizontal" 
+                                                       SnapPointsAlignment="Center"
+                                                       SnapPointsType="Mandatory"/>
+                                </CarouselView.ItemsLayout>
+                                <CarouselView.EmptyView>
+                                    <StackLayout>
+                                        <Label Text="Write a note below to add it!"
+                                               HorizontalOptions="CenterAndExpand"
+                                               VerticalOptions="CenterAndExpand"
+                                               HorizontalTextAlignment="Center"/>
+                                    </StackLayout>
+                                </CarouselView.EmptyView>
                                 <CarouselView.ItemTemplate>
                                     <DataTemplate x:DataType="models:Note">
                                         <Frame>
+                                            <Frame.GestureRecognizers>
+                                                <TapGestureRecognizer NumberOfTapsRequired="2"/>
+                                            </Frame.GestureRecognizers>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition/>
@@ -89,13 +140,16 @@
                                 Aspect="AspectFill"
                                 WidthRequest="30" HeightRequest="30" 
                                 Grid.Column="0"/>-->
-                                                <Label Text="{Binding Text}"
-                                                       Grid.Column="0" Grid.ColumnSpan="2"
-                                                       Grid.Row="0"
+                                                <ScrollView Grid.Column="0" Grid.ColumnSpan="2"
+                                                       Grid.Row="0" >
+                                                    <Label Text="{Binding Text}"
                                                        HorizontalOptions="FillAndExpand" 
                                                        VerticalOptions="FillAndExpand"/>
-                                                <Label Text="{Binding CreatedOn}" FontSize="Small"
-                                                       Grid.Column="1" Grid.Row="1"
+                                                </ScrollView>
+                                                <Label Text="{Binding CreatedOn, StringFormat='{0:h:mm tt dd MMMM, yyyy}'}" FontSize="Small"
+                                                       Grid.Column="0" 
+                                                       Grid.ColumnSpan="2"
+                                                       Grid.Row="1"
                                                        HorizontalOptions="End"
                                                        VerticalOptions="End"/>
                                             </Grid>
@@ -103,7 +157,13 @@
                                     </DataTemplate>
                                 </CarouselView.ItemTemplate>
                             </CarouselView>
-                        </Frame>
+
+                            <IndicatorView x:Name="NotesIndicatorView"
+                                            IndicatorColor="{StaticResource Secondary}"
+                                            SelectedIndicatorColor="{StaticResource Cue}"
+                                            HorizontalOptions="Center"
+                                            IndicatorSize="8"/>
+                        </StackLayout>
 
                         <Grid>
                             <Grid.RowDefinitions>
@@ -119,7 +179,8 @@
 
                             <Editor Grid.Row="0" Grid.RowSpan="2"  Grid.Column="0" Grid.ColumnSpan="3"
                                     Placeholder="Enter Note..." Text="{Binding NoteText}"
-                                    IsSpellCheckEnabled="True" MaxLength="300"/>
+                                    IsSpellCheckEnabled="True"
+                                    Keyboard="Text"/>
 
                             <Button Grid.Row="2" Grid.Column="0" 
                                     HeightRequest="55"
@@ -137,7 +198,9 @@
                     </StackLayout>
                 </Frame>
 
-                <Button Text="Add Step" Command="{Binding AddStepCommand}" VerticalOptions="End"/>
+                <Button Text="Add Step" 
+                        Command="{Binding AddStepCommand}"
+                        Margin="0, 10"/>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>

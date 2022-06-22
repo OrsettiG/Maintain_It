@@ -57,7 +57,7 @@ namespace Maintain_it.ViewModels
         private double _timeRequired;
         public double TimeRequired { get => _timeRequired; set => SetProperty( ref _timeRequired, value ); }
 
-        private Timeframe _timeframe;
+        private Timeframe _timeframe = Timeframe.Minutes;
         public Timeframe Timeframe { get => _timeframe; set => SetProperty( ref _timeframe, value ); }
 
         private string _noteText;
@@ -72,6 +72,7 @@ namespace Maintain_it.ViewModels
         private ObservableRangeCollection<StepMaterial> _stepMaterials;
         public ObservableRangeCollection<StepMaterial> StepMaterials { get => _stepMaterials ??= new ObservableRangeCollection<StepMaterial>(); set => SetProperty( ref _stepMaterials, value ); }
 
+        //TODO: Update this (and all others) to use NoteViewModel instead of the Model directly
         private ObservableRangeCollection<Note> notes;
         public ObservableRangeCollection<Note> Notes => notes ??= new ObservableRangeCollection<Note>();
 
@@ -342,7 +343,7 @@ namespace Maintain_it.ViewModels
 
         private async Task TakePhoto()
         {
-            // TODO
+            // TODO Add Camera access code.
         }
 
         #endregion

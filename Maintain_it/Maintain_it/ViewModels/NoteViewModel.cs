@@ -22,9 +22,10 @@ namespace Maintain_it.ViewModels
         public DateTime LastUpdated { get => lastUpdated; private set => SetProperty( ref lastUpdated, value ); }
 
         private DateTime createdOn;
-        public DateTime CreatedOn { get => createdOn; private set => SetProperty( ref createdOn, value ); }
+        public DateTime CreatedOn { get => createdOn.ToLocalTime(); private set => SetProperty( ref createdOn, value ); }
 
-        
+        private Image image;
+        public Image
 
     }
 }

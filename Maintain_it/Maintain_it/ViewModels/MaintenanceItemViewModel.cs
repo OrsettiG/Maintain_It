@@ -645,7 +645,7 @@ namespace Maintain_it.ViewModels
                     }
                     break;
                 case RoutingPath.NewItem:
-                    maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( string.Empty, DateTime.Now, string.Empty );
+                    maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( string.Empty, DateTime.Now, string.Empty, notifyOfNextServiceDate: true );
                     item = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
                     InitData( item );
                     editState = EditState.NewItem;
