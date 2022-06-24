@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -23,94 +26,140 @@ namespace Maintain_it.ViewModels
     {
         public TestViewModel()
         {
-            Console.WriteLine( $"PACKAGE NAME = {AppInfo.PackageName}" );
         }
 
-        private string name;
-        public string Name 
+        private Note note;
+        private byte[] imageData;
+
+        private ObservableRangeCollection<NoteViewModel> noteViewModels;
+        public ObservableRangeCollection<NoteViewModel> NoteViewModels
         {
-            get => name;
-            set => SetProperty(ref name, value);
+            get => noteViewModels ??= new ObservableRangeCollection<NoteViewModel>();
+            set => SetProperty( ref noteViewModels, value );
         }
 
-        private int nextNodeId;
-        public int NextNodeId
+        private ImageSource image;
+        public ImageSource Image
         {
-            get => nextNodeId;
-            set => SetProperty(ref nextNodeId, value);
-        }
-        
-        private int previousNodeId;
-        public int PreviousNodeId
-        {
-            get => previousNodeId;
-            set => SetProperty(ref previousNodeId, value);
-        }
-        
-        
-        private string dbName;
-        public string DbName 
-        {
-            get => dbName;
-            set => SetProperty(ref dbName, value);
+            get => image;
+            set => SetProperty( ref image, value );
         }
 
-        private int dbNextNodeId;
-        public int DbNextNodeId
+        private string noteText;
+        public string NoteText
         {
-            get => dbNextNodeId;
-            set => SetProperty(ref dbNextNodeId, value);
-        }
-        
-        private int dbPreviousNodeId;
-        public int DbPreviousNodeId
-        {
-            get => dbPreviousNodeId;
-            set => SetProperty(ref dbPreviousNodeId, value);
+            get => noteText;
+            set => SetProperty( ref noteText, value );
         }
 
-
-        private Step step;
-        public Step Step
+        private ImageSource databaseImage;
+        public ImageSource DatabaseImage
         {
-            get => step;
-            set => SetProperty( ref step, value );
+            get => databaseImage;
+            set => SetProperty( ref databaseImage, value );
         }
 
-        private AsyncCommand nofityCommand;
-        public ICommand NotifyCommand
+        private string databaseNoteText;
+        public string DatabaseNoteText
         {
-            get => nofityCommand ??= new AsyncCommand( Notify );
+            get => databaseNoteText;
+            set => SetProperty( ref databaseNoteText, value );
         }
 
-        private async Task Notify()
+        // Add Note
+        private AsyncCommand addNoteCommand;
+        public ICommand AddNoteCommand
         {
-            await LocalNotificationManager.NotifyOfScheduledWork();
+            get => addNoteCommand ??= new AsyncCommand( AddNote );
         }
-
-        private AsyncCommand updateStepCommand;
-        public ICommand UpdateStepCommand
+        private async Task AddNote()
         {
-            get => updateStepCommand ??= new AsyncCommand( UpdateStep );
-        }
-
-        private async Task UpdateStep()
-        {
-            Step.Name = Name;
-            Step.NextNodeId = NextNodeId ;
-            Step.PreviousNodeId = PreviousNodeId;
-
-            await DbServiceLocator.UpdateItemAsync( Step );
+            int id = await NoteManager.NewNote( NoteText );
+            if( Image != default )
+            {
+                await NoteManager.AddImageToNote( id, Image );
+            }
             await Refresh();
+        }
+
+        // Take Photo
+        private AsyncCommand takePhotoCommand;
+        public ICommand TakePhotoCommand
+        {
+            get => takePhotoCommand ??= new AsyncCommand( TakePhoto );
+        }
+        private async Task TakePhoto()
+        {
+            if( !MediaPicker.IsCaptureSupported )
+            {
+                await Shell.Current.DisplayAlert( Alerts.Error, Alerts.CameraErrorMessage, Alerts.Confirmation );
+
+                return;
+            }
+
+            FileResult photo = await MediaPicker.CapturePhotoAsync();
+
+            if( photo == null )
+            {
+                return;
+            }
+
+            Stream stream = await photo.OpenReadAsync();
+            MemoryStream memoryStream = new MemoryStream();
+            stream.CopyTo( memoryStream );
+
+            Image = ImageSource.FromStream( () => new MemoryStream( memoryStream.ToArray() ) );
+
+            //stream.Dispose();
+            //memoryStream.Dispose();
+        }
+
+        // Refresh View
+        private AsyncCommand refreshCommand;
+        public ICommand RefreshCommand
+        {
+            get => refreshCommand ??= new AsyncCommand( Refresh );
         }
 
         private async Task Refresh()
         {
-            Step = await DbServiceLocator.GetItemRecursiveAsync<Step>( Step.Id );
+            List<Note> notes = await NoteManager.GetAllItemsAsync();
 
-            DbName = Step.Name;
-            DbNextNodeId = Step.NextNodeId;
-            DbPreviousNodeId = Step.PreviousNodeId;
+            ConcurrentBag<NoteViewModel> vms = new ConcurrentBag<NoteViewModel>();
+
+            ParallelLoopResult parallelLoopResult = Parallel.ForEach( notes, note =>
+            {
+                NoteViewModel vm = new NoteViewModel()
+                {
+                    Text = note.Text,
+                    Image = note.ImageData != default( byte[] )
+                        ? ImageSource.FromStream( () => new MemoryStream( note.ImageData ) )
+                        : note.ImagePath != string.Empty
+                        ? ImageSource.FromFile(note.ImagePath)
+                        : default, // this last option will be a default "no photo" image of some sort.
+                    StepId = note.StepId,
+                    LastUpdated = note.LastUpdated.ToLocalTime(),
+                    CreatedOn = note.CreatedOn.ToLocalTime()
+                };
+
+                vms.Add( vm );
+            });
+
+            if( parallelLoopResult.IsCompleted )
+            {
+
+                NoteViewModels.Clear();
+
+                NoteViewModels.AddRange( vms );
+
+                Image = default;
+                NoteText = string.Empty;
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert( Alerts.Error, Alerts.DatabaseErrorMessage, Alerts.Confirmation );
+            }
         }
+
     }
 }

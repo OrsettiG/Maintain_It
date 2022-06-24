@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+
+using Xamarin.Forms;
 
 namespace Maintain_it.Helpers
 {
@@ -13,21 +17,22 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Creates a new note without an associated <see cref="Step"/> and adds it to the database.
         /// </summary>
-        public static async Task<int> NewNote(  string text, string ImagePath = "", string name = "" )
+        public static async Task<int> NewNote(  string text, string ImagePath = "", string name = "", byte[] imageData = default )
         {
-            return await MakeNoteAndReturnId( name, text, ImagePath );
+            return await MakeNoteAndReturnId( name, text, ImagePath, imageData );
         }
 
         /// <summary>
         /// Creates a new Note, adds it to the Db and returns the Id.
         /// </summary>
-        private static async Task<int> MakeNoteAndReturnId( string name, string text, string ImagePath )
+        private static async Task<int> MakeNoteAndReturnId( string name, string text, string ImagePath, byte[] imageData )
         {
             Note note = new Note()
             {
                 Name = name,
                 Text = text,
                 ImagePath = ImagePath,
+                ImageData = imageData,
                 CreatedOn = DateTime.UtcNow,
                 LastUpdated = DateTime.UtcNow
             };
@@ -53,11 +58,11 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Creates a new note with an associated <see cref="Step"/> and adds it to the database.
         /// </summary>
-        public static async Task<int> NewNoteWithStep( string name, string text, int stepId, string imagePath = "" )
+        public static async Task<int> NewNoteWithStep( string name, string text, int stepId, string imagePath = "", byte[] imageData = default )
         {
             Step step = await DbServiceLocator.GetItemAsync<Step>( stepId );
 
-            Note note = await GetItemAsync( await MakeNoteAndReturnId( name, text, imagePath ) );
+            Note note = await GetItemAsync( await MakeNoteAndReturnId( name, text, imagePath, imageData ) );
 
             await UpdateNoteStep( note, step );
 
@@ -69,7 +74,28 @@ namespace Maintain_it.Helpers
             Note note = await GetItemRecursiveAsync( noteId );
 
             note.ImagePath = imagePath;
+            note.ImageData = default;
 
+            await UpdateItemAsync( note );
+        }
+        
+        public static async Task AddImageToNote( int noteId, ImageSource source )
+        {
+            Note note = await GetItemRecursiveAsync( noteId );
+            byte[] bytes;
+
+            StreamImageSource streamIS = (StreamImageSource)source;
+            CancellationToken cToken = CancellationToken.None;
+            Stream imageStream = await streamIS.Stream(cToken);
+            using( MemoryStream ms = new MemoryStream() )
+            {
+                imageStream.CopyTo( ms );
+                bytes = ms.ToArray();
+            }
+
+            note.ImageData = bytes;
+            note.ImagePath = string.Empty;
+            
             await UpdateItemAsync( note );
         }
 

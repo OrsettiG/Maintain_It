@@ -7,29 +7,61 @@
     <ContentPage.BindingContext>
         <viewmodel:TestViewModel/>
     </ContentPage.BindingContext>
-
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Refresh" Command="{Binding RefreshCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <StackLayout>
             <Label Text="TESTING" 
                    FontSize="Title" TextColor="Red"
                    HorizontalOptions="Center"/>
+
             <Frame>
                 <StackLayout>
-                    <Entry Text="{Binding Name}"/>
-                    <Entry Text="{Binding NextNodeId}" Keyboard="Numeric"/>
-                    <Entry Text="{Binding PreviousNodeId}"/>
+                    <CarouselView ItemsSource="{Binding NoteViewModels}"
+                                  IndicatorView="NotesIndicator"
+                                  Loop="True">
+                        <CarouselView.ItemTemplate>
+                            <DataTemplate>
+                                <StackLayout>
+                                    <Frame>
+                                        <StackLayout>
+                                            <Label Text="{Binding Text}"/>
+                                            <Frame>
+                                                <Image Source="{Binding Image}" Aspect="AspectFit"/>
+                                            </Frame>
+                                            <Label Text="{Binding LastUpdated}"/>
+                                        </StackLayout>
+                                    </Frame>
+                                </StackLayout>
+                            </DataTemplate>
+                        </CarouselView.ItemTemplate>
+                    </CarouselView>
+                    <IndicatorView x:Name="NotesIndicator" 
+                                   IndicatorColor="{StaticResource Secondary}" 
+                                   SelectedIndicatorColor="{StaticResource Cue}"
+                                   IndicatorSize="10"/>
                 </StackLayout>
             </Frame>
 
             <Frame>
                 <StackLayout>
-                    <Label Text="{Binding DbName}"/>
-                    <Label Text="{Binding DbNextNodeId}"/>
-                    <Label Text="{Binding DbPreviousNodeId}"/>
+                    <Label Text="Add"/>
+                    <Frame>
+                        <StackLayout>
+                            <Label Text="Note:"/>
+                            <Entry Text="{Binding NoteText}"/>
+                            <Frame>
+                                <Image Source="{Binding Image}" Aspect="AspectFit"/>
+                            </Frame>
+                            <Button Text="Add Photo" Command="{Binding TakePhotoCommand}"/>
+                        </StackLayout>
+                    </Frame>
                 </StackLayout>
             </Frame>
 
-            <Button Text="Notify" Command="{Binding NotifyCommand}"/>
+            <Button Text="Add Note" Command="{Binding AddNoteCommand}"/>
+            <!--<Button Text="Take Photo" Command="{Binding TakePhotoCommand}"/>-->
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

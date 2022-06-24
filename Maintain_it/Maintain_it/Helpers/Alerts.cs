@@ -75,5 +75,20 @@ namespace Maintain_it.Helpers
         /// "No"
         /// </summary>
         public const string No = "No";
+
+        /// <summary>
+        /// "There was an error accessing the camera. Please ensure that the app has permission and try again."
+        /// </summary>
+        public const string CameraErrorMessage = "There was an error accessing the camera. Please ensure that the app has permission and try again.";
+
+        /// <summary>
+        /// "Replace Image?"
+        /// </summary>
+        public const string ReplaceImageTitle = "Replace Image?";
+
+        /// <summary>
+        /// "This Item already has an image associated with it, are you sure you want to replace it?"
+        /// </summary>
+        public const string ReplaceImageMessage = "This Item already has an image associated with it, are you sure you want to replace it?";
     }
 }

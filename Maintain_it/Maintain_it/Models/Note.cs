@@ -32,6 +32,7 @@ namespace Maintain_it.Models
 #nullable disable
         public string Text { get; set; }
         public string ImagePath { get; set; }
+        public byte[] ImageData { get; set; }
         public DateTime LastUpdated { get; set; }
         public DateTime CreatedOn { get; set; }
 
