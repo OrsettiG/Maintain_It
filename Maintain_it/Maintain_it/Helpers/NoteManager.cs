@@ -75,6 +75,7 @@ namespace Maintain_it.Helpers
 
             note.ImagePath = imagePath;
             note.ImageData = default;
+            note.LastUpdated = DateTime.UtcNow;
 
             await UpdateItemAsync( note );
         }
@@ -95,7 +96,19 @@ namespace Maintain_it.Helpers
 
             note.ImageData = bytes;
             note.ImagePath = string.Empty;
-            
+            note.LastUpdated = DateTime.UtcNow;
+
+            await UpdateItemAsync( note );
+        }
+        
+        public static async Task AddImageToNote( int noteId, byte[] sourceData )
+        {
+            Note note = await GetItemRecursiveAsync( noteId );
+
+            note.ImageData = sourceData;
+            note.ImagePath = string.Empty;
+            note.LastUpdated = DateTime.UtcNow;
+
             await UpdateItemAsync( note );
         }
 
@@ -135,7 +148,7 @@ namespace Maintain_it.Helpers
         {
             Note note = await DbServiceLocator.GetItemRecursiveAsync<Note>( id );
 
-            note.Step ??= await StepManager.GetItemAsync( note.StepId );
+            note.Step = note.StepId < 1 ? null : await StepManager.GetItemAsync( note.StepId ) ?? null;
 
             return note;
         }

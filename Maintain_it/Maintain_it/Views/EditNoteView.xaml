@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
+             x:Class="Maintain_it.Views.EditNoteView"
+             Shell.NavBarIsVisible="False">
+    <ContentPage.BindingContext>
+        <viewmodels:EditNoteViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <Grid Margin="0" Padding="0">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ToggleOverlayVisibilityCommand}"
+                                      NumberOfTapsRequired="1"/>
+            </Grid.GestureRecognizers>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <StackLayout Grid.Row="0"
+                         Grid.RowSpan="2"
+                         HorizontalOptions="FillAndExpand"
+                         VerticalOptions="FillAndExpand"
+                         Margin="0"
+                         Padding="0"
+                         BackgroundColor="{StaticResource Secondary}">
+
+                <Image Source="{Binding Image}"
+                       Aspect="AspectFit"
+                       Rotation="90"
+                       ScaleX="{Binding ScreenDensity}"
+                       ScaleY="{Binding ScreenDensity}"
+                       HorizontalOptions="FillAndExpand"
+                       VerticalOptions="FillAndExpand"
+                       MinimumHeightRequest="{Binding DensityCorrectedScreenHeight}"
+                       MinimumWidthRequest="{Binding DensityCorrectedScreenWidth}"/>
+            </StackLayout>
+
+            <Rectangle IsVisible="{Binding OverlayIsVisible}"
+                       BackgroundColor="{StaticResource Secondary}"
+                       Opacity="0.5"
+                       Grid.Row="0"
+                       Grid.RowSpan="2"
+                       VerticalOptions="Fill"
+                       HorizontalOptions="Fill"/>
+
+            <Frame Grid.Row="1" IsVisible="{Binding OverlayIsVisible}" Opacity="25">
+                <StackLayout>
+                    <Editor Text="{Binding Text}"
+                            VerticalOptions="FillAndExpand"/>
+                </StackLayout>
+            </Frame>
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

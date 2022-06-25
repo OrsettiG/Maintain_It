@@ -20,6 +20,8 @@ namespace Maintain_it
 
             Routing.RegisterRoute( nameof( CreateNewMaterialView ), typeof( CreateNewMaterialView ) );
 
+            Routing.RegisterRoute( nameof( EditNoteView ), typeof( EditNoteView ) );
+
             //MaintenanceItem Routes
             Routing.RegisterRoute( nameof( MaintenanceView ), typeof( MaintenanceView ) );
 

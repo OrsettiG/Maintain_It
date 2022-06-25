@@ -20,6 +20,8 @@ using MvvmHelpers.Commands;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace Maintain_it.ViewModels
 {
     public class TestViewModel : BaseViewModel
@@ -75,6 +77,7 @@ namespace Maintain_it.ViewModels
         private async Task AddNote()
         {
             int id = await NoteManager.NewNote( NoteText );
+
             if( Image != default )
             {
                 await NoteManager.AddImageToNote( id, Image );
@@ -108,7 +111,7 @@ namespace Maintain_it.ViewModels
             MemoryStream memoryStream = new MemoryStream();
             stream.CopyTo( memoryStream );
 
-            Image = ImageSource.FromStream( () => new MemoryStream( memoryStream.ToArray() ) );
+            Image = ImageSource.FromStream( () => memoryStream );
 
             //stream.Dispose();
             //memoryStream.Dispose();
@@ -127,16 +130,17 @@ namespace Maintain_it.ViewModels
 
             ConcurrentBag<NoteViewModel> vms = new ConcurrentBag<NoteViewModel>();
 
-            ParallelLoopResult parallelLoopResult = Parallel.ForEach( notes, note =>
+            ParallelLoopResult parallelLoopResult = Parallel.ForEach( notes, async note =>
             {
-                NoteViewModel vm = new NoteViewModel()
+                NoteViewModel vm = new NoteViewModel( note.Id )
                 {
+
                     Text = note.Text,
                     Image = note.ImageData != default( byte[] )
-                        ? ImageSource.FromStream( () => new MemoryStream( note.ImageData ) )
-                        : note.ImagePath != string.Empty
-                        ? ImageSource.FromFile(note.ImagePath)
-                        : default, // this last option will be a default "no photo" image of some sort.
+                            ? ImageSource.FromStream( () => new MemoryStream( note.ImageData ) )
+                            : note.ImagePath != string.Empty
+                            ? ImageSource.FromFile( note.ImagePath )
+                            : default, // this last option will be a default "no photo" image of some sort.
                     StepId = note.StepId,
                     LastUpdated = note.LastUpdated.ToLocalTime(),
                     CreatedOn = note.CreatedOn.ToLocalTime()
@@ -150,7 +154,7 @@ namespace Maintain_it.ViewModels
 
                 NoteViewModels.Clear();
 
-                NoteViewModels.AddRange( vms );
+                NoteViewModels.AddRange( vms.OrderByDescending( x => x.LastUpdated ) );
 
                 Image = default;
                 NoteText = string.Empty;

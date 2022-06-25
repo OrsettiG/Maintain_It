@@ -30,9 +30,13 @@
                                             <Frame>
                                                 <Image Source="{Binding Image}" Aspect="AspectFit"/>
                                             </Frame>
-                                            <Label Text="{Binding LastUpdated}"/>
+                                            <Label Text="{Binding LastUpdated, StringFormat='Updated: {0:h:mm tt} on {0:dd MMMM, yyyy}' }" 
+                                                   FontSize="Micro"
+                                                   HorizontalOptions="End"/>
                                         </StackLayout>
                                     </Frame>
+                                    <Button Text="Edit Note"
+                                            Command="{Binding EditNoteCommand}"/>
                                 </StackLayout>
                             </DataTemplate>
                         </CarouselView.ItemTemplate>
