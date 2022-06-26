@@ -50,7 +50,7 @@ namespace Maintain_it.Droid
 
         public override bool OnStartJob( JobParameters jobParams )
         {
-            LocalNotificationManager.Log( "Running Notification Job Service" );
+            LocalNotificationManager.Log( " !!!!!!!!!!!!!!! Running Notification Job Service !!!!!!!!!!!!!!!" );
 
             _ = Task.Run( async () =>
             {
