@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -10,6 +11,7 @@ using Maintain_it.Models;
 
 using MvvmHelpers.Commands;
 
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
@@ -81,6 +83,89 @@ namespace Maintain_it.ViewModels
         {
             OverlayIsVisible = !OverlayIsVisible;
         }
+
+        private AsyncCommand replacePhotoCommand;
+        public ICommand ReplacePhotoCommand
+        {
+            get => replacePhotoCommand ??= new AsyncCommand( ReplacePhoto );
+        }
+
+        private async Task ReplacePhoto()
+        {
+            if( !MediaPicker.IsCaptureSupported )
+            {
+                await Shell.Current.DisplayAlert( Alerts.Error, Alerts.CameraErrorMessage, Alerts.Confirmation );
+
+                return;
+            }
+
+            if( Image != null )
+            {
+                bool intent = await Shell.Current.DisplayAlert( Alerts.ReplaceImageTitle, Alerts.ReplaceImageMessage, Alerts.Yes, Alerts.Cancel );
+                switch( intent )
+                {
+                    case true:
+                        break;
+                    case false:
+                        return;
+                }
+            }
+
+            FileResult photo = await MediaPicker.CapturePhotoAsync();
+
+            if( photo == null )
+            {
+                return;
+            }
+
+            byte[] imageData;
+
+            using( Stream stream = await photo.OpenReadAsync() )
+            using( MemoryStream mStream = new MemoryStream() )
+            {
+                stream.CopyTo( mStream );
+
+                imageData = mStream.ToArray();
+                Image = ImageSource.FromStream( () => new MemoryStream( imageData ) );
+            };
+        }
+
+        private AsyncCommand saveCommand;
+        public ICommand SaveCommand
+        {
+            get => saveCommand ??= new AsyncCommand( Save );
+        }
+
+        private async Task Save()
+        {
+            byte[] imageData = await ConvertImageToBytes();
+            await NoteManager.UpdateItemAsync( NoteId, Text, imageData );
+            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+        }
+
+        private AsyncCommand backCommand;
+        public ICommand BackCommand
+        {
+            get => backCommand ??= new AsyncCommand( Back );
+        }
+
+        private async Task Back()
+        {
+            string choice = await Shell.Current.DisplayActionSheet( Alerts.DiscardChangesTitle, Alerts.Cancel, null, Alerts.Discard, Alerts.Save );
+
+            switch( choice )
+            {
+                case Alerts.Save:
+                    await Save();
+                    break;
+                case Alerts.Discard:
+                    await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+                    break;
+                default:
+                    break;
+            }
+        }
+
         #endregion
 
         #region METHODS
@@ -104,6 +189,18 @@ namespace Maintain_it.ViewModels
         {
             NoteId = id;
             await Refresh();
+        }
+
+        private async Task<byte[]> ConvertImageToBytes()
+        {
+            StreamImageSource streamIS = (StreamImageSource)Image;
+            CancellationToken cToken = CancellationToken.None;
+
+            using Stream imageStream = await streamIS.Stream( cToken );
+            using MemoryStream ms = new MemoryStream();
+            imageStream.CopyTo( ms );
+            byte[] bytes = ms.ToArray();
+            return bytes;
         }
 
         private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )

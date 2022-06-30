@@ -2,6 +2,11 @@
 
 namespace Maintain_it.Helpers.FontAwesome
 {
+    public static partial class Config
+    {
+        public const string FontFamilySolid = "FA-Solid";
+    }
+
     /// <summary>
     /// The unicode values for all FontAwesome icons.
     /// <para/>

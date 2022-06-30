@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.ViewModels;
 
 using Xamarin.Forms;
 
@@ -17,7 +18,7 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Creates a new note without an associated <see cref="Step"/> and adds it to the database.
         /// </summary>
-        public static async Task<int> NewNote(  string text, string ImagePath = "", string name = "", byte[] imageData = default )
+        public static async Task<int> NewNote( string text, string ImagePath = "", string name = "", byte[] imageData = default )
         {
             return await MakeNoteAndReturnId( name, text, ImagePath, imageData );
         }
@@ -69,6 +70,25 @@ namespace Maintain_it.Helpers
             return note.Id;
         }
 
+        public static async Task AddStepToNote( int noteId, int stepId )
+        {
+            Note note = await GetItemAsync(noteId);
+            Step step = await StepManager.GetItemRecursiveAsync( stepId );
+            
+            if( step != null )
+            {
+                if( !step.Notes.GetIds().Contains(noteId) )
+                {
+                    step.Notes.Add(note);
+                    IEnumerable<int> stepNoteIds = step.Notes.GetIds();
+                }
+
+                note.Step = step;
+            }
+            
+            StepManager.UpdateItemAsync()
+        }
+
         public static async Task AddImageToNote( int noteId, string imagePath )
         {
             Note note = await GetItemRecursiveAsync( noteId );
@@ -79,28 +99,32 @@ namespace Maintain_it.Helpers
 
             await UpdateItemAsync( note );
         }
-        
+
         public static async Task AddImageToNote( int noteId, ImageSource source )
         {
             Note note = await GetItemRecursiveAsync( noteId );
             byte[] bytes;
 
-            StreamImageSource streamIS = (StreamImageSource)source;
-            CancellationToken cToken = CancellationToken.None;
-            Stream imageStream = await streamIS.Stream(cToken);
-            using( MemoryStream ms = new MemoryStream() )
+            if( source != null )
             {
-                imageStream.CopyTo( ms );
-                bytes = ms.ToArray();
+                StreamImageSource streamIS = (StreamImageSource)source;
+                CancellationToken cToken = CancellationToken.None;
+
+                using( Stream imageStream = await streamIS.Stream( cToken ) )
+                using( MemoryStream ms = new MemoryStream() )
+                {
+                    imageStream.CopyTo( ms );
+                    bytes = ms.ToArray();
+                }
+
+                note.ImageData = bytes;
+                note.ImagePath = string.Empty;
+                note.LastUpdated = DateTime.UtcNow;
+
+                await UpdateItemAsync( note );
             }
-
-            note.ImageData = bytes;
-            note.ImagePath = string.Empty;
-            note.LastUpdated = DateTime.UtcNow;
-
-            await UpdateItemAsync( note );
         }
-        
+
         public static async Task AddImageToNote( int noteId, byte[] sourceData )
         {
             Note note = await GetItemRecursiveAsync( noteId );
@@ -116,7 +140,19 @@ namespace Maintain_it.Helpers
         {
             await DbServiceLocator.UpdateItemAsync( note );
         }
+#nullable enable
+        public static async Task UpdateItemAsync( int noteId, string? text = null, byte[]? imageData = null, string? imagePath = null )
+        {
+            Note note = await GetItemAsync(noteId);
 
+            note.Text = text ?? note.Text;
+            note.ImageData = imageData ?? note.ImageData;
+            note.ImagePath = imagePath ?? note.ImagePath;
+            note.LastUpdated = DateTime.UtcNow;
+
+            await UpdateItemAsync( note );
+        }
+#nullable disable
         /// <summary>
         /// Not Implemented
         /// </summary>
@@ -137,6 +173,35 @@ namespace Maintain_it.Helpers
         internal static Task<List<Note>> GetItemRangeAsync( IEnumerable<int> noteIds )
         {
             throw new NotImplementedException();
+        }
+
+
+        public static async Task<NoteViewModel> GetItemAsViewModelAsync( int id )
+        {
+            Note note = await GetItemAsync(id);
+
+            // Process the image stuff on another thread so that the UI doesn't freeze. Maybe. Hopefully. I think...
+            NoteViewModel vm = await Task.Run( () =>
+            {
+                NoteViewModel vm = new NoteViewModel();
+                vm.Init( note );
+
+                return vm;
+            } );
+
+            return vm;
+        }
+
+        public static async Task<IEnumerable<NoteViewModel>> GetItemRangeAsViewModelsAsync( IEnumerable<int> ids )
+        {
+            List<NoteViewModel> vms = new List<NoteViewModel>();
+
+            foreach( int id in ids )
+            {
+                vms.Add( await GetItemAsViewModelAsync( id ) );
+            }
+
+            return vms;
         }
 
         /// <summary>

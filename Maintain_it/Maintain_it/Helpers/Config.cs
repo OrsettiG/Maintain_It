@@ -28,14 +28,21 @@ namespace Maintain_it.Helpers
         /// </summary>
         public enum NotificationActions { REMIND_ME_LATER, DO_NOT_REMIND_ME }
 
+        /// <summary>
+        /// User selectable options for the time of day they want notifications to be scheduled for.
+        /// </summary>
+        public enum NotificationReminderWindow { Morning, Afternoon, Evening }
+
         #region Constants
         public const string TitleKey = "title";
         public const string MessageKey = "message";
         public const string NotificationIdKey = "notificationId";
         public const string MessageIdKey = "messageId";
+        public const string FontAwesomeSolid = "FA-Solid";
         #endregion
 
         #region User Definable Settings
+
         private static int defaultReminders = 3;
         public static int DefaultReminders 
         { 
@@ -55,6 +62,34 @@ namespace Maintain_it.Helpers
         {
             get => defaultNoticeTimeframe;
             set => defaultNoticeTimeframe = value;
+        }
+
+        private static NotificationReminderWindow notificationWindow = NotificationReminderWindow.Morning;
+        public static NotificationReminderWindow NotificationWindow
+        {
+            get => notificationWindow;
+            set => notificationWindow = value;
+        }
+
+        public static TimeSpan DefaultReminderTime
+        {
+            get
+            {
+                return NotificationWindow switch
+                {
+                    NotificationReminderWindow.Afternoon => new TimeSpan( 12, 0, 0 ),
+                    NotificationReminderWindow.Evening => new TimeSpan( 17, 0, 0 ),
+                    _ => new TimeSpan( 7, 0, 0 ),
+                };
+            }
+        }
+
+        public static DateTime DefaultServiceDateTime
+        {
+            get
+            {
+                return DateTime.Today.AddDays( 1 ).AddHours( DefaultReminderTime.Hours ).AddMinutes( DefaultReminderTime.Minutes );
+            }
         }
 
         #endregion

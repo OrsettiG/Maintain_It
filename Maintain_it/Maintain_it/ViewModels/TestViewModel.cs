@@ -107,14 +107,14 @@ namespace Maintain_it.ViewModels
                 return;
             }
 
-            Stream stream = await photo.OpenReadAsync();
-            MemoryStream memoryStream = new MemoryStream();
-            stream.CopyTo( memoryStream );
+            using( Stream stream = await photo.OpenReadAsync() )
+            using( MemoryStream mStream = new MemoryStream() )
+            {
+                stream.CopyTo( mStream );
 
-            Image = ImageSource.FromStream( () => memoryStream );
-
-            //stream.Dispose();
-            //memoryStream.Dispose();
+                imageData = mStream.ToArray();
+                Image = ImageSource.FromStream( () => new MemoryStream( imageData ) );
+            };
         }
 
         // Refresh View
@@ -132,10 +132,14 @@ namespace Maintain_it.ViewModels
 
             ParallelLoopResult parallelLoopResult = Parallel.ForEach( notes, async note =>
             {
+                
+                using MemoryStream mStream = new MemoryStream();
                 NoteViewModel vm = new NoteViewModel( note.Id )
                 {
 
                     Text = note.Text,
+
+
                     Image = note.ImageData != default( byte[] )
                             ? ImageSource.FromStream( () => new MemoryStream( note.ImageData ) )
                             : note.ImagePath != string.Empty
@@ -147,6 +151,7 @@ namespace Maintain_it.ViewModels
                 };
 
                 vms.Add( vm );
+
             });
 
             if( parallelLoopResult.IsCompleted )
@@ -162,6 +167,16 @@ namespace Maintain_it.ViewModels
             else
             {
                 await Shell.Current.DisplayAlert( Alerts.Error, Alerts.DatabaseErrorMessage, Alerts.Confirmation );
+            }
+        }
+
+        private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
+        {
+            switch( kvp.Key )
+            {
+                case RoutingPath.Refresh:
+                    await Refresh();
+                    break;
             }
         }
 

@@ -85,21 +85,17 @@ namespace Maintain_it.Droid
     {
         public override void OnReceive( Context context, Intent intent )
         {
-
-            LocalNotificationManager.Log( "BOOT RECIEVER: ON RECIEVE START " );
-
             // Get the JobScheduler
             JobScheduler jobScheduler = (JobScheduler)context.GetSystemService(Context.JobSchedulerService);
 
             // Make sure the service is not already running
-            if( jobScheduler.GetPendingJob( (int)Config.JobServiceIds.Notification ) == null )
+            if( jobScheduler.GetPendingJob( (int)JobServiceIds.Notification ) == null )
             {
-                LocalNotificationManager.Log( "BOOT RECIEVER: STARTING NOTIFICATION SERVICE" );
                 // Create our Notification Service with the Notification Id so that next time we start the app we can verify that the service is still running.
-                JobInfo.Builder builder = context.CreateJobBuilderUsingJobId<NotificationJobService>((int)Config.JobServiceIds.Notification);
+                JobInfo.Builder builder = context.CreateJobBuilderUsingJobId<NotificationJobService>((int)JobServiceIds.Notification);
 
                 // Set the service to run every 12 hours and persist through restarts
-                _ = builder.SetPeriodic( (int)Config.MilliTimeIntervals.Hour * 12, (int)Config.MilliTimeIntervals.Hour ).SetPersisted( true );
+                _ = builder.SetPeriodic( (int)MilliTimeIntervals.Minute, (int)MilliTimeIntervals.Hour );
 
                 // Build the JobInfo Object that tells the service how and when to run.
                 JobInfo jobInfo = builder.Build();
@@ -107,12 +103,6 @@ namespace Maintain_it.Droid
                 // Start the service
                 _ = jobScheduler.Schedule( jobInfo );
             }
-            else
-            {
-                LocalNotificationManager.Log( "BOOT RECIEVER: NOTIFICATION SERVICE ALREADY RUNNING" );
-            }
-
-            LocalNotificationManager.Log( "BOOT RECIEVER: ON RECIEVE COMPLETED" );
         }
     }
 }

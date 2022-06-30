@@ -15,9 +15,9 @@ namespace Maintain_it.Helpers
         {
             MaintenanceItem item = new MaintenanceItem()
             {
-                Name = name == "" ? "New Project" : name,
-                FirstServiceDate = firstServiceDate,
-                NextServiceDate = CalculateNextServiceDate( firstServiceDate, recursEvery, serviceTimeframe ),
+                Name = name,
+                FirstServiceDate = Config.DefaultServiceDateTime,
+                NextServiceDate = CalculateNextServiceDate( Config.DefaultServiceDateTime, recursEvery, serviceTimeframe ),
                 Comment = comment,
                 RecursEvery = recursEvery,
                 ServiceTimeframe = serviceTimeframe,
@@ -35,7 +35,7 @@ namespace Maintain_it.Helpers
 
             if( notifyOfNextServiceDate )
             {
-                item.NotificationEventArgsId = await LocalNotificationManager.GetNewScheduledNotification( item.Name, firstServiceDate, advanceNotice, noticeTimeframe, timesToRemind );
+                item.NotificationEventArgsId = await LocalNotificationManager.GetNewScheduledNotification( item.Name, Config.DefaultServiceDateTime, advanceNotice, noticeTimeframe, timesToRemind );
             }
 
             if( stepIds != null )
@@ -262,11 +262,11 @@ namespace Maintain_it.Helpers
                 }
                 else
                 {
-                    item.NotificationEventArgsId = await LocalNotificationManager.GetNewScheduledNotification( 
+                    item.NotificationEventArgsId = await LocalNotificationManager.GetNewScheduledNotification(
                         item.Name,
                         item.FirstServiceDate,
-                        advanceNotice ?? Config.DefaultAdvanceNotice, 
-                        advanceNoticeTimeframe ?? (int)Config.DefaultNoticeTimeframe, 
+                        advanceNotice ?? Config.DefaultAdvanceNotice,
+                        advanceNoticeTimeframe ?? (int)Config.DefaultNoticeTimeframe,
                         reminders ?? int.MinValue );
                 }
             }

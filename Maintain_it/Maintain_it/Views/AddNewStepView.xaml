@@ -119,12 +119,28 @@
                                     </StackLayout>
                                 </CarouselView.EmptyView>
                                 <CarouselView.ItemTemplate>
-                                    <DataTemplate x:DataType="models:Note">
+                                    <DataTemplate x:DataType="viewmodels:NoteViewModel">
                                         <Frame>
                                             <Frame.GestureRecognizers>
                                                 <TapGestureRecognizer NumberOfTapsRequired="2"/>
                                             </Frame.GestureRecognizers>
-                                            <Grid>
+
+                                            <StackLayout>
+                                                <Frame>
+                                                    <StackLayout>
+                                                        <Label Text="{Binding Text}"/>
+                                                        <Frame>
+                                                            <Image Source="{Binding Image}" Aspect="AspectFit"/>
+                                                        </Frame>
+                                                        <Label Text="{Binding LastUpdated, StringFormat='Updated: {0:h:mm tt} on {0:dd MMMM, yyyy}' }" 
+                                                   FontSize="Micro"
+                                                   HorizontalOptions="End"/>
+                                                    </StackLayout>
+                                                </Frame>
+                                                <Button Text="Edit Note"
+                                            Command="{Binding EditNoteCommand}"/>
+                                            </StackLayout>
+                                            <!--<Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition/>
                                                     <ColumnDefinition/>
@@ -134,12 +150,12 @@
                                                     <RowDefinition Height="25"/>
                                                 </Grid.RowDefinitions>
 
-                                                <!-- TODO: Add photo capture, save, and retrieval to ViewModel using Xamarin.Essentials MediaPicker and figure out UI-->
+                                                --><!-- TODO: Add photo capture, save, and retrieval to ViewModel using Xamarin.Essentials MediaPicker and figure out UI-->
                                                 <!--<Image 
                                 x:Name="Thumbnail" Source="{Binding ImagePath}"
                                 Aspect="AspectFill"
                                 WidthRequest="30" HeightRequest="30" 
-                                Grid.Column="0"/>-->
+                                Grid.Column="0"/>--><!--
                                                 <ScrollView Grid.Column="0" Grid.ColumnSpan="2"
                                                        Grid.Row="0" >
                                                     <Label Text="{Binding Text}"
@@ -152,7 +168,7 @@
                                                        Grid.Row="1"
                                                        HorizontalOptions="End"
                                                        VerticalOptions="End"/>
-                                            </Grid>
+                                            </Grid>-->
                                         </Frame>
                                     </DataTemplate>
                                 </CarouselView.ItemTemplate>
@@ -165,36 +181,21 @@
                                             IndicatorSize="8"/>
                         </StackLayout>
 
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-
-                            <Editor Grid.Row="0" Grid.RowSpan="2"  Grid.Column="0" Grid.ColumnSpan="3"
-                                    Placeholder="Enter Note..." Text="{Binding NoteText}"
-                                    IsSpellCheckEnabled="True"
-                                    Keyboard="Text"/>
-
-                            <Button Grid.Row="2" Grid.Column="0" 
-                                    HeightRequest="55"
-                                    Text="Take Photo"  FontAttributes="Bold"/>
-
-                            <Button Grid.Row="2" Grid.Column="1"
-                                    HeightRequest="55"
-                                    Text="Select Photo" FontAttributes="Bold"/>
-
-                            <Button Grid.Row="2" Grid.Column="2"
-                                    HeightRequest="55"
-                                    Text="Add" Command="{Binding AddNoteCommand}"
-                                    FontAttributes="Bold"/>
-                        </Grid>
+                        <Frame>
+                            <StackLayout>
+                                <Label Text="Add"/>
+                                <Frame>
+                                    <StackLayout>
+                                        <Label Text="Note:"/>
+                                        <Entry Text="{Binding NoteText}"/>
+                                        <Frame>
+                                            <Image Source="{Binding Image}" Aspect="AspectFit"/>
+                                        </Frame>
+                                        <Button Text="Add Photo" Command="{Binding TakePhotoCommand}"/>
+                                    </StackLayout>
+                                </Frame>
+                            </StackLayout>
+                        </Frame>
                     </StackLayout>
                 </Frame>
 

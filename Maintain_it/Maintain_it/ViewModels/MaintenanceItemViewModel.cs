@@ -61,14 +61,14 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref comment, value );
         }
 
-        private DateTime firstServiceDate = DateTime.UtcNow;
+        private DateTime firstServiceDate = DateTime.Now;
         public DateTime FirstServiceDate
         {
             get => firstServiceDate;
             set => SetProperty( ref firstServiceDate, value );
         }
 
-        private TimeSpan serviceTime = new TimeSpan( 8, 0, 0 );
+        private TimeSpan serviceTime = Config.DefaultReminderTime;
         public TimeSpan ServiceTime
         {
             get => serviceTime;
@@ -361,6 +361,8 @@ namespace Maintain_it.ViewModels
 
             if( item != null )
             {
+                FirstServiceDate = FirstServiceDate.AddHours( ServiceTime.Hours ).AddMinutes( ServiceTime.Minutes );
+
                 await MaintenanceItemManager.UpdateProperties( item.Id, name: Name, comment: Comment, firstServiceDate: FirstServiceDate, recursEvery: RecursEvery, timeframe: (int)ServiceTimeframe, hasServiceLimit: HasServiceLimit, timesToRepeatService: TimesToRepeatService, notifyOfNextServiceDate: NotifyOfNextServiceDate, advanceNotice: AdvanceNotice, advanceNoticeTimeframe: (int)NoticeTimeframe, reminders: TimesToRemind, steps: stepIds, isActive: isActive );
             }
             else
@@ -384,14 +386,14 @@ namespace Maintain_it.ViewModels
             return list;
         }
 
-        private async Task<StepViewModel> CreateNewStepViewModel( Step step )
-        {
-            StepViewModel vm = new StepViewModel(this);
+        //private async Task<StepViewModel> CreateNewStepViewModel( Step step )
+        //{
+        //    StepViewModel vm = new StepViewModel(this);
 
-            vm.Init();
+        //    await vm.Init( step.Id );
 
-            return vm;
-        }
+        //    return vm;
+        //}
 
         private void CalculateServiceCompletionTimeEstimate()
         {

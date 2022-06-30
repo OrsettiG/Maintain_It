@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:Maintain_it.ViewModels"
+             xmlns:fontawesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
              x:Class="Maintain_it.Views.EditNoteView"
              Shell.NavBarIsVisible="False">
     <ContentPage.BindingContext>
@@ -14,11 +15,14 @@
                                       NumberOfTapsRequired="1"/>
             </Grid.GestureRecognizers>
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*"/>
-                <RowDefinition/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="7*"/>
+                <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
+
+            <!-- StackLayout with image at the top so that it appears underneath everything else on the page.-->
             <StackLayout Grid.Row="0"
-                         Grid.RowSpan="2"
+                         Grid.RowSpan="3"
                          HorizontalOptions="FillAndExpand"
                          VerticalOptions="FillAndExpand"
                          Margin="0"
@@ -36,18 +40,57 @@
                        MinimumWidthRequest="{Binding DensityCorrectedScreenWidth}"/>
             </StackLayout>
 
+
+            <!-- Shading rectangle next so that it acts as an overlay for the image but appears beneath everything else on the page. -->
             <Rectangle IsVisible="{Binding OverlayIsVisible}"
                        BackgroundColor="{StaticResource Secondary}"
                        Opacity="0.5"
                        Grid.Row="0"
-                       Grid.RowSpan="2"
+                       Grid.RowSpan="3"
                        VerticalOptions="Fill"
                        HorizontalOptions="Fill"/>
 
-            <Frame Grid.Row="1" IsVisible="{Binding OverlayIsVisible}" Opacity="25">
+            <StackLayout Orientation="Horizontal"
+                         Grid.Row="0"
+                         HorizontalOptions="FillAndExpand"
+                         VerticalOptions="FillAndExpand"
+                         BackgroundColor="{StaticResource Primary}"
+                         IsVisible="{Binding OverlayIsVisible}">
+
+                <ImageButton Source="{FontImage FontFamily={Static fontawesome:Config.FontFamilySolid},
+                                                Glyph={Static fontawesome:FontAwesomeIcons.ArrowLeft},
+                                                Color={StaticResource Cue},
+                                                Size=Header}"
+                             BackgroundColor="{StaticResource Primary}"
+                             Command="{Binding BackCommand}"
+                             HorizontalOptions="Start"
+                             VerticalOptions="CenterAndExpand"
+                             Padding="5"
+                             Margin="5"/>
+
+                <ImageButton Source="{FontImage FontFamily={Static fontawesome:Config.FontFamilySolid},
+                                                Glyph={Static fontawesome:FontAwesomeIcons.Camera},
+                                                Color={StaticResource Cue},
+                                                Size=Header}"
+                             BackgroundColor="{StaticResource Primary}"
+                             Command="{Binding ReplacePhotoCommand}"
+                             HorizontalOptions="EndAndExpand"
+                             VerticalOptions="CenterAndExpand"
+                             Padding="5"
+                             Margin="5"/>
+
+            </StackLayout>
+
+            <Frame Grid.Row="2" IsVisible="{Binding OverlayIsVisible}" Opacity="25">
                 <StackLayout>
                     <Editor Text="{Binding Text}"
                             VerticalOptions="FillAndExpand"/>
+
+                    <Button Text="Save"
+                            HorizontalOptions="FillAndExpand"
+                            Command="{Binding SaveCommand}"/>
+
+
                 </StackLayout>
             </Frame>
 

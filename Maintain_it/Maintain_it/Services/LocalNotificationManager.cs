@@ -37,9 +37,9 @@ namespace Maintain_it.Services
         {
             List<NotificationEventArgs> notifications = await DbServiceLocator.GetAllItemsAsync<NotificationEventArgs>() as List<NotificationEventArgs>;
 
-            DateTime NotificationWindow = DateTime.UtcNow.AddHours(12);
+            DateTime NotificationWindowEnd = DateTime.UtcNow.AddHours(9);
 
-            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindow, x.NotifyTime) >= 0 && x.Active ).ToList();
+            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindowEnd, x.NotifyTime) >= 0 && x.Active ).ToList();
 
             foreach( NotificationEventArgs notification in pendingNotifications )
             {
@@ -105,13 +105,14 @@ namespace Maintain_it.Services
 
         private static DateTime CalculateNotifyDate( DateTime serviceDate, int advanceNotice, int noticeTimeframe )
         {
+            DateTime notifyDate = new DateTime( serviceDate.Year, serviceDate.Month, serviceDate.Day, Config.DefaultReminderTime.Hours, Config.DefaultReminderTime.Minutes, Config.DefaultReminderTime.Seconds );
             return (Timeframe)noticeTimeframe switch
             {
-                Timeframe.Minutes => serviceDate.AddMinutes( -advanceNotice ),
-                Timeframe.Hours => serviceDate.AddHours( -advanceNotice ),
-                Timeframe.Days => serviceDate.AddDays( -advanceNotice ),
-                Timeframe.Months => serviceDate.AddMonths( -advanceNotice ),
-                Timeframe.Years => serviceDate.AddYears( -advanceNotice ),
+                Timeframe.Minutes => notifyDate.AddMinutes( -advanceNotice ),
+                Timeframe.Hours => notifyDate.AddHours( -advanceNotice ),
+                Timeframe.Days => notifyDate.AddDays( -advanceNotice ),
+                Timeframe.Months => notifyDate.AddMonths( -advanceNotice ),
+                Timeframe.Years => notifyDate.AddYears( -advanceNotice ),
                 _ => serviceDate
             };
         }
@@ -129,6 +130,17 @@ namespace Maintain_it.Services
             };
         }
 
+        /// <summary>
+        /// Update the notification in the database with the new values.
+        /// </summary>
+        /// <param name="notificationId">Auto generated ID cannot be updated manually</param>
+        /// <param name="name"></param>
+        /// <param name="serviceDate"></param>
+        /// <param name="advanceNotice"></param>
+        /// <param name="noticeTimeframe"></param>
+        /// <param name="isActive"></param>
+        /// <param name="maxReminders"></param>
+        /// <returns></returns>
         public static async Task UpdateScheduledNotification( int notificationId, string name, DateTime serviceDate, int advanceNotice, int noticeTimeframe, bool isActive, int maxReminders )
         {
             NotificationEventArgs notification = await DbServiceLocator.GetItemAsync<NotificationEventArgs>(notificationId);

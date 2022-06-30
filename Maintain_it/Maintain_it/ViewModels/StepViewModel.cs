@@ -63,8 +63,15 @@ namespace Maintain_it.ViewModels
         private string _noteText;
         public string NoteText { get => _noteText; set => SetProperty( ref _noteText, value ); }
 
-        private string _noteImagePath;
-        public FileImageSource NoteImagePath { get => _noteImagePath; set => SetProperty( ref _noteImagePath, value.File ); }
+        private ImageSource noteImage;
+        public ImageSource NoteImage { get => noteImage; set => SetProperty( ref noteImage, value ); }
+
+        private NoteViewModel newNoteViewModel;
+        public NoteViewModel NewNoteViewModel
+        {
+            get => newNoteViewModel ??= new NoteViewModel();
+            set => SetProperty( ref newNoteViewModel, value );
+        }
 
         private int _stepMatCounter;
         public int StepMatCounter { get => _stepMatCounter; set => SetProperty( ref _stepMatCounter, value >= 0 ? value : 0 ); }
@@ -73,8 +80,8 @@ namespace Maintain_it.ViewModels
         public ObservableRangeCollection<StepMaterial> StepMaterials { get => _stepMaterials ??= new ObservableRangeCollection<StepMaterial>(); set => SetProperty( ref _stepMaterials, value ); }
 
         //TODO: Update this (and all others) to use NoteViewModel instead of the Model directly
-        private ObservableRangeCollection<Note> notes;
-        public ObservableRangeCollection<Note> Notes => notes ??= new ObservableRangeCollection<Note>();
+        private ObservableRangeCollection<NoteViewModel> notes;
+        public ObservableRangeCollection<NoteViewModel> Notes => notes ??= new ObservableRangeCollection<NoteViewModel>();
 
         public List<Timeframe> timeframes => Options.timeframes;
 
@@ -221,17 +228,17 @@ namespace Maintain_it.ViewModels
 
         #region METHODS
 
-        public void Init()
-        {
-            Name = step.Name;
-            Description = step.Description;
-            TimeRequired = step.TimeRequired;
-            Timeframe = (Timeframe)step.Timeframe;
-            IsCompleted = step.IsCompleted;
-            StepNum = step.Index;
-            StepMaterials.AddRange( step.StepMaterials );
-            Notes.AddRange( step.Notes );
-        }
+        //public void Init()
+        //{
+        //    Name = step.Name;
+        //    Description = step.Description;
+        //    TimeRequired = step.TimeRequired;
+        //    Timeframe = (Timeframe)step.Timeframe;
+        //    IsCompleted = step.IsCompleted;
+        //    StepNum = step.Index;
+        //    StepMaterials.AddRange( step.StepMaterials );
+        //    Notes.AddRange( step.Notes );
+        //}
 
         public async Task Init( int id )
         {
@@ -244,7 +251,8 @@ namespace Maintain_it.ViewModels
             IsCompleted = Step.IsCompleted;
             StepNum = Step.Index;
             StepMaterials.AddRange( Step.StepMaterials );
-            Notes.AddRange( Step.Notes );
+            // TODO: Make getting all these note view models a bit more elegant.
+            Notes.AddRange( await NoteManager.GetItemRangeAsViewModelsAsync( Step.Notes.GetIds() ) );
         }
 
         public async Task InitAsync()
@@ -258,7 +266,9 @@ namespace Maintain_it.ViewModels
                 new Task( () => IsCompleted = step.IsCompleted ),
                 new Task( () => StepNum = step.Index ),
                 new Task( () => StepMaterials.AddRange( step.StepMaterials ) ),
-                new Task( () => Notes.AddRange( step.Notes ) )
+                new Task( async () => Notes.AddRange(
+                                                      await NoteManager.GetItemRangeAsViewModelsAsync(
+                                                          step.Notes.GetIds() ) ) )
             };
 
             await Task.WhenAll( tasks ).ConfigureAwait( false );
@@ -282,18 +292,25 @@ namespace Maintain_it.ViewModels
             await StepManager.UpdateItemIndexAsync( stepId, StepNum );
             Step = await StepManager.GetItemRecursiveAsync( stepId );
             //TODO: Add Notes to Step
-            if(Notes.Count > 0 )
+            if( Notes.Count > 0 )
             {
-                await StepManager.AddNotes( Notes.GetIds(), Step.Id );
+                List<int> ids = new List<int>();
+
+                foreach( NoteViewModel nvm in Notes )
+                {
+                    ids.Add( nvm.NoteId );
+                }
+
+                await StepManager.AddNotes( ids, Step.Id );
             }
 
             //TODO: Add StepMaterials to Step
-            if(StepMaterials.Count > 0 )
+            if( StepMaterials.Count > 0 )
             {
                 await StepManager.AddStepMaterials( stepMaterialIds, Step.Id );
             }
 
-            if(maintenanceItemId != null )
+            if( maintenanceItemId != null )
             {
                 _ = await StepManager.UpdateMaintenanceItem( (int)maintenanceItemId, stepId );
             }
@@ -333,12 +350,12 @@ namespace Maintain_it.ViewModels
 
         private async Task AddNote()
         {
-            int id = await NoteManager.NewNote( NoteText, NoteImagePath = NoteImagePath.IsEmpty ? string.Empty : NoteImagePath.File );
+            int id = await NoteManager.NewNote( NoteText, NoteImage = NoteImage.IsEmpty ? string.Empty : NoteImage.File );
 
-            Notes.Add( await NoteManager.GetItemAsync( id ) );
+            Notes.Add( await NoteManager.GetItemAsViewModelAsync( id ) );
 
             NoteText = string.Empty;
-            NoteImagePath = string.Empty;
+            NoteImage = string.Empty;
         }
 
         private async Task TakePhoto()

@@ -84,7 +84,8 @@ namespace Maintain_it.ViewModels
 
         private async Task EditNote()
         {
-            _ = Shell.Current.GoToAsync( $"{nameof( EditNoteView )}?{RoutingPath.NoteId}={NoteId}" );
+            if( NoteId > 0 )
+                _ = Shell.Current.GoToAsync( $"{nameof( EditNoteView )}?{RoutingPath.NoteId}={NoteId}" );
         }
 
         private AsyncCommand takePhotoCommand;
@@ -121,16 +122,21 @@ namespace Maintain_it.ViewModels
                 return;
             }
 
-            Stream stream = await photo.OpenReadAsync();
-            MemoryStream memoryStream = new MemoryStream();
-            stream.CopyTo( memoryStream );
-            
-            imageData = memoryStream.ToArray();
+            using( Stream stream = await photo.OpenReadAsync() )
+            using( MemoryStream mStream = new MemoryStream() )
+            {
+                stream.CopyTo( mStream );
 
-            Image = ImageSource.FromStream( () => new MemoryStream( imageData ) );
+                imageData = mStream.ToArray();
+                Image = ImageSource.FromStream( () => new MemoryStream( imageData ) );
 
-            await NoteManager.AddImageToNote( NoteId, imageData );
-            await Refresh();
+            };
+
+            if( NoteId > 0 )
+            {
+                await NoteManager.AddImageToNote( NoteId, imageData );
+                await Refresh();
+            }
         }
 
         #endregion
@@ -153,10 +159,11 @@ namespace Maintain_it.ViewModels
             CreatedOn = note.CreatedOn.ToLocalTime();
         }
 
-        private async Task Refresh()
+        public void Init( Note note )
         {
-            note = await NoteManager.GetItemAsync( NoteId );
+            this.note = note;
 
+            NoteId = note.Id;
             Text = note.Text;
             Image = note.ImageData != default( byte[] )
                 ? ImageSource.FromStream( () => new MemoryStream( note.ImageData ) )
@@ -165,6 +172,41 @@ namespace Maintain_it.ViewModels
                 : default; // this last option will be a default "no photo" image of some sort.
             StepId = note.StepId;
             LastUpdated = note.LastUpdated.ToLocalTime();
+            CreatedOn = note.CreatedOn.ToLocalTime();
+        }
+
+        public async Task<int> Save()
+        {
+            int id = await NoteManager.NewNote(Text);
+            NoteId = id;
+            if( Image != null )
+            {
+                await NoteManager.AddImageToNote( id, Image );
+            }
+
+            if(StepId > 0 )
+            {
+
+            }
+
+            return id;
+        }
+
+        private async Task Refresh()
+        {
+            if( NoteId > 0 )
+            {
+                note = await NoteManager.GetItemAsync( NoteId );
+
+                Text = note.Text;
+                Image = note.ImageData != default( byte[] )
+                    ? ImageSource.FromStream( () => new MemoryStream( note.ImageData ) )
+                    : note.ImagePath != string.Empty
+                    ? ImageSource.FromFile( note.ImagePath )
+                    : default; // this last option will be a default "no photo" image of some sort.
+                StepId = note.StepId;
+                LastUpdated = note.LastUpdated.ToLocalTime();
+            }
         }
 
         private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
