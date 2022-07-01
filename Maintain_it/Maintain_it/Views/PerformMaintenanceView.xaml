@@ -102,30 +102,39 @@
                                        FontSize="Large"
                                        HorizontalOptions="StartAndExpand"/>
 
-                            <CollectionView ItemsSource="{Binding Notes}">
+                            <CollectionView ItemsSource="{Binding Notes}" 
+                                            ItemSizingStrategy="MeasureAllItems"
+                                            VerticalOptions="StartAndExpand"
+                                            HeightRequest="300">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="5"/>
+                                </CollectionView.ItemsLayout>
                                 <CollectionView.EmptyView>
                                     <StackLayout>
                                     </StackLayout>
                                 </CollectionView.EmptyView>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid RowDefinitions="*" ColumnDefinitions="*">
+                                        <Frame>
+                                            <Grid RowDefinitions="*" 
+                                                  ColumnDefinitions="*" 
+                                                  Padding="0" 
+                                                  Margin="0">
 
-                                            <Label Grid.Column="0"
+                                                <Label Grid.Column="0"
                                                    VerticalTextAlignment="Start"
                                                    Text="{Binding Text}"
-                                                   FontSize="Medium"/>
-                                            <Label Text="{Static fontawesome:FontAwesomeIcons.Image}"
+                                                   FontSize="Medium"
+                                                   Padding="0, 5"/>
+                                                <Label Text="{Static fontawesome:FontAwesomeIcons.Image}"
                                                    FontFamily="{Static fontawesome:Config.FontFamilySolid}"
                                                    Grid.Row="0"
                                                    HorizontalOptions="End"
                                                    VerticalOptions="Start"
                                                    IsVisible="{Binding HasImage}"
-                                                   Padding="5"/>
-                                            <BoxView HeightRequest="1"
-                                                     VerticalOptions="End"
-                                                     Margin="0,5"/>
-                                        </Grid>
+                                                   Padding="5, 15, 5, 0"/>
+                                            </Grid>
+                                        </Frame>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
