@@ -18,6 +18,7 @@ using System.Linq;
 using System.Web;
 using Xamarin.Essentials;
 using Maintain_it.Helpers;
+using Xamarin.Forms.PlatformConfiguration;
 
 namespace Maintain_it.ViewModels
 {
@@ -41,7 +42,7 @@ namespace Maintain_it.ViewModels
         }
 
         #region Parameters
-
+        // TODO: Create Custom Entry Renderer for Android and IOS
         private string _name;
         public string Name { get => _name; set => SetProperty( ref _name, value ); }
 
@@ -71,6 +72,20 @@ namespace Maintain_it.ViewModels
         {
             get => newNoteViewModel ??= new NoteViewModel();
             set => SetProperty( ref newNoteViewModel, value );
+        }
+
+        private bool showAddNote = false;
+        public bool ShowAddNote
+        {
+            get => showAddNote;
+            set => SetProperty( ref showAddNote, value );
+        }
+
+        private bool showNotes = true;
+        public bool ShowNotes
+        {
+            get => showNotes;
+            set => SetProperty( ref showNotes, value );
         }
 
         private int _stepMatCounter;
@@ -125,8 +140,8 @@ namespace Maintain_it.ViewModels
         private AsyncCommand addNoteCommand;
         public ICommand AddNoteCommand => addNoteCommand ??= new AsyncCommand( AddNote );
 
-        private AsyncCommand takePhotoCommand;
-        public ICommand TakePhotoCommand => takePhotoCommand ??= new AsyncCommand( TakePhoto );
+        private ICommand showHideAddNoteCommand;
+        public ICommand ShowHideAddNoteCommand => showHideAddNoteCommand ??= new Command( ShowHideAddNote );
 
         private Command decrementStepMatQuantityCommand;
         public ICommand DecrementStepMatQuantityCommand => decrementStepMatQuantityCommand ??= new Command( DecrementStepMatCounter );
@@ -228,18 +243,6 @@ namespace Maintain_it.ViewModels
 
         #region METHODS
 
-        //public void Init()
-        //{
-        //    Name = step.Name;
-        //    Description = step.Description;
-        //    TimeRequired = step.TimeRequired;
-        //    Timeframe = (Timeframe)step.Timeframe;
-        //    IsCompleted = step.IsCompleted;
-        //    StepNum = step.Index;
-        //    StepMaterials.AddRange( step.StepMaterials );
-        //    Notes.AddRange( step.Notes );
-        //}
-
         public async Task Init( int id )
         {
             Step = await StepManager.GetItemRecursiveAsync( id );
@@ -272,6 +275,12 @@ namespace Maintain_it.ViewModels
             };
 
             await Task.WhenAll( tasks ).ConfigureAwait( false );
+        }
+
+        private void ShowHideAddNote()
+        {
+            ShowAddNote = !ShowAddNote;
+            ShowNotes = !ShowNotes;
         }
 
         private void DecrementStepMatCounter()
@@ -318,22 +327,7 @@ namespace Maintain_it.ViewModels
             string encodedId = HttpUtility.UrlEncode( stepId.ToString());
 
             await Shell.Current.GoToAsync( $"..?stepIds={encodedId}" );
-
-            //try
-            //{
-            //    await MainThread.InvokeOnMainThreadAsync( async () =>
-            //    );
-            //}
-            //catch( Exception ex )
-            //{
-            //    Console.WriteLine( $"EXCEPTION: {ex}" );
-            //}
         }
-
-        //public async Task SaveStep()
-        //{
-        //    await DbServiceLocator.UpdateItemStepsAsync( Step );
-        //}
 
         private async Task SelectMaterials()
         {
@@ -350,17 +344,50 @@ namespace Maintain_it.ViewModels
 
         private async Task AddNote()
         {
-            int id = await NoteManager.NewNote( NoteText, NoteImage = NoteImage.IsEmpty ? string.Empty : NoteImage.File );
+            int id = await NewNoteViewModel.Save();
 
             Notes.Add( await NoteManager.GetItemAsViewModelAsync( id ) );
 
-            NoteText = string.Empty;
-            NoteImage = string.Empty;
+            NewNoteViewModel = new NoteViewModel
+            {
+                Text = string.Empty,
+                Image = default,
+                CreatedOn = DateTime.Now,
+                LastUpdated = DateTime.Now
+            };
+
+            ShowHideAddNote();
         }
 
-        private async Task TakePhoto()
+        private async Task Refresh()
         {
-            // TODO Add Camera access code.
+            if( Notes.Count > 0 )
+            {
+                List<int> ids = new List<int>();
+
+                foreach( NoteViewModel nvm in Notes )
+                {
+                    ids.Add( nvm.NoteId );
+                }
+
+                Notes.Clear();
+                Notes.AddRange( await NoteManager.GetItemRangeAsViewModelsAsync( ids ) );
+            }
+
+            if( stepMaterialIds.Count > 0 )
+            {
+                await RetrieveStepMaterialsFromDb();
+            }
+        }
+
+        private async Task RefreshNote( int noteId )
+        {
+            NoteViewModel nvm = Notes.Where(x => x.NoteId == noteId ).FirstOrDefault();
+
+            if( nvm != null )
+            {
+                await nvm.RefreshCommand.ExecuteAsync();
+            }
         }
 
         #endregion
@@ -388,6 +415,12 @@ namespace Maintain_it.ViewModels
                     if( int.TryParse( id, out int itemId ) )
                     {
                         maintenanceItemId = itemId;
+                    }
+                    break;
+                case RoutingPath.RefreshNote:
+                    if( int.TryParse( kvp.Value, out int noteId ) )
+                    {
+                        await RefreshNote( noteId );
                     }
                     break;
                 default:

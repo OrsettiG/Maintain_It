@@ -42,8 +42,8 @@ namespace Maintain_it.Droid
                 // Create our Notification Service with the Notification Id so that next time we start the app we can verify that the service is still running.
                 JobInfo.Builder builder = this.CreateJobBuilderUsingJobId<NotificationJobService>((int)Config.JobServiceIds.Notification);
 
-                // Set the service to run every 8 hours and persist through restarts
-                _ = builder.SetPeriodic( (int)Config.MilliTimeIntervals.Minute, (int)Config.MilliTimeIntervals.Hour );
+                // Set the service to run every 3-4 hours
+                _ = builder.SetPeriodic( (int)Config.MilliTimeIntervals.Hour * 3, (int)Config.MilliTimeIntervals.Hour ).SetRequiresBatteryNotLow( true ).SetRequiresDeviceIdle( true );
 
                 // Build the JobInfo Object that tells the service how and when to run.
                 JobInfo jobInfo = builder.Build();

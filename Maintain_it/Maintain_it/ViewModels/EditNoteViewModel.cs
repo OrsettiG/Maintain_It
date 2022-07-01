@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Input;
 
 using Maintain_it.Helpers;
@@ -140,7 +141,8 @@ namespace Maintain_it.ViewModels
         {
             byte[] imageData = await ConvertImageToBytes();
             await NoteManager.UpdateItemAsync( NoteId, Text, imageData );
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+            string encodedId = HttpUtility.UrlEncode($"{NoteId}");
+            await Shell.Current.GoToAsync( $"..?{RoutingPath.RefreshNote}={encodedId}" );
         }
 
         private AsyncCommand backCommand;

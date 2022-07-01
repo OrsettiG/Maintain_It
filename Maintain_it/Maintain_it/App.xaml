@@ -8,12 +8,14 @@
     -->
     <Application.Resources>
         <ResourceDictionary>
+            <!-- Colours -->
             <Color x:Key="Primary">#B6C197</Color>
             <Color x:Key="Secondary">#38302E</Color>
             <Color x:Key="Transition">#F3F1DE</Color>
             <Color x:Key="Cue">#037171</Color>
             <Color x:Key="Warning">#D64933</Color>
             
+
             <Style TargetType="Button">
                 <Setter Property="TextColor" Value="{StaticResource Secondary}"></Setter>
                 <Setter Property="VisualStateManager.VisualStateGroups">
@@ -46,39 +48,45 @@
                 <Setter Property="HasShadow" Value="True"/>
             </Style>
             
-            <!--Collection View-->
+            <!-- Collection View -->
             <Style TargetType="CollectionView">
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
 
-            <!--Box View-->
+            <!-- Box View -->
             <Style TargetType="BoxView">
                 <Setter Property="BackgroundColor" Value="{StaticResource Secondary}"/>
             </Style>
             
-            <!--Check Box-->
+            <!-- Check Box -->
             <Style TargetType="CheckBox">
                 <Setter Property="Color" Value="{StaticResource Primary}"/>
             </Style>
 
-            <!--Stack Layout-->
+            <!-- Stack Layout -->
             <Style TargetType="StackLayout">
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
             
-            <!--Scroll View-->
+            <!-- Scroll View -->
             <Style TargetType="ScrollView">
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
             
+            <!-- TODO: Create Custom Entry Renderer for Android and IOS -->
             <!-- Entry -->
             <Style TargetType="Entry">
                 <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource Secondary}"/>
             </Style>
-            
+
+            <!-- TODO: Create Custom Editor Renderer for Android and IOS -->
             <!-- Editor -->
             <Style TargetType="Editor">
                 <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="Placeholder" Value="Enter Text..."/>
+                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
 
             <!-- DatePicker -->

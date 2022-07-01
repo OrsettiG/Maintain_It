@@ -35,6 +35,7 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref noteId, value );
         }
 
+        //TODO: Create Custom Editor Renderer for Android and IOS
         private string text;
         public string Text
         {
@@ -59,11 +60,17 @@ namespace Maintain_it.ViewModels
         public byte[] imageData { get; private set; }
 
         private ImageSource image;
-
         public ImageSource Image
         {
             get => image;
             set => SetProperty( ref image, value );
+        }
+
+        private bool imageIsVisible = false;
+        public bool HasImage
+        {
+            get => imageIsVisible;
+            set => SetProperty(ref imageIsVisible, value );
         }
 
         private int stepId;
@@ -137,6 +144,14 @@ namespace Maintain_it.ViewModels
                 await NoteManager.AddImageToNote( NoteId, imageData );
                 await Refresh();
             }
+
+            HasImage = true;
+        }
+
+        private AsyncCommand refreshCommand;
+        public AsyncCommand RefreshCommand
+        {
+            get => refreshCommand ??= new AsyncCommand( Refresh );
         }
 
         #endregion
@@ -157,6 +172,7 @@ namespace Maintain_it.ViewModels
             StepId = note.StepId;
             LastUpdated = note.LastUpdated.ToLocalTime();
             CreatedOn = note.CreatedOn.ToLocalTime();
+            HasImage = Image != default;
         }
 
         public void Init( Note note )
@@ -173,6 +189,7 @@ namespace Maintain_it.ViewModels
             StepId = note.StepId;
             LastUpdated = note.LastUpdated.ToLocalTime();
             CreatedOn = note.CreatedOn.ToLocalTime();
+            HasImage = Image != default;
         }
 
         public async Task<int> Save()
@@ -186,7 +203,7 @@ namespace Maintain_it.ViewModels
 
             if(StepId > 0 )
             {
-
+                await NoteManager.AddStepToNote( id, StepId );
             }
 
             return id;
@@ -206,6 +223,7 @@ namespace Maintain_it.ViewModels
                     : default; // this last option will be a default "no photo" image of some sort.
                 StepId = note.StepId;
                 LastUpdated = note.LastUpdated.ToLocalTime();
+                HasImage = Image != default;
             }
         }
 

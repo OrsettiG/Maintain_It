@@ -30,7 +30,11 @@ namespace Maintain_it.ViewModels
         public string Description { get => description; set => SetProperty( ref description, value ); }
 
         private ObservableRangeCollection<NoteViewModel> notes;
-        public ObservableRangeCollection<NoteViewModel> Notes { get => notes; set => SetProperty( ref notes, value ); }
+        public ObservableRangeCollection<NoteViewModel> Notes 
+        { 
+            get => notes ??= new ObservableRangeCollection<NoteViewModel>(); 
+            set => SetProperty( ref notes, value ); 
+        }
 
         private ObservableRangeCollection<StepMaterial> stepMaterials;
         public ObservableRangeCollection<StepMaterial> StepMaterials
@@ -134,6 +138,17 @@ namespace Maintain_it.ViewModels
             }
         }
 
+        private AsyncCommand addNoteCommand;
+        public ICommand AddNoteCommand
+        {
+            get => addNoteCommand ??= new AsyncCommand( AddNote );
+        }
+
+        private async Task AddNote()
+        {
+
+        }
+
         #endregion
 
         #region Methods
@@ -157,6 +172,10 @@ namespace Maintain_it.ViewModels
             StepMaterials.Clear();
             StepMaterials.AddRange( Step.StepMaterials );
             
+            List<int> noteIds = new List<int>( Step.Notes.GetIds() );
+            Notes.Clear();
+            Notes.AddRange( await NoteManager.GetItemRangeAsViewModelsAsync( noteIds ) );
+
             await StepViewModel.InitAsync().ConfigureAwait( false );
         }
         #endregion

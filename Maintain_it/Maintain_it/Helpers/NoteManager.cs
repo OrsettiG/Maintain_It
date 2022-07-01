@@ -72,21 +72,21 @@ namespace Maintain_it.Helpers
 
         public static async Task AddStepToNote( int noteId, int stepId )
         {
-            Note note = await GetItemAsync(noteId);
+            Note note = await GetItemAsync( noteId );
             Step step = await StepManager.GetItemRecursiveAsync( stepId );
-            
+
             if( step != null )
             {
-                if( !step.Notes.GetIds().Contains(noteId) )
+                if( !step.Notes.GetIds( out IList<int> stepNoteIds ).Contains( noteId ) )
                 {
-                    step.Notes.Add(note);
-                    IEnumerable<int> stepNoteIds = step.Notes.GetIds();
+                    stepNoteIds.Add( noteId );
+                    await StepManager.UpdateItemAsync( step.Id, noteIds: stepNoteIds );
                 }
 
                 note.Step = step;
             }
-            
-            StepManager.UpdateItemAsync()
+
+            await UpdateItemAsync( note );
         }
 
         public static async Task AddImageToNote( int noteId, string imagePath )

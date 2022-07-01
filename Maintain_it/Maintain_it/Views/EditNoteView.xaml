@@ -82,16 +82,16 @@
             </StackLayout>
 
             <Frame Grid.Row="2" IsVisible="{Binding OverlayIsVisible}" Opacity="25">
-                <StackLayout>
-                    <Editor Text="{Binding Text}"
+                <ScrollView>
+                    <StackLayout>
+                        <Editor Text="{Binding Text}"
                             VerticalOptions="FillAndExpand"/>
 
-                    <Button Text="Save"
+                        <Button Text="Save"
                             HorizontalOptions="FillAndExpand"
                             Command="{Binding SaveCommand}"/>
-
-
-                </StackLayout>
+                    </StackLayout>
+                </ScrollView>
             </Frame>
 
         </Grid>

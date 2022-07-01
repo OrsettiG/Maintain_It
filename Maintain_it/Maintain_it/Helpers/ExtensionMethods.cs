@@ -89,6 +89,17 @@ namespace Maintain_it.Helpers
             }
             return ids;
         }
+        
+        
+        internal static IEnumerable<int> GetIds( this IEnumerable<IStorableObject> storableObjects, out IList<int> ids )
+        {
+            ids = new List<int>();
+            foreach( IStorableObject storableObject in storableObjects )
+            {
+                ids.Add( storableObject.Id );
+            }
+            return ids;
+        }
 
         internal static void Align( this HashSet<int> set, IEnumerable<int> targets )
         {

@@ -19,6 +19,14 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Query Param for:
         /// <list type="bullet">
+        /// <item><see cref="EditNoteViewModel"/> >> <see cref="StepViewModel"/></item>
+        /// </list>
+        /// </summary>
+        public const string RefreshNote = "refreshNote";
+
+        /// <summary>
+        /// Query Param for:
+        /// <list type="bullet">
         /// <item><see cref="AddStepMaterialToStepViewModel"/></item>
         /// </list>
         /// </summary>

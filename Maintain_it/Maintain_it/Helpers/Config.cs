@@ -34,27 +34,31 @@ namespace Maintain_it.Helpers
         public enum NotificationReminderWindow { Morning, Afternoon, Evening }
 
         #region Constants
+        #region Notifications
         public const string TitleKey = "title";
         public const string MessageKey = "message";
         public const string NotificationIdKey = "notificationId";
         public const string MessageIdKey = "messageId";
+        #endregion
+        #region Font Icons
         public const string FontAwesomeSolid = "FA-Solid";
+        #endregion
         #endregion
 
         #region User Definable Settings
 
         private static int defaultReminders = 3;
-        public static int DefaultReminders 
-        { 
-            get => defaultReminders; 
-            set => defaultReminders = value; 
+        public static int DefaultReminders
+        {
+            get => defaultReminders;
+            set => defaultReminders = value;
         }
 
         private static int defaultAdvanceNotice = 3;
-        public static int DefaultAdvanceNotice 
-        { 
-            get => defaultAdvanceNotice; 
-            set => defaultAdvanceNotice = value; 
+        public static int DefaultAdvanceNotice
+        {
+            get => defaultAdvanceNotice;
+            set => defaultAdvanceNotice = value;
         }
 
         private static Timeframe defaultNoticeTimeframe = Timeframe.Days;
