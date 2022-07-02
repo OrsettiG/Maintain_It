@@ -22,6 +22,8 @@ namespace Maintain_it
 
             Routing.RegisterRoute( nameof( EditNoteView ), typeof( EditNoteView ) );
 
+            //Routing.RegisterRoute( nameof( HomeView ), typeof( HomeView ) );
+
             //MaintenanceItem Routes
             Routing.RegisterRoute( nameof( MaintenanceView ), typeof( MaintenanceView ) );
 

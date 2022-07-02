@@ -116,6 +116,9 @@
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
                                         <Frame>
+                                            <Frame.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding EditNoteCommand}"/>
+                                            </Frame.GestureRecognizers>
                                             <Grid RowDefinitions="*" 
                                                   ColumnDefinitions="*" 
                                                   Padding="0" 

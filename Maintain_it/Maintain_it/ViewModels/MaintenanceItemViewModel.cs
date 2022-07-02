@@ -591,7 +591,7 @@ namespace Maintain_it.ViewModels
             }
         }
 
-
+        // TODO: Make it so you can add a new step to a completed project. Got a null reference error when I tried.
         private async Task NewStep()
         {
             if( item == null )

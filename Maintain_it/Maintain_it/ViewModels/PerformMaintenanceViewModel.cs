@@ -9,9 +9,12 @@ using System.Windows.Input;
 using Maintain_it.Helpers;
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.Views;
 
 using MvvmHelpers;
 using MvvmHelpers.Commands;
+
+using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels
 {
@@ -135,6 +138,7 @@ namespace Maintain_it.ViewModels
             else
             {
                 await MaintenanceItemManager.CompleteMaintenance( Step.MaintenanceItemId, TimeTaken );
+                await Shell.Current.GoToAsync( $"../?{RoutingPath.Refresh}=true" );
             }
         }
 
