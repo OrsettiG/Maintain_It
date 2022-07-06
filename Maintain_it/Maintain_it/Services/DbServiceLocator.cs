@@ -36,7 +36,7 @@ namespace Maintain_it.Services
         }
 
         /// <summary>
-        /// Init a new Service for the specified type if it has not already been initted.
+        /// DeepInitAsync a new Service for the specified type if it has not already been initted.
         /// </summary>
         /// <typeparam name="T">Service type to init</typeparam>
         public static async Task Init<T>() where T : IStorableObject, new()

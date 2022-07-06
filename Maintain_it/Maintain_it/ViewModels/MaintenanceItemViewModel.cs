@@ -104,7 +104,12 @@ namespace Maintain_it.ViewModels
         public bool HasServiceLimit
         {
             get => hasServiceLimit;
-            set => SetProperty( ref hasServiceLimit, value );
+            set
+            {
+                _ = SetProperty( ref hasServiceLimit, value );
+                TimesToRepeatService = value ? 1 : 0;
+                Console.WriteLine( $"*****HasServiceLimit: {HasServiceLimit}\nTimesToRepeatService: {TimesToRepeatService}*****" );
+            }
         }
 
         private int timesToRepeatService;
@@ -242,6 +247,27 @@ namespace Maintain_it.ViewModels
 
         private AsyncCommand refreshCommand;
         public AsyncCommand RefreshCommand => refreshCommand ??= new AsyncCommand( LoadSteps );
+
+        private AsyncCommand refreshStepsCommand;
+        public AsyncCommand RefreshStepsCommand
+        {
+            get => refreshStepsCommand ??= new AsyncCommand( RefreshStepsFromDb );
+        }
+
+        private async Task RefreshStepsFromDb()
+        {
+            MaintenanceItem tempItem = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
+
+            IEnumerable<int> ids = tempItem.Steps.GetIds();
+
+            stepIds.Clear();
+            stepIds.AddRange( ids );
+
+            List<StepViewModel> stepVMs = await StepManager.GetItemRangeAsViewModel( ids, this );
+
+            StepViewModels.Clear();
+            StepViewModels.AddRange( stepVMs.OrderBy( x => x.StepNum ) );
+        }
 
         private AsyncCommand updateCommand;
         public AsyncCommand UpdateCommand => updateCommand ??= new AsyncCommand( Update );
@@ -390,7 +416,7 @@ namespace Maintain_it.ViewModels
         //{
         //    StepViewModel vm = new StepViewModel(this);
 
-        //    await vm.Init( step.Id );
+        //    await vm.DeepInitAsync( step.Id );
 
         //    return vm;
         //}
@@ -453,7 +479,7 @@ namespace Maintain_it.ViewModels
         {
             StepViewModel vm = new StepViewModel(this);
 
-            await vm.Init( stepId );
+            await vm.DeepInitAsync( stepId );
 
             return vm;
         }
@@ -472,6 +498,7 @@ namespace Maintain_it.ViewModels
             Comment = item.Comment;
             FirstServiceDate = item.NextServiceDate ?? item.FirstServiceDate;
             RecursEvery = item.RecursEvery;
+            IsRecurring = item.RecursEvery > 0;
             ServiceTimeframe = (Timeframe)item.ServiceTimeframe;
             TimesToRepeatService = item.TimesToRepeatService;
             NotifyOfNextServiceDate = item.NotifyOfNextServiceDate;
@@ -651,6 +678,9 @@ namespace Maintain_it.ViewModels
                     item = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
                     InitData( item );
                     editState = EditState.NewItem;
+                    break;
+                case RoutingPath.RefreshSteps:
+                    await RefreshStepsFromDb();
                     break;
             }
         }

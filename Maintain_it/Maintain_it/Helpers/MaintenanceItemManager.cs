@@ -301,7 +301,7 @@ namespace Maintain_it.Helpers
             await UpdateServiceRecord( record.Id, true, serviceTime: timeTaken );
 
             DateTime? nextServiceDate = null;
-            if( item.ServiceRecords.Count < item.TimesToRepeatService )
+            if( item.TimesToRepeatService == 0 || item.ServiceRecords.Count < item.TimesToRepeatService )
             {
                 nextServiceDate = CalculateNextServiceDate( DateTime.UtcNow, item.RecursEvery, item.ServiceTimeframe );
             }
@@ -320,8 +320,15 @@ namespace Maintain_it.Helpers
                 DateTime serviceDate = nextServiceDate.Value;
 
                 await LocalNotificationManager.UpdateScheduledNotification( item.NotificationEventArgsId, item.Name, serviceDate, item.AdvanceNotice, item.NoticeTimeframe, true, int.MinValue );
+
+                foreach( Step step in item.Steps )
+                {
+                    await StepManager.UpdateItemAsync( step.Id, isCompleted: false );
+                }
             }
 
+            item.NextServiceDate = nextServiceDate;
+            await DbServiceLocator.UpdateItemAsync( item );
         }
 
         /// <summary>

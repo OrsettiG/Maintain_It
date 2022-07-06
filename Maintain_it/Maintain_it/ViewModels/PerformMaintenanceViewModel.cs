@@ -33,10 +33,10 @@ namespace Maintain_it.ViewModels
         public string Description { get => description; set => SetProperty( ref description, value ); }
 
         private ObservableRangeCollection<NoteViewModel> notes;
-        public ObservableRangeCollection<NoteViewModel> Notes 
-        { 
-            get => notes ??= new ObservableRangeCollection<NoteViewModel>(); 
-            set => SetProperty( ref notes, value ); 
+        public ObservableRangeCollection<NoteViewModel> Notes
+        {
+            get => notes ??= new ObservableRangeCollection<NoteViewModel>();
+            set => SetProperty( ref notes, value );
         }
 
         private ObservableRangeCollection<StepMaterial> stepMaterials;
@@ -56,7 +56,7 @@ namespace Maintain_it.ViewModels
         public double TimeTaken
         {
             get => timeTaken;
-            set => SetProperty(ref timeTaken, value );
+            set => SetProperty( ref timeTaken, value );
         }
 
         private int timeframe;
@@ -175,7 +175,7 @@ namespace Maintain_it.ViewModels
 
             StepMaterials.Clear();
             StepMaterials.AddRange( Step.StepMaterials );
-            
+
             List<int> noteIds = new List<int>( Step.Notes.GetIds() );
             Notes.Clear();
             Notes.AddRange( await NoteManager.GetItemRangeAsViewModelsAsync( noteIds ) );
@@ -210,9 +210,15 @@ namespace Maintain_it.ViewModels
                         if( maintenanceItem.Steps.Count > 0 )
                         {
                             int index = maintenanceItem.ServiceRecords.Last().CurrentStepIndex;
+                            
+                            int? stepId = maintenanceItem.Steps.Where( x => x.Index == index ).FirstOrDefault()?.Id;
 
-                            int stepId = maintenanceItem.Steps.Where( x => x.Index == index ).FirstOrDefault().Id;
-                            Step = await StepManager.GetItemRecursiveAsync( stepId );
+                            if( stepId == null)
+                            {
+                                stepId = maintenanceItem.Steps.OrderBy( x => x.Index ).First().Id;
+                            }
+
+                            Step = await StepManager.GetItemRecursiveAsync( stepId.Value );
                         }
                     }
 

@@ -96,7 +96,7 @@ namespace Maintain_it.Helpers
 
         internal static async Task<List<StepMaterial>> GetItemRangeAsync( IEnumerable<int> stepMaterialIds )
         {
-            throw new NotImplementedException();
+            return await DbServiceLocator.GetItemRangeAsync<StepMaterial>( stepMaterialIds ) as List<StepMaterial>;
         }
 
         /// <summary>

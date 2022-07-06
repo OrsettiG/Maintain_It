@@ -30,6 +30,20 @@ namespace Maintain_it.ViewModels
         {
             maintenanceItemVM = maintenanceItemViewModel;
         }
+        
+        public StepViewModel( Step step, MaintenanceItemViewModel maintenanceItemViewModel )
+        {
+            maintenanceItemVM = maintenanceItemViewModel;
+
+            Step = step;
+            Name = step.Name;
+            Description = step.Description;
+            StepNum = step.Index;
+            TimeRequired = step.TimeRequired;            
+            Timeframe = (Timeframe)Step.Timeframe;
+            IsCompleted = Step.IsCompleted;
+            StepNum = Step.Index;
+        }
 
         public StepViewModel( Step step )
         {
@@ -132,7 +146,7 @@ namespace Maintain_it.ViewModels
         #region COMMANDS
 
         private AsyncCommand addStepCommand;
-        public ICommand AddStepCommand => addStepCommand ??= new AsyncCommand( AddStep );
+        public ICommand AddStepCommand => addStepCommand ??= new AsyncCommand( AddOrUpdate );
 
         private AsyncCommand selectMaterialsCommand;
         public ICommand SelectMaterialsCommand => selectMaterialsCommand ??= new AsyncCommand( SelectMaterials );
@@ -158,6 +172,46 @@ namespace Maintain_it.ViewModels
         private void ToggleCanDrag()
         {
             CanDrag = !CanDrag;
+        }
+
+        private AsyncCommand openCommand;
+        public ICommand OpenCommand
+        {
+            get => openCommand ??= new AsyncCommand( Open );
+        }
+
+        private async Task Open()
+        {
+            if( Step.Id == 0 )
+            {
+                return;
+            }
+
+            string encodedId = HttpUtility.UrlEncode($"{Step.Id}");
+
+            await Shell.Current.GoToAsync( $"{nameof(MaintenanceItemDetailView)}/{nameof( AddNewStepView )}?{RoutingPath.StepId}={encodedId}" );
+        }
+
+        private AsyncCommand deleteCommand;
+        public ICommand DeleteCommand
+        {
+            get => deleteCommand ??= new AsyncCommand( Delete );
+        }
+
+        private async Task Delete()
+        {
+            bool choice = await Shell.Current.DisplayAlert( Alerts.DeleteStepTitle, Alerts.DeleteStepMessage, Alerts.ConfirmDelete, Alerts.CancelDelete );
+
+            switch( choice )
+            {
+                case true:
+                    await StepManager.DeleteItem( Step.Id );
+                    await maintenanceItemVM.RefreshStepsCommand.ExecuteAsync();
+                    break;
+
+                case false:
+                    break;
+            }
         }
 
         #endregion
@@ -243,7 +297,7 @@ namespace Maintain_it.ViewModels
 
         #region METHODS
 
-        public async Task Init( int id )
+        public async Task DeepInitAsync( int id )
         {
             Step = await StepManager.GetItemRecursiveAsync( id );
 
@@ -293,9 +347,20 @@ namespace Maintain_it.ViewModels
             StepMatCounter++;
         }
 
+        private async Task AddOrUpdate()
+        {
+            if(Step == null )
+            {
+                await AddStep();
+            }
+            else
+            {
+                await UpdateStep();
+            }
+        }
+
         private async Task AddStep()
         {
-
             int stepId = await StepManager.NewStep( isFirstStep, Name, Description, IsCompleted, TimeRequired, (int)Timeframe );
 
             await StepManager.UpdateItemIndexAsync( stepId, StepNum );
@@ -327,6 +392,27 @@ namespace Maintain_it.ViewModels
             string encodedId = HttpUtility.UrlEncode( stepId.ToString());
 
             await Shell.Current.GoToAsync( $"..?stepIds={encodedId}" );
+        }
+
+        private async Task UpdateStep()
+        {
+            
+            List<int> noteIds = new List<int>(), stepMaterialIds = new List<int>();
+
+            foreach(NoteViewModel vm in Notes )
+            {
+                noteIds.Add( vm.NoteId );
+            }
+
+            //TODO: Update StepMaterials to use ViewModels instead of the Model directly
+            foreach(var sMVM in StepMaterials )
+            {
+                stepMaterialIds.Add( sMVM.Id );
+            }
+
+            await StepManager.UpdateItemAsync( Step.Id, Name, Description, IsCompleted, TimeRequired, (int)Timeframe, StepNum, NextStep?.Id, PreviousStep?.Id, maintenanceItemId, stepMaterialIds, noteIds );
+
+            await Shell.Current.GoToAsync( $"..?{RoutingPath.RefreshSteps}=true" );
         }
 
         private async Task SelectMaterials()
@@ -390,6 +476,30 @@ namespace Maintain_it.ViewModels
             }
         }
 
+        private async Task RefreshAll()
+        {
+            Name = Step.Name;
+            StepNum = Step.Index;
+            Description = Step.Description;
+            IsCompleted = Step.IsCompleted;
+            TimeRequired = Step.TimeRequired;
+            Timeframe = (Timeframe)Step.Timeframe;
+            
+            StepMaterials.Clear();
+            StepMaterials.AddRange( Step.StepMaterials.OrderByDescending( x => x.Quantity ) );
+
+            IEnumerable<NoteViewModel> notes = await NoteManager.GetItemRangeAsViewModelsAsync( Step.Notes.GetIds() );
+
+            Notes.Clear();
+            Notes.AddRange( notes.OrderBy( x => x.HasImage == true ) );
+        }
+
+        private async Task RefreshAll( int StepId )
+        {
+            Step = await StepManager.GetItemRecursiveAsync( StepId );
+            await RefreshAll();
+        }
+
         #endregion
 
         #region Query Handling
@@ -421,6 +531,13 @@ namespace Maintain_it.ViewModels
                     if( int.TryParse( kvp.Value, out int noteId ) )
                     {
                         await RefreshNote( noteId );
+                    }
+                    break;
+                case RoutingPath.StepId:
+                    string stepId = HttpUtility.UrlDecode(kvp.Value);
+                    if( int.TryParse( stepId, out int parsedStepId ) && parsedStepId != 0 )
+                    {
+                        await RefreshAll( parsedStepId );
                     }
                     break;
                 default:
@@ -461,7 +578,7 @@ namespace Maintain_it.ViewModels
         {
             List<StepMaterial> stepMats = await DbServiceLocator.GetItemRangeAsync<StepMaterial>( stepMaterialIds ) as List<StepMaterial>;
             StepMaterials.Clear();
-            StepMaterials.AddRange( stepMats );
+            StepMaterials.AddRange( stepMats.OrderByDescending( x => x.Quantity ) );
         }
         #endregion
     }

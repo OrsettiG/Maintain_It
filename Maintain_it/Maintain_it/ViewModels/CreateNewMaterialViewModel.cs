@@ -109,7 +109,6 @@ namespace Maintain_it.ViewModels
             int id = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( material );
 
             string encodedId = HttpUtility.UrlEncode( id.ToString() );
-            //TODO: Update this nav call with the correct constant variable
             await Shell.Current.GoToAsync( $"..?{RoutingPath.MaterialID}={encodedId}" ); // This goes to AddStepMaterialViewModel OR AddShoppingListMaterialViewModel
         }
 
@@ -123,7 +122,6 @@ namespace Maintain_it.ViewModels
             material.QuantityOwned = QuantityOwned;
 
             _ = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( material );
-            //TODO: Update this nav call with the correct constant variable
             await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" ); // This goes to AddStepMaterialViewModel
         }
 

@@ -104,5 +104,21 @@ namespace Maintain_it.Helpers
         /// </list>
         /// </summary>
         public const string NoteId = "noteId";
+
+        /// <summary>
+        /// Query Param for:
+        /// <list type="bullet">
+        /// <item><see cref="StepViewModel"/> >> <see cref="StepViewModel"/> (Opens item for editing)</item>
+        /// </list>
+        /// </summary>
+        public const string StepId = "stepId";
+
+        /// <summary>
+        /// Query Param for:
+        /// <list type="bullet">
+        /// <item><see cref="StepViewModel"/> >> <see cref="MaintenanceItemViewModel"/></item>
+        /// </list>
+        /// </summary>
+        public const string RefreshSteps = "refreshSteps";
     }
 }

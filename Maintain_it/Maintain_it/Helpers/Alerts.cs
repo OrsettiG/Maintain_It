@@ -90,5 +90,26 @@ namespace Maintain_it.Helpers
         /// "This Item already has an image associated with it, are you sure you want to replace it?"
         /// </summary>
         public const string ReplaceImageMessage = "This Item already has an image associated with it, are you sure you want to replace it?";
+
+
+        /// <summary>
+        /// "Are you sure you want to permenantly delete this step? This action is irreversable."
+        /// </summary>
+        public const string DeleteStepMessage = "Are you sure you want to permenantly delete this step? This action is irreversable.";
+
+        /// <summary>
+        /// "Yes, delete it"
+        /// </summary>
+        public const string ConfirmDelete = "Yes, delete it";
+
+        /// <summary>
+        /// "No, keep it"
+        /// </summary>
+        public const string CancelDelete = "No, keep it";
+
+        /// <summary>
+        /// "Delete Step?"
+        /// </summary>
+        public const string DeleteStepTitle = "Delete Step?";
     }
 }

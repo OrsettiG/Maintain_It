@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.ViewModels;
 
 using Xamarin.Essentials;
 
@@ -70,12 +72,11 @@ namespace Maintain_it.Helpers
             item.TimeRequired = timeRequired ?? item.TimeRequired;
             item.Timeframe = timeFrame ?? item.Timeframe;
             item.Index = index ?? item.Index;
-            //item.PreviousNodeId = previousNodeId ?? item.PreviousNodeId;
-            //item.NextNodeId = nextNodeId ?? item.NextNodeId;
             item.MaintenanceItemId = maintenanceItemId ?? item.MaintenanceItemId;
 
             if( stepMaterialIds != null )
                 item.StepMaterials = await StepMaterialManager.GetItemRangeAsync( stepMaterialIds );
+
             if( noteIds != null )
                 item.Notes = await NoteManager.GetItemRangeAsync( noteIds );
 
@@ -371,223 +372,7 @@ namespace Maintain_it.Helpers
 
             await DbServiceLocator.UpdateItemAsync( item );
         }
-
-
-
-        //public static async Task DeReference( int stepId, int maintenanceItemId )
-        //{
-        //    Step step = await GetItemAsync( stepId );
-        //    MaintenanceItem item = await MaintenanceItemManager.GetItemRecursiveAsync( maintenanceItemId );
-
-        //    await InsertStepIntoSequenceAfter( step.PreviousNode.Id, step.NextNode.Id );
-        //}
         #endregion
-
-        #endregion
-
-        #region Sequence Management
-
-        /// <summary>
-        /// Links the two steps NextNode and PreviousNode properties and updates the database.
-        /// </summary>
-        /// <returns></returns>
-        //public static async Task InsertStepIntoSequenceAfter( int previousStepId, int nextStepId )
-        //{
-        //    Step previousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>(previousStepId);
-        //    Step nextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>(nextStepId);
-
-        //    await InsertStepIntoSequenceAfter( previousStep, nextStep );
-        //}
-
-        ///// <summary>
-        ///// Links the two steps NextNode and PreviousNode properties and updates the database.
-        ///// </summary>
-        ///// <returns></returns>
-        //private static async Task InsertStepIntoSequenceAfter( Step insertAfter, Step stepToInsert )
-        //{
-        //    // Get the previous and next step of each step that was passed in so that we can link them together
-        //    if( insertAfter != null && stepToInsert != null )
-        //    {
-
-        //        Step previousNextStep = null;
-        //        if( insertAfter.NextNodeId != null )
-        //        {
-        //            previousNextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)insertAfter.NextNodeId );
-        //        }
-
-        //        Step nextStepPreviousStep = null;
-        //        if( stepToInsert.PreviousNodeId != null )
-        //        {
-        //            nextStepPreviousStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)stepToInsert.PreviousNodeId );
-        //        }
-
-        //        Step nextStepNextStep = null;
-        //        if( stepToInsert.NextNodeId != null )
-        //        {
-        //            nextStepNextStep = await DbServiceLocator.GetItemRecursiveAsync<Step>( (int)stepToInsert.NextNodeId );
-        //        }
-
-        //        insertAfter.NextNodeId = stepToInsert.Id;
-        //        insertAfter.NextNode = stepToInsert;
-        //        await DbServiceLocator.UpdateItemAsync( insertAfter );
-
-        //        stepToInsert.PreviousNodeId = insertAfter.Id;
-        //        stepToInsert.PreviousNode = insertAfter;
-        //        await DbServiceLocator.UpdateItemAsync( stepToInsert );
-
-        //        if( nextStepPreviousStep != null && nextStepNextStep != null )
-        //        {
-        //            nextStepPreviousStep.NextNode = nextStepNextStep;
-        //            nextStepPreviousStep.NextNodeId = nextStepNextStep.Id;
-
-        //            nextStepNextStep.PreviousNode = nextStepPreviousStep;
-        //            nextStepNextStep.PreviousNodeId = nextStepPreviousStep.Id;
-
-        //            await DbServiceLocator.UpdateItemAsync( nextStepPreviousStep );
-        //            await DbServiceLocator.UpdateItemAsync( nextStepNextStep );
-        //        }
-
-        //    }
-
-        //}
-
-        #region Process Visualization
-        // Possible stepId movements within list
-        //
-        // Case 1 - Moving from front of list to middle of list:
-        // Starting Sequence =  N <= [1] <=> {2} <|=|> 3 <=> 4 <=> 5 => N
-        // Desired Sequence  =  N <= {2} <=> [1] <=> 3 <=> 4 <=> 5 => N
-        // Changes required:
-        // newNextStep = 1, step = 2, nextStepNext = a.next, nextStepPrev = a.prev, oldNextStep = b.next oldPrevStep = b.prev
-        //   Prop       | Current | Into | Operation                           | Result
-        //  1.next      |    2    |  3   | 1.ChangeNextStep(oldNextStep)       | 1.next == 3
-        //  1.prev      |    N    |  2   | 1.ChangePrevStep(step)              | 1.prev == 2
-        //  1.next.prev |    2    |  1   | 1.next.ChangePrevStep(newNextStep)  | 3.prev == 1
-        //  1.prev.next |    3    |  1   | 1.prev.ChangeNextStep(newNextStep)  | 2.next == 1
-
-        //  2.next      |    1    |  1   | No Change Required                  | 2.next == 1
-        //  2.prev      |    1    |  N   | 2.ChangePrevStep(nextStepPrev)      | 2.prev == N
-        //  2.next.prev |    2    |  2   | No Change Required                  | 1.prev == 2
-        //  2.prev.next |    N    |  N   | No Change Required                  | N.next == N
-
-        // Case 2 - Moving from middle of list to middle of list:
-        // Starting Sequence =  N <= 1 <=> {2} <|=|> 3 <=> [4] <=> 5 => N
-        // Desired Sequence  =  N <= 1 <=> {2} <=> [4] <=> 3 <=> 5 => N
-        // Changes required:
-        // newNextStep = 4, step = 2, nextStepNext = a.next\5\, nextStepPrev = a.prev\3\, oldNextStep = b.next\3\ oldPrevStep = b.prev\1\
-        //   Prop       | Current | Into | Operation                           | Result
-        //  4.next      |    5    |  3   | 4.ChangeNextStep(oldNextStep)       | 4.next == 3
-        //  4.prev      |    3    |  2   | 4.ChangePrevStep(step)              | 4.prev == 2
-        //  4.next.prev |    2    |  4   | 4.next.ChangePrevStep(newNextStep)  | 3.prev == 4
-        //  4.prev.next |    3    |  4   | 4.prev.ChangeNextStep(newNextStep)  | 2.next == 4
-
-        //  2.next      |    4    |  4   | No Change Required                  | 2.next == 4
-        //  2.prev      |    1    |  1   | No Change Required                  | 2.prev == 5
-        //  2.next.prev |    2    |  2   | No Change Required                  | 4.prev == 2
-        //  2.prev.next |    2    |  2   | No Change Required                  | 1.next == 2
-
-        // Case 3 - Moving from end of list to middle of list:
-        // Starting Sequence =  N <= 1 <=> {2} <|=|> 3 <=> 4 <=> [5] => N
-        // Desired Sequence  =  N <= 1 <=> {2} <=> [5] <=> 3 <=> 4 => N
-        // Variables:
-        // step = 2, newNextStep = 5, stepNextStep = 3, stepPrevStep = 1, nnsOldNextStep = N, nnsOldPrevStep = 4
-        // Changes required:
-        //   Prop  | Current | Into | Operation           | Result
-        //  5.next |    N    |  3   | 5.ChangeNextStep(3) | 5.next == 3
-        //  5.prev |    4    |  2   | 5.ChangePrevStep(2) | 5.prev == 2
-        //  N.prev |    N    |  N   | No Change Required  | N.prev == N
-        //  4.next |    5    |  N   | 4.ChangeNextStep(N) | 4.next == N
-
-        //  2.next |    3    |  5   | 2.ChangeNextStep(5) | 2.next == 5
-        //  2.prev |    1    |  1   | No Change Required  | 2.prev == 1
-        //  3.prev |    2    |  2   | No Change Required  | 5.prev == 2
-        //  1.next |    2    |  2   | No Change Required  | 1.next == 2
-
-        // | <=> 1 <=> 2 <=> 3 <|=|> 4 <=> 5 <=> 6 <=> [7] <=> 8 <=> |
-        // 6 <=> 8
-        // 3 <=> 7
-        // 4 <=> 7
-        // | <-> 1 <=> 2 <=> 3 <=> 7 <=> 4 <=> 5 <=> 6 <=> 8 <-> |
-        #endregion
-
-        //public static async Task<bool> AddToBackOfSequence( int sequenceMemberId, int nodeId )
-        //{
-        //    INode<Step> sequenceMember = await GetItemAsync( sequenceMemberId );
-        //    INode<Step> backNode = await GetItemAsync( sequenceMember.BackNodeId );
-        //    backNode.NextNodeId = nodeId;
-
-        //    //await Update
-        //}
-
-        //public static async Task<bool> AddToSequenceAtIndex( int nodeId, int index )
-        //{
-        //    INode<Step> step = await GetItemRecursiveAsync( nodeId );
-
-        //    if( index > await step.CountSequenceLength() )
-
-        //    if( step.Index > index )
-        //    {
-
-        //    }
-        //}
-
-        //public static async Task<bool> AddToSequenceAtIndex( INode<Step> step, int sequenceIndex )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public static async Task<bool> AddToSequenceAfterNode( int stepId, int stepToAddAfterId )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public static async Task<bool> AddToSequenceAfterNode( INode<Step> stepId, INode<Step> stepToAddAfterId )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public static async Task<bool> AddToSequenceBeforeNode( int stepIdToAdd, int stepIdToAddBefore )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public static async Task<bool> AddToSequenceBeforeNode( INode<Step> stepToAdd, INode<Step> stepToAddBefore )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public static async Task<bool> RemoveFromSequence( int stepId )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public static async Task<bool> RemoveFromSequence( INode<Step> step )
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public static async Task<INode<Step>> GetNodeAtIndex( this INode<Step> step, int index )
-        //{
-        //    if( step.Index == index )
-        //    {
-        //        return step;
-        //    }
-
-        //    if( index < step.Index && step.PreviousNodeId != null )
-        //    {
-        //        INode<Step> prev = await GetItemAsync( (int)step.PreviousNodeId );
-        //        return await prev.GetNodeAtIndex( index );
-        //    }
-
-        //    if( index > step.Index && step.NextNodeId != null )
-        //    {
-        //        INode<Step> next = await GetItemAsync( (int)step.NextNodeId);
-        //        return await GetNodeAtIndex( next, index );
-        //    }
-
-        //    throw new ArgumentOutOfRangeException();
-        //}
-
 
         #endregion
 
@@ -596,6 +381,23 @@ namespace Maintain_it.Helpers
         public static async Task<List<Step>> GetItemRange( IEnumerable<int> stepIds )
         {
             return await DbServiceLocator.GetItemRangeAsync<Step>( stepIds ) as List<Step>;
+        }
+
+        public static async Task<List<StepViewModel>> GetItemRangeAsViewModel( IEnumerable<int> stepIds, MaintenanceItemViewModel mIVM )
+        {
+            List<Step> steps = await GetItemRange(stepIds);
+            ConcurrentBag<StepViewModel> stepVMs = new ConcurrentBag<StepViewModel>();
+
+            ParallelLoopResult result = Parallel.ForEach( steps, async step =>
+            {
+                StepViewModel vm = new StepViewModel(mIVM);
+                stepVMs.Add( vm );
+                await vm.DeepInitAsync(step.Id);
+            } );
+
+            List<StepViewModel> vms = stepVMs.ToList();
+
+            return vms;
         }
 
         public static async Task<Step> GetItemAsync( int stepId )
@@ -666,7 +468,6 @@ namespace Maintain_it.Helpers
         public static async Task DeleteItem( int id )
         {
             Step step = await GetItemRecursiveAsync(id);
-
             await DeleteItem( step );
         }
 
@@ -702,7 +503,49 @@ namespace Maintain_it.Helpers
                 await StepMaterialManager.DeleteItemRange( step.StepMaterials.GetIds() );
             }
 
+            if( step.PreviousNodeId != 0 )
+            {
+                Step preStep = await GetItemRecursiveAsync( step.PreviousNodeId );
+                preStep.NextNodeId = step.NextNodeId;
+            }
+
+            if( step.NextNodeId != 0 )
+            {
+                Step nextStep = await GetItemRecursiveAsync( step.NextNodeId );
+                nextStep.PreviousNodeId = step.PreviousNodeId;
+
+                _ = await UpdateAllIndicesInStepSequence( step.NextNodeId, step.Index );
+            }
+
             await DbServiceLocator.DeleteItemAsync<Step>( step.Id );
+        }
+
+        /// <summary>
+        /// Updates all Steps in the sequence from this step onwards with a new index (the passed in index + however many iterations)
+        /// </summary>
+        /// <param name="fromStepId">The step to start updating indices at (inclusive)</param>
+        /// <param name="index">The index to start updating at</param>
+        /// <returns>true if the sequence was successfully updated, false otherwise.</returns>
+        private static async Task<bool> UpdateAllIndicesInStepSequence( int fromStepId, int index )
+        {
+            Step step = await GetItemAsync( fromStepId );
+
+            int nextNodeId = await UpdateStepIndex( step, index );
+
+            return nextNodeId == 0 || await UpdateAllIndicesInStepSequence( nextNodeId, index + 1 );
+        }
+
+        /// <summary>
+        /// Updates the Step index to the passed in index value and outs the nextNodeId of the passed in step.
+        /// </summary>
+        /// <param name="step">The Step to update the index of</param>
+        /// <param name="newIndex">The index that the pass in step should be changed to</param>
+        /// <returns>The NextNodeId value of the step</returns>
+        private static async Task<int> UpdateStepIndex( Step step, int newIndex )
+        {
+            //PICK UP HERE
+            await UpdateItemAsync( step.Id, index: newIndex );
+            return step.NextNodeId;
         }
 
         #endregion

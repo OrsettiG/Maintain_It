@@ -170,9 +170,9 @@ namespace Maintain_it.Helpers
             return await DbServiceLocator.GetItemAsync<Note>( id );
         }
 
-        internal static Task<List<Note>> GetItemRangeAsync( IEnumerable<int> noteIds )
+        internal static async Task<List<Note>> GetItemRangeAsync( IEnumerable<int> noteIds )
         {
-            throw new NotImplementedException();
+            return await DbServiceLocator.GetItemRangeAsync<Note>( noteIds ) as List<Note>;
         }
 
 
