@@ -48,7 +48,7 @@ namespace Maintain_it.ViewModels
 
         private async Task CreateNewShoppingList()
         {
-            await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.NewItem}=true" );
+            await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{QueryParameters.NewItem}=true" );
         }
 
         // Open ShoppingList
@@ -105,7 +105,7 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case RoutingPath.Refresh:
+                case QueryParameters.Refresh:
                     await Refresh();
                     break;
             }

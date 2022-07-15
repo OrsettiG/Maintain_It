@@ -34,6 +34,8 @@ namespace Maintain_it.Helpers
                 Timeframe = timeframe,
                 NextNodeId = 0,
                 PreviousNodeId = 0,
+                StepMaterials = new List<StepMaterial>(),
+                Notes = new List<Note>(),
                 CreatedOn = DateTime.UtcNow
             };
 
@@ -385,19 +387,48 @@ namespace Maintain_it.Helpers
 
         public static async Task<List<StepViewModel>> GetItemRangeAsViewModel( IEnumerable<int> stepIds, MaintenanceItemViewModel mIVM )
         {
-            List<Step> steps = await GetItemRange(stepIds);
-            ConcurrentBag<StepViewModel> stepVMs = new ConcurrentBag<StepViewModel>();
-
-            ParallelLoopResult result = Parallel.ForEach( steps, async step =>
+            List<StepViewModel> vms = new List<StepViewModel>();
+            if( stepIds.Count() == 0 )
             {
-                StepViewModel vm = new StepViewModel(mIVM);
-                stepVMs.Add( vm );
-                await vm.DeepInitAsync(step.Id);
-            } );
+                return vms;
+            }
+            List<Step> steps = await GetItemRangeRecursiveAsync(stepIds) as List<Step>;
 
-            List<StepViewModel> vms = stepVMs.ToList();
+            foreach( Step step in steps )
+            {
+                StepViewModel vm = CreateViewModel(step, mIVM);
+                await vm.DeepInitAsync();
+                vms.Add( vm );
+            };
 
             return vms;
+        }
+
+        public static async Task<StepViewModel> GetItemAsViewModel( int id, MaintenanceItemViewModel mIVM )
+        {
+            Step step = await GetItemRecursiveAsync(id);
+
+            StepViewModel vm = CreateViewModel(step, mIVM);
+
+            await vm.DeepInitAsync();
+
+            return vm;
+        }
+
+        private static StepViewModel CreateViewModel( Step step, MaintenanceItemViewModel mIVM )
+        {
+            StepViewModel vm = new StepViewModel(mIVM)
+            {
+                Step = step,
+                Name = step.Name,
+                Description = step.Description,
+                TimeRequired = step.TimeRequired,
+                Timeframe = (Timeframe)step.Timeframe,
+                IsCompleted = step.IsCompleted,
+                StepNum = step.Index
+            };
+
+            return vm;
         }
 
         public static async Task<Step> GetItemAsync( int stepId )
@@ -490,7 +521,7 @@ namespace Maintain_it.Helpers
         /// </summary>
         private static async Task DeleteItem( Step step )
         {
-            if( step.Notes != null )
+            if( step.Notes != null && step.Notes.Count > 0 )
             {
                 foreach( Note note in step.Notes )
                 {
@@ -498,7 +529,7 @@ namespace Maintain_it.Helpers
                 }
             }
 
-            if( step.StepMaterials != null )
+            if( step.StepMaterials != null && step.StepMaterials.Count > 0 )
             {
                 await StepMaterialManager.DeleteItemRange( step.StepMaterials.GetIds() );
             }

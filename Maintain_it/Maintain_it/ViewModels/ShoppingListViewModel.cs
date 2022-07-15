@@ -123,7 +123,7 @@ namespace Maintain_it.ViewModels
             }
             string encodedShoppingListId = HttpUtility.UrlEncode($"{ _shoppingList.Id }");
 
-            await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{RoutingPath.ShoppingListId}={encodedShoppingListId}" );
+            await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{QueryParameters.ShoppingListId}={encodedShoppingListId}" );
         }
 
         // Open Shopping List
@@ -137,7 +137,7 @@ namespace Maintain_it.ViewModels
             Console.WriteLine( $"Open Shopping List with Id {Id}" );
             string encodedId = HttpUtility.UrlEncode($"{_shoppingList.Id}");
 
-            await Shell.Current.GoToAsync( $"{nameof( ShoppingListDetailView )}?{RoutingPath.ShoppingListId}={encodedId}" );
+            await Shell.Current.GoToAsync( $"{nameof( ShoppingListDetailView )}?{QueryParameters.ShoppingListId}={encodedId}" );
         }
 
         // Delete Shopping List
@@ -164,7 +164,7 @@ namespace Maintain_it.ViewModels
         private async Task SaveAndGoBack()
         {
             await Save();
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}={RoutingPath.Refresh}" );
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}={QueryParameters.Refresh}" );
         }
 
         #endregion
@@ -229,14 +229,14 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case RoutingPath.ShoppingListId:
+                case QueryParameters.ShoppingListId:
                     if( int.TryParse( kvp.Value, out Id ) )
                     {
                         await Refresh();
                     }
                     break;
 
-                case RoutingPath.ShoppingListMaterialIds:
+                case QueryParameters.ShoppingListMaterialIds:
                     string[] stringIds = HttpUtility.UrlDecode(kvp.Value).Split(',');
                     int[] ids = new int[stringIds.Length];
 
@@ -250,7 +250,7 @@ namespace Maintain_it.ViewModels
                     await AddShoppingListMaterialsToShoppingList();
                     break;
 
-                case RoutingPath.Refresh:
+                case QueryParameters.Refresh:
                     await Refresh();
                     break;
             }

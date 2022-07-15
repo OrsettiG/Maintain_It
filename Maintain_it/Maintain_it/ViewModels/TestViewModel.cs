@@ -130,7 +130,7 @@ namespace Maintain_it.ViewModels
 
             ConcurrentBag<NoteViewModel> vms = new ConcurrentBag<NoteViewModel>();
 
-            ParallelLoopResult parallelLoopResult = Parallel.ForEach( notes, async note =>
+            ParallelLoopResult parallelLoopResult = Parallel.ForEach( notes, note =>
             {
                 
                 using MemoryStream mStream = new MemoryStream();
@@ -174,7 +174,7 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case RoutingPath.Refresh:
+                case QueryParameters.Refresh:
                     await Refresh();
                     break;
             }

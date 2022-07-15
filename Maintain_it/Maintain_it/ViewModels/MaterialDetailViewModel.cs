@@ -1,40 +1,21 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 using Maintain_it.Helpers;
 using Maintain_it.Models;
-using Maintain_it.Services;
 
 using MvvmHelpers;
 
-using Xamarin.Essentials;
-
 namespace Maintain_it.ViewModels
 {
-    public class MaterialViewModel : BaseViewModel
+    internal class MaterialDetailViewModel : BaseViewModel
     {
-        #region Constructors
-        public MaterialViewModel() { }
-
-
-        public MaterialViewModel( Material material )
-        {
-            this.material = material;
-
-            Name = material.Name;
-            Description = material.Description;
-            Size = material.Size;
-            QuantityOwned = material.QuantityOwned;
-            Tags.AddRange( material.Tags );
-        }
-
-        #endregion
 
         #region Properties
-
         private Material material;
         public Material Material
         {
@@ -88,7 +69,7 @@ namespace Maintain_it.ViewModels
         public DateTime CreatedOn
         {
             get => createdOn;
-            private set => SetProperty(ref createdOn, value );
+            private set => SetProperty( ref createdOn, value );
         }
 
         private ObservableRangeCollection<Tag> tags;
@@ -99,6 +80,7 @@ namespace Maintain_it.ViewModels
         }
 
         private ConcurrentDictionary<int, StepViewModel> uniqueSteps = new ConcurrentDictionary<int, StepViewModel>();
+
         private ObservableRangeCollection<StepViewModel> steps;
         public ObservableRangeCollection<StepViewModel> Steps
         {
@@ -106,7 +88,15 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref steps, value );
         }
 
+        private ObservableRangeCollection<StepMaterialViewModel> stepMaterials;
+        public ObservableRangeCollection<StepMaterialViewModel> StepMaterials
+        {
+            get => stepMaterials ??= new ObservableRangeCollection<StepMaterialViewModel>();
+            set => SetProperty( ref stepMaterials, value );
+        }
+
         private ConcurrentDictionary<int, ShoppingListViewModel> uniqueShoppingLists = new ConcurrentDictionary<int, ShoppingListViewModel>();
+
         private ObservableRangeCollection<ShoppingListViewModel> shoppingLists;
         public ObservableRangeCollection<ShoppingListViewModel> ShoppingLists
         {
@@ -116,55 +106,28 @@ namespace Maintain_it.ViewModels
         #endregion
 
         #region Methods
+
         private async Task Init()
         {
-            HashSet<int>stepIds = new HashSet<int>();
-            foreach( StepMaterial mat in Material.StepMaterials )
-            {
-                _ = stepIds.Add( mat.StepId );
-            }
-
-            HashSet<int>shoppingListIds = new HashSet<int>();
-            foreach( ShoppingListMaterial mat in Material.ShoppingListMaterials )
-            {
-                _ = shoppingListIds.Add( mat.ShoppingListId );
-            }
-
-            List<Step> steps = await DbServiceLocator.GetItemRangeRecursiveAsync<Step>( stepIds ) as List<Step>;
-
-
-            List<ShoppingList> shoppingLists = await DbServiceLocator.GetItemRangeRecursiveAsync<ShoppingList>(shoppingListIds) as List<ShoppingList>;
-
-            //Steps
-            _ = Parallel.ForEach( steps, step =>
-            {
-                if( step != null )
-                {
-                    _ = uniqueSteps.GetOrAdd( step.Id, new StepViewModel( step ) );
-                }
-            } );
-
-            //ShoppingLists
-            _ = Parallel.ForEach( shoppingLists, shoppingList =>
-            {
-                if( shoppingList != null )
-                {
-                    _ = uniqueShoppingLists.GetOrAdd( shoppingList.Id, new ShoppingListViewModel( shoppingList ) );
-                }
-            } );
-
             Name = Material.Name;
             Description = Material.Description;
             PartNumber = Material.PartNumber;
-            QuantityOwned = Material.QuantityOwned;
             Size = Material.Size;
-            Units = Material.Units ?? "N/A";
+            Units = Material.Units;
+            QuantityOwned = Material.QuantityOwned;
             CreatedOn = Material.CreatedOn;
-            Tags.Clear();
-            Tags.AddRange(Material.Tags);
-            Steps.AddRange( uniqueSteps.Values );
-            ShoppingLists.AddRange( uniqueShoppingLists.Values );
+
+            StepMaterials.Clear();
+            StepMaterials.AddRange( await StepMaterialManager.GetItemRangeAsViewModelAsync( Material.StepMaterials.GetIds ) );
         }
+
+        private async Task Init( int id )
+        {
+            Material = await MaterialManager.GetItemRecursiveAsync( id );
+            await Init();
+        }
+
+        #endregion
 
         #region Query Handling
         private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
@@ -172,16 +135,14 @@ namespace Maintain_it.ViewModels
             switch( kvp.Key )
             {
                 case QueryParameters.MaterialID:
-                    if( int.TryParse( kvp.Value, out int materialId ) )
+                    string id = HttpUtility.UrlDecode( kvp.Value );
+                    if( int.TryParse( id, out int materialId ) )
                     {
-                        Material = await DbServiceLocator.GetItemRecursiveAsync<Material>( materialId );
-                        await Init();
+                        await Init( materialId );
                     }
-
                     break;
             }
         }
-        #endregion
         #endregion
     }
 }

@@ -26,7 +26,7 @@ namespace Maintain_it.Models
 
         public bool Equals( Tag other )
         {
-            return other.Id == Id;
+            return other?.Id == Id;
         }
     }
 }

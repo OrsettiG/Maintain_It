@@ -94,10 +94,10 @@ namespace Maintain_it.ViewModels
         }
 
         private Material material;
-        public Material Material 
-        { 
-            get => material; 
-            set => SetProperty( ref material, value ); 
+        public Material Material
+        {
+            get => material;
+            set => SetProperty( ref material, value );
         }
 
         private ShoppingList shoppingList;
@@ -134,10 +134,10 @@ namespace Maintain_it.ViewModels
         public ObservableRangeCollection<Tag> Tags { get => tags ??= new ObservableRangeCollection<Tag>(); set => SetProperty( ref tags, value ); }
 
         private TextDecorations textDecoration;
-        public TextDecorations TextDecoration 
-        { 
-            get => textDecoration; 
-            set => SetProperty( ref textDecoration, value ); 
+        public TextDecorations TextDecoration
+        {
+            get => textDecoration;
+            set => SetProperty( ref textDecoration, value );
         }
         #endregion
 
@@ -151,20 +151,35 @@ namespace Maintain_it.ViewModels
             {
                 Purchased = !Purchased;
                 ShoppingListMaterial.Purchased = Purchased;
-                if(Material != null )
-                {
-                    await DbServiceLocator.UpdateItemAsync( ShoppingListMaterial );
-                }
-                else
+
+                if( Material == null )
                 {
                     Material = await DbServiceLocator.GetItemAsync<Material>( MaterialId );
                     ShoppingListMaterial.Material = Material;
                     await DbServiceLocator.UpdateItemAsync( ShoppingListMaterial );
                 }
+
+                await DbServiceLocator.UpdateItemAsync( ShoppingListMaterial );
+                await UpdateMaterialQuantity();
+
                 TextDecoration = TextDecoration == TextDecorations.Strikethrough ? TextDecorations.None : TextDecorations.Strikethrough;
 
                 Color = Purchased ? Color.Green : Color.DarkRed;
             }
+        }
+
+        private async Task UpdateMaterialQuantity()
+        {
+            if( Purchased )
+            {
+                Material.QuantityOwned += Quantity;
+            }
+            else
+            {
+                Material.QuantityOwned -= Quantity;
+            }
+
+            await DbServiceLocator.UpdateItemAsync( Material );
         }
 
         private MvvmHelpers.Commands.Command<bool> toggleCanEditCommand;
@@ -197,7 +212,7 @@ namespace Maintain_it.ViewModels
             {
                 string encodedId = HttpUtility.UrlEncode(ShoppingListMaterial.Id.ToString());
 
-                await Shell.Current.GoToAsync( $"{nameof( ShoppingListMaterialDetailView )}?{RoutingPath.ShoppingListMaterialId}={encodedId}" );
+                await Shell.Current.GoToAsync( $"{nameof( ShoppingListMaterialDetailView )}?{QueryParameters.ShoppingListMaterialId}={encodedId}" );
             }
         }
         #endregion

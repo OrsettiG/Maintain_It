@@ -6,7 +6,7 @@ using Maintain_it.ViewModels;
 
 namespace Maintain_it.Helpers
 {
-    internal static class RoutingPath
+    internal static class QueryParameters
     {
         /// <summary>
         /// Query Param for:

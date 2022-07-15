@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,10 +7,11 @@ using System.Threading.Tasks;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.ViewModels;
 
 namespace Maintain_it.Helpers
 {
-    internal static class MaintenanceItemManager
+    public static class MaintenanceItemManager
     {
         public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, bool hasServiceLimit = false, int timesToRepeatService = 1, int serviceTimeframe = 3, int timesToRemind = 0, bool notifyOfNextServiceDate = false, int advanceNotice = 1, int noticeTimeframe = 3, IEnumerable<int> stepIds = null, bool isActive = true )
         {
@@ -422,6 +424,41 @@ namespace Maintain_it.Helpers
             }
 
             return records;
+        }
+
+        public static async Task<MaintenanceItemViewModel> GetItemAsViewModelAsync( int id )
+        {
+            if( id == 0 )
+                return null;
+            MaintenanceItemViewModel vm = new MaintenanceItemViewModel( id );
+            
+            await vm.InitCommand.ExecuteAsync();
+
+            return vm;
+        }
+
+        public static async Task<List<MaintenanceItemViewModel>> GetItemRangeAsViewModelAsync( IEnumerable<int> ids )
+        {
+            List<MaintenanceItemViewModel> viewModels = new List<MaintenanceItemViewModel>();
+
+            if( ids.Count() == 0 )
+            {
+                return viewModels;
+            }
+
+            foreach( int id in ids)
+            {
+                if( id == 0 )
+                {
+                    continue;
+                }
+
+                MaintenanceItemViewModel vm = new MaintenanceItemViewModel( id );
+                viewModels.Add( vm );
+                await vm.InitCommand.ExecuteAsync();
+            };
+
+            return viewModels;
         }
 
 #nullable enable

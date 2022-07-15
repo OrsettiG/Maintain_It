@@ -33,7 +33,7 @@ namespace Maintain_it.Models
 
         public bool Equals( ShoppingList other )
         {
-            return other.Id == Id;
+            return other?.Id == Id;
         }
     }
 }

@@ -74,7 +74,7 @@ namespace Maintain_it.ViewModels
                 int shoppingListId = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( shoppingList );
 
                 string encodedId = HttpUtility.UrlEncode( shoppingListId.ToString() );
-                await Shell.Current.GoToAsync( $"..?{RoutingPath.ShoppingListId}={encodedId}" );
+                await Shell.Current.GoToAsync( $"..?{QueryParameters.ShoppingListId}={encodedId}" );
             }
             else
             {
@@ -89,7 +89,7 @@ namespace Maintain_it.ViewModels
 
                 string encoded = HttpUtility.UrlEncode( stringBuilder.ToString() );
 
-                await Shell.Current.GoToAsync( $"..?{RoutingPath.ShoppingListMaterialIds}={encoded}" );
+                await Shell.Current.GoToAsync( $"..?{QueryParameters.ShoppingListMaterialIds}={encoded}" );
 
             }
         }
@@ -236,7 +236,7 @@ namespace Maintain_it.ViewModels
             switch( kvp.Key )
             {
                 //TODO: Review
-                case RoutingPath.ShoppingListId:
+                case QueryParameters.ShoppingListId:
                     await Refresh();
                     if( int.TryParse( HttpUtility.HtmlDecode( kvp.Value ), out int shoppingListId ) )
                     {
@@ -264,7 +264,7 @@ namespace Maintain_it.ViewModels
                     }
                     break;
                 //TODO: Review
-                case RoutingPath.ShoppingListMaterialIds:
+                case QueryParameters.ShoppingListMaterialIds:
                     await Refresh();
                     string[] sLMIds = HttpUtility.HtmlDecode( kvp.Value ).Split(',');
                     List<int> shoppingListMaterialIds = new List<int>();
@@ -284,7 +284,7 @@ namespace Maintain_it.ViewModels
                      } );
                     break;
 
-                case RoutingPath.MaterialIds:
+                case QueryParameters.MaterialIds:
                     await Refresh();
                     string[] materialIds = HttpUtility.HtmlDecode(kvp.Value).Split(',');
 

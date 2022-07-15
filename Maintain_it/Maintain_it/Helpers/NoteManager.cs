@@ -180,13 +180,13 @@ namespace Maintain_it.Helpers
         {
             Note note = await GetItemAsync(id);
 
-            // Process the image stuff on another thread so that the UI doesn't freeze. Maybe. Hopefully. I think...
-            NoteViewModel vm = await Task.Run( () =>
-            {
-                NoteViewModel vm = new NoteViewModel();
-                vm.Init( note );
+            NoteViewModel vm = new NoteViewModel();
+            vm.InitWithoutImage( note );
 
-                return vm;
+            // Process the image stuff on another thread so that the UI doesn't freeze. Maybe. Hopefully. I think...
+            await Task.Run( () =>
+            {
+                vm.InitImage( note );
             } );
 
             return vm;
@@ -198,7 +198,8 @@ namespace Maintain_it.Helpers
 
             foreach( int id in ids )
             {
-                vms.Add( await GetItemAsViewModelAsync( id ) );
+                NoteViewModel vm = await GetItemAsViewModelAsync( id );
+                vms.Add( vm );
             }
 
             return vms;

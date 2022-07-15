@@ -30,11 +30,9 @@ namespace Maintain_it.ViewModels
         {
         }
 
-        public MaintenanceItemViewModel( MaintenanceItem maintenanceItem, HomeViewModel homeViewModel )
+        public MaintenanceItemViewModel( int itemId )
         {
-            InitData( maintenanceItem );
-            maintenanceItemId = maintenanceItem.Id;
-            _homeViewModel = homeViewModel;
+            ItemId = itemId;
         }
 
         //public MaintenanceItemViewModel( MaintenanceItem item ) => Item = item;
@@ -42,10 +40,22 @@ namespace Maintain_it.ViewModels
 
         #region PROPERTIES
         private MaintenanceItem item;
+        public MaintenanceItem Item
+        {
+            get => item;
+            private set => SetProperty( ref item, value );
+        }
+
+        private int itemId;
+        public int ItemId
+        {
+            get => Item?.Id ?? itemId;
+            set => SetProperty( ref itemId, Item?.Id ?? value );
+        }
 
         public List<Timeframe> Timeframes => Options.timeframes;
 
-        public bool locked { get; private set; }
+        public bool Locked { get; private set; }
 
         private string name = "";
         public string Name
@@ -62,7 +72,7 @@ namespace Maintain_it.ViewModels
         }
 
         private DateTime firstServiceDate = DateTime.Now;
-        public DateTime FirstServiceDate
+        public DateTime ServiceDate
         {
             get => firstServiceDate;
             set => SetProperty( ref firstServiceDate, value );
@@ -108,7 +118,6 @@ namespace Maintain_it.ViewModels
             {
                 _ = SetProperty( ref hasServiceLimit, value );
                 TimesToRepeatService = value ? 1 : 0;
-                Console.WriteLine( $"*****HasServiceLimit: {HasServiceLimit}\nTimesToRepeatService: {TimesToRepeatService}*****" );
             }
         }
 
@@ -161,24 +170,36 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref maxReminders, value );
         }
 
-        //TODO: Update all the query params here to use the RoutingPath constants instead.
+        private bool isActive;
+        public bool IsActive
+        {
+            get => isActive;
+            set => SetProperty( ref isActive, value );
+        }
+
+        private DateTime createdOn;
+        public DateTime CreatedOn
+        {
+            get => createdOn.ToLocalTime();
+            set => SetProperty( ref createdOn, value.ToUniversalTime() );
+        }
+
+        //TODO: Update all the query params here to use the QueryParameters constants instead.
         #region QUERY PARAMS
         private enum EditState { NewItem, Editing }
         private EditState editState = EditState.NewItem;
         private readonly List<int> stepIds = new List<int>();
-        private int maintenanceItemId;
-        //TODO: Get Rid of this and use the EditState Flag instead
-        private bool update = false;
         #endregion
 
-        private ObservableRangeCollection<StepViewModel> _stepViewModels;
+        private ObservableRangeCollection<StepViewModel> stepViewModels;
         public ObservableRangeCollection<StepViewModel> StepViewModels
         {
-            get => _stepViewModels ??= new ObservableRangeCollection<StepViewModel>();
-            set => SetProperty( ref _stepViewModels, value.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel> );
+            get => stepViewModels ??= new ObservableRangeCollection<StepViewModel>();
+            set => SetProperty( ref stepViewModels, value.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel> );
         }
 
         private string completionTimeEstimate;
+
         public string CompletionTimeEstimate
         {
             get
@@ -194,22 +215,11 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref completionTimeEstimate, value );
         }
 
-
-
-        private bool canDrag = false;
-        public bool CanDrag
-        {
-            get => canDrag;
-            set => SetProperty( ref canDrag, value );
-        }
-
-
-        private HomeViewModel _homeViewModel;
         #endregion
 
         #region COMMANDS
         private AsyncCommand addCommand;
-        public AsyncCommand AddCommand => addCommand ??= new AsyncCommand( Add );
+        public AsyncCommand SaveChangesAsyncCommand => addCommand ??= new AsyncCommand( SaveChanges );
 
         private AsyncCommand addMaterialsToShoppingCartCommand;
         public ICommand AddMaterialsToShoppingCartCommand => addMaterialsToShoppingCartCommand ??= new AsyncCommand( GoToAddMaterialsToShoppingList );
@@ -227,16 +237,14 @@ namespace Maintain_it.ViewModels
             switch( choice )
             {
                 case Alerts.Save:
-                    await Add();
+                    await SaveChanges();
                     break;
                 case Alerts.Discard:
                     // Delete sends the user back to their previous page, so we only need to call GoToAsync if they are discarding changes to an existing item
                     if( editState == EditState.NewItem )
                         await Delete();
                     else
-                        await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
-                    break;
-                default:
+                        await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
                     break;
             }
 
@@ -244,9 +252,6 @@ namespace Maintain_it.ViewModels
 
         private AsyncCommand editCommand;
         public AsyncCommand EditCommand => editCommand ??= new AsyncCommand( Edit );
-
-        private AsyncCommand refreshCommand;
-        public AsyncCommand RefreshCommand => refreshCommand ??= new AsyncCommand( LoadSteps );
 
         private AsyncCommand refreshStepsCommand;
         public AsyncCommand RefreshStepsCommand
@@ -256,9 +261,9 @@ namespace Maintain_it.ViewModels
 
         private async Task RefreshStepsFromDb()
         {
-            MaintenanceItem tempItem = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
+            MaintenanceItem tempItem = await MaintenanceItemManager.GetItemAsync( ItemId );
 
-            IEnumerable<int> ids = tempItem.Steps.GetIds();
+            int[] ids = tempItem.Steps.GetIds().ToArray();
 
             stepIds.Clear();
             stepIds.AddRange( ids );
@@ -268,9 +273,6 @@ namespace Maintain_it.ViewModels
             StepViewModels.Clear();
             StepViewModels.AddRange( stepVMs.OrderBy( x => x.StepNum ) );
         }
-
-        private AsyncCommand updateCommand;
-        public AsyncCommand UpdateCommand => updateCommand ??= new AsyncCommand( Update );
 
         private Command onIncrementCommand;
         public ICommand OnIncrementCommand => onIncrementCommand ??= new Command( Increment );
@@ -303,11 +305,17 @@ namespace Maintain_it.ViewModels
 
         private async Task StartMaintenance()
         {
-            _ = await MaintenanceItemManager.InsertServiceRecord( maintenanceItemId );
+            _ = await MaintenanceItemManager.InsertServiceRecord( ItemId );
 
-            string encodedId = HttpUtility.UrlEncode($"{maintenanceItemId}");
+            string encodedId = HttpUtility.UrlEncode($"{ItemId}");
 
-            await Shell.Current.GoToAsync( $"{nameof( PerformMaintenanceView )}?{RoutingPath.MaintenanceItemId}={encodedId}" );
+            await Shell.Current.GoToAsync( $"{nameof( PerformMaintenanceView )}?{QueryParameters.MaintenanceItemId}={encodedId}" );
+        }
+
+        private AsyncCommand initCommand;
+        public AsyncCommand InitCommand
+        {
+            get => initCommand ??= new AsyncCommand( Init );
         }
         #endregion
 
@@ -324,109 +332,103 @@ namespace Maintain_it.ViewModels
                 RecursEvery -= 1;
         }
 
+
+
         private async Task GoToAddMaterialsToShoppingList()
         {
             if( item != null )
             {
-                ConcurrentDictionary<int, int> materialIdsAndQuantitysRequired = new ConcurrentDictionary<int, int>();
-
-                foreach( Step step in item.Steps )
-                {
-                    Step s = await StepManager.GetItemRecursiveAsync( step.Id );
-
-                    _ = Parallel.ForEach( s.StepMaterials, x =>
-                    {
-                        int quantityRequired = x.Quantity;
-                        int quantityOwned = x.Material.QuantityOwned;
-
-                        if( quantityRequired > quantityOwned )
-                        {
-                            int diff = quantityRequired - quantityOwned;
-                            _ = materialIdsAndQuantitysRequired.AddOrUpdate( x.MaterialId, diff, ( key, oldValue ) => oldValue + diff );
-                        }
-                    } );
-                }
-
+                // Parallel loop through all the materials to get the amounts needed.
+                ConcurrentDictionary<int, int> materialIdsAndQuantitysRequired = await GetMaterialIdsAndQuantitysRequired();
 
                 StringBuilder sb = new StringBuilder();
 
-                if( materialIdsAndQuantitysRequired.Count > 0 )
-                {
-                    foreach( KeyValuePair<int, int> kvp in materialIdsAndQuantitysRequired )
-                    {
-                        _ = sb.Append( kvp.Key );
-                        _ = sb.Append( "=" );
-                        _ = sb.Append( kvp.Value );
-                        _ = sb.Append( ";" );
-                    }
-                }
+                // Add those materials into the query string using = and ; as separators
+                BuildQueryString( materialIdsAndQuantitysRequired, sb );
+
 
                 string encodedQuery = HttpUtility.UrlEncode( sb.ToString() );
-
                 if( encodedQuery != string.Empty )
                 {
-                    string encodedName = HttpUtility.UrlEncode( $"{item.Name} Shopping List" );
+                    string encodedName = HttpUtility.UrlEncode( $"{Item.Name} Shopping List" );
 
-                    await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{RoutingPath.PreSelectedMaterialIds}={encodedQuery}&{RoutingPath.ItemName}={encodedName}" );
+                    await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{QueryParameters.PreSelectedMaterialIds}={encodedQuery}&{QueryParameters.ItemName}={encodedName}" );
                 }
                 else
                 {
+                    // If the string is empty then there are no materials that we do not own. This doesn't check any projects other than the one the user is looking at.
                     await Shell.Current.DisplayAlert( Alerts.Information, Alerts.MaterialsAlreadyOwned, Alerts.Confirmation );
                 }
             }
         }
 
-        private async Task Add()
+        private static void BuildQueryString( ConcurrentDictionary<int, int> materialIdsAndQuantitysRequired, StringBuilder sb )
         {
-            bool isActive = true;
-
-            if( item.IsActive != true )
+            if( materialIdsAndQuantitysRequired.Count > 0 )
             {
-                isActive = Alerts.Yes == await Shell.Current.DisplayPromptAsync( Alerts.SetProjectActive, Alerts.ProjectActiveStateMessage, accept: Alerts.Yes, cancel: Alerts.No );
+                foreach( KeyValuePair<int, int> kvp in materialIdsAndQuantitysRequired )
+                {
+                    _ = sb.Append( kvp.Key );
+                    _ = sb.Append( "=" );
+                    _ = sb.Append( kvp.Value );
+                    _ = sb.Append( ";" );
+                }
+            }
+        }
+
+        private async Task<ConcurrentDictionary<int, int>> GetMaterialIdsAndQuantitysRequired()
+        {
+            ConcurrentDictionary<int, int> materialIdsAndQuantitysRequired = new ConcurrentDictionary<int, int>();
+
+            foreach( Step step in Item.Steps )
+            {
+                Step s = await StepManager.GetItemRecursiveAsync(step.Id);
+
+                _ = Parallel.ForEach( s.StepMaterials, x =>
+                {
+                    int quantityRequired = x.Quantity;
+                    int quantityOwned = x.Material.QuantityOwned;
+
+                    if( quantityRequired > quantityOwned )
+                    {
+                        int diff = quantityRequired - quantityOwned;
+                        _ = materialIdsAndQuantitysRequired.AddOrUpdate( x.MaterialId, diff, ( key, oldValue ) => oldValue + diff );
+                    }
+                } );
             }
 
-            if( item != null )
-            {
-                FirstServiceDate = FirstServiceDate.AddHours( ServiceTime.Hours ).AddMinutes( ServiceTime.Minutes );
+            return materialIdsAndQuantitysRequired;
+        }
 
-                await MaintenanceItemManager.UpdateProperties( item.Id, name: Name, comment: Comment, firstServiceDate: FirstServiceDate, recursEvery: RecursEvery, timeframe: (int)ServiceTimeframe, hasServiceLimit: HasServiceLimit, timesToRepeatService: TimesToRepeatService, notifyOfNextServiceDate: NotifyOfNextServiceDate, advanceNotice: AdvanceNotice, advanceNoticeTimeframe: (int)NoticeTimeframe, reminders: TimesToRemind, steps: stepIds, isActive: isActive );
+        private async Task SaveChanges()
+        {
+            if( IsActive != true )
+            {
+                IsActive = await Shell.Current.DisplayAlert( Alerts.SetProjectActive, Alerts.ProjectActiveStateMessage, accept: Alerts.Yes, cancel: Alerts.No );
+            }
+
+            if( Item != null )
+            {
+                ServiceDate = ServiceDate.AddHours( ServiceTime.Hours ).AddMinutes( ServiceTime.Minutes );
+
+                await MaintenanceItemManager.UpdateProperties( Item.Id, name: Name, comment: Comment, firstServiceDate: ServiceDate, recursEvery: RecursEvery, timeframe: (int)ServiceTimeframe, hasServiceLimit: HasServiceLimit, timesToRepeatService: TimesToRepeatService, notifyOfNextServiceDate: NotifyOfNextServiceDate, advanceNotice: AdvanceNotice, advanceNoticeTimeframe: (int)NoticeTimeframe, reminders: TimesToRemind, steps: stepIds, isActive: IsActive );
             }
             else
             {
-                int id = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, true, (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
+                ItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, ServiceDate, Comment, RecursEvery, true, (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
             }
 
             ClearData();
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
         }
-
-        private async Task<List<Step>> CreateStepList()
-        {
-            List<Step> list = new List<Step>();
-
-            foreach( StepViewModel model in StepViewModels )
-            {
-                list.Add( model.Step );
-            };
-
-            return list;
-        }
-
-        //private async Task<StepViewModel> CreateNewStepViewModel( Step step )
-        //{
-        //    StepViewModel vm = new StepViewModel(this);
-
-        //    await vm.DeepInitAsync( step.Id );
-
-        //    return vm;
-        //}
 
         private void CalculateServiceCompletionTimeEstimate()
         {
             double minutes = 0;
             TimeInMinutes largestTimeframe = TimeInMinutes.None;
 
-            foreach( Step step in item.Steps )
+            foreach( Step step in Item.Steps )
             {
                 switch( (Timeframe)step.Timeframe )
                 {
@@ -475,66 +477,68 @@ namespace Maintain_it.ViewModels
             CompletionTimeEstimate = largestTimeframe != TimeInMinutes.None ? $"{Math.Round( minutes / (int)largestTimeframe, 1 )} {largestTimeframe}" : "Unavailable";
         }
 
-        private async Task<StepViewModel> CreateNewStepViewModel( int stepId )
+        private async Task Init()
         {
-            StepViewModel vm = new StepViewModel(this);
+            if( ItemId == 0 )
+                return;
 
-            await vm.DeepInitAsync( stepId );
+            Item = await MaintenanceItemManager.GetItemRecursiveAsync( ItemId );
+            await LoadStepsAsync();
+            Name = Item.Name;
+            Comment = Item.Comment;
+            IsActive = Item.IsActive;
+            ServiceDate = Item.NextServiceDate ?? Item.FirstServiceDate;
+            RecursEvery = Item.RecursEvery;
+            ServiceTimeframe = (Timeframe)Item.ServiceTimeframe;
+            HasServiceLimit = Item.HasServiceLimit;
+            TimesToRepeatService = Item.TimesToRepeatService;
+            NotifyOfNextServiceDate = Item.NotifyOfNextServiceDate;
+            AdvanceNotice = Item.AdvanceNotice;
+            NoticeTimeframe = (Timeframe)Item.NoticeTimeframe;
+            CreatedOn = Item.CreatedOn;
 
-            return vm;
+            TimesServiced = Item.ServiceRecords.Count;
+            PreviousServiceCompleted = TimesServiced > 0 && Item.ServiceRecords[^1].ServiceCompleted;
+
+        }
+
+        private async Task LoadStepsAsync()
+        {
+            stepIds.AddRange( Item.Steps.GetIds() );
+            List<StepViewModel> stepVMs = await StepManager.GetItemRangeAsViewModel( stepIds, this );
+
+            StepViewModels.Clear();
+            StepViewModels.AddRange( stepVMs );
         }
 
         private void InitData( MaintenanceItem maintenanceItem, bool _update = false )
         {
-            item = maintenanceItem;
+            Item = maintenanceItem;
 
-            if( _update )
-            {
-                editState = EditState.Editing;
-                update = true;
-            }
-
-            Name = item.Name;
-            Comment = item.Comment;
-            FirstServiceDate = item.NextServiceDate ?? item.FirstServiceDate;
-            RecursEvery = item.RecursEvery;
-            IsRecurring = item.RecursEvery > 0;
-            ServiceTimeframe = (Timeframe)item.ServiceTimeframe;
-            TimesToRepeatService = item.TimesToRepeatService;
-            NotifyOfNextServiceDate = item.NotifyOfNextServiceDate;
-            AdvanceNotice = item.AdvanceNotice;
-            NoticeTimeframe = (Timeframe)item.NoticeTimeframe;
-            TimesServiced = item.ServiceRecords.Count;
-            PreviousServiceCompleted = TimesServiced > 0 && item.ServiceRecords[^1].ServiceCompleted;
-            NotifyOfNextServiceDate = item.NotifyOfNextServiceDate;
-
-            if( item.Steps != null || item.Steps.Count > 0 )
-            {
-                stepIds.AddRange( GetStepIds() );
-                _ = Task.Run( async () => await RefreshSteps() );
-            }
-
-        }
-
-        private IEnumerable<int> GetStepIds()
-        {
-            List<int> ids = new List<int>();
-            foreach( Step step in item.Steps )
-            {
-                ids.Add( step.Id );
-            }
-            return ids;
+            Name = Item.Name;
+            Comment = Item.Comment;
+            ServiceDate = Item.NextServiceDate ?? Item.FirstServiceDate;
+            RecursEvery = Item.RecursEvery;
+            IsRecurring = Item.RecursEvery > 0;
+            ServiceTimeframe = (Timeframe)Item.ServiceTimeframe;
+            TimesToRepeatService = Item.TimesToRepeatService;
+            NotifyOfNextServiceDate = Item.NotifyOfNextServiceDate;
+            AdvanceNotice = Item.AdvanceNotice;
+            NoticeTimeframe = (Timeframe)Item.NoticeTimeframe;
+            TimesServiced = Item.ServiceRecords.Count;
+            PreviousServiceCompleted = TimesServiced > 0 && Item.ServiceRecords[^1].ServiceCompleted;
+            NotifyOfNextServiceDate = Item.NotifyOfNextServiceDate;
         }
 
         private void ClearData()
         {
-            if( !locked )
+            if( !Locked )
             {
-                locked = true;
+                Locked = true;
 
                 Name = string.Empty;
                 Comment = string.Empty;
-                FirstServiceDate = DateTime.UtcNow.ToLocalTime();
+                ServiceDate = DateTime.UtcNow.ToLocalTime();
                 IsRecurring = false;
                 RecursEvery = 0;
                 ServiceTimeframe = Timeframe.Months;
@@ -544,47 +548,23 @@ namespace Maintain_it.ViewModels
                 StepViewModels.Clear();
                 item = null;
 
-                locked = false;
+                Locked = false;
             }
         }
 
         private async Task LoadSteps()
         {
-            if( !locked )
+            if( !Locked )
             {
-                locked = true;
+                Locked = true;
+
+                List<StepViewModel> sVMs = await StepManager.GetItemRangeAsViewModel( stepIds, this );
 
                 StepViewModels.Clear();
-
-                foreach( int id in stepIds )
-                {
-                    StepViewModels.Add( await CreateNewStepViewModel( id ) );
-                }
-
+                StepViewModels.AddRange( sVMs.OrderBy( x => x.StepNum ) );
                 CalculateServiceCompletionTimeEstimate();
 
-                locked = false;
-            }
-        }
-
-        private async Task RefreshSteps()
-        {
-            if( !locked )
-            {
-                locked = true;
-
-                StepViewModels.Clear();
-
-                List<StepViewModel> data = new List<StepViewModel>();
-
-                foreach( Step step in item.Steps )
-                {
-                    data.Add( await CreateNewStepViewModel( step.Id ) );
-                }
-
-                StepViewModels.AddRange( data.OrderBy( x => x.StepNum ) );
-
-                locked = false;
+                Locked = false;
             }
         }
 
@@ -592,46 +572,35 @@ namespace Maintain_it.ViewModels
         {
             if( item != null )
             {
-                await MaintenanceItemManager.DeleteItem( item.Id );
-                await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+                await MaintenanceItemManager.DeleteItem( Item.Id );
+                await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
             }
         }
 
         private async Task Edit()
         {
-            if( item != null )
+            if( ItemId != 0 )
             {
-                string encodedQuery = HttpUtility.UrlEncode( maintenanceItemId.ToString() );
+                string encodedQuery = HttpUtility.UrlEncode( ItemId.ToString() );
 
-                await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}?{nameof( maintenanceItemId )}={encodedQuery}" );
-            }
-        }
-
-        private async Task Update()
-        {
-            if( item != null )
-            {
-                if( await DbServiceLocator.GetItemAsync<MaintenanceItem>( item.Id ) != item )
-                {
-                    await DbServiceLocator.UpdateItemAsync( item );
-                }
+                await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}?{QueryParameters.MaintenanceItemId}={encodedQuery}" );
             }
         }
 
         // TODO: Make it so you can add a new step to a completed project. Got a null reference error when I tried.
         private async Task NewStep()
         {
-            if( item == null )
+            if( Item == null )
             {
-                maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, FirstServiceDate, Comment, RecursEvery, true, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
-                item = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
+                ItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, ServiceDate, Comment, RecursEvery, true, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
+                Item = await MaintenanceItemManager.GetItemAsync( ItemId );
             }
 
             if( StepViewModels.Count > 0 )
             {
                 string encodedFinalStepId = HttpUtility.UrlEncode(StepViewModels[^1].Step.Id.ToString());
-                string encodedMaintenanceItemId = HttpUtility.UrlEncode(maintenanceItemId.ToString());
-                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?previousStepId={encodedFinalStepId}&{RoutingPath.MaintenanceItemId}={encodedMaintenanceItemId}" );
+                string encodedMaintenanceItemId = HttpUtility.UrlEncode(ItemId.ToString());
+                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?previousStepId={encodedFinalStepId}&{QueryParameters.MaintenanceItemId}={encodedMaintenanceItemId}" );
             }
 
             if( StepViewModels.Count < 1 )
@@ -665,21 +634,25 @@ namespace Maintain_it.ViewModels
                         await LoadSteps();
                     }
                     break;
-                case nameof( maintenanceItemId ):
-                    if( int.TryParse( HttpUtility.UrlDecode( kvp.Value ), out maintenanceItemId ) )
+                case QueryParameters.MaintenanceItemId:
+                    if( int.TryParse( HttpUtility.UrlDecode( kvp.Value ), out itemId ) )
                     {
-                        item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( maintenanceItemId ).ConfigureAwait( false );
+                        //item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( ItemId ).ConfigureAwait( false );
+                        ItemId = itemId;
+                        editState = EditState.Editing;
 
-                        InitData( item, true );
+                        await Init();
+
+                        //InitData( item );
                     }
                     break;
-                case RoutingPath.NewItem:
-                    maintenanceItemId = await MaintenanceItemManager.NewMaintenanceItem( string.Empty, DateTime.Now, string.Empty, notifyOfNextServiceDate: true );
-                    item = await MaintenanceItemManager.GetItemAsync( maintenanceItemId );
+                case QueryParameters.NewItem:
+                    ItemId = await MaintenanceItemManager.NewMaintenanceItem( string.Empty, DateTime.Now, string.Empty, notifyOfNextServiceDate: true );
+                    item = await MaintenanceItemManager.GetItemAsync( ItemId );
                     InitData( item );
                     editState = EditState.NewItem;
                     break;
-                case RoutingPath.RefreshSteps:
+                case QueryParameters.RefreshSteps:
                     await RefreshStepsFromDb();
                     break;
             }

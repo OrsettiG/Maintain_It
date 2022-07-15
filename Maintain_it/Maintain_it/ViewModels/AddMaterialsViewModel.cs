@@ -106,7 +106,7 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case RoutingPath.Refresh:
+                case QueryParameters.Refresh:
                     await Refresh();
                     break;
             }

@@ -45,8 +45,11 @@
                            HorizontalOptions="End"/>
                     </Grid>
                 </Frame>
-                <Frame Padding="1" Margin="5" BorderColor="{Binding EditingStateColor}">
-                    <CollectionView ItemsSource="{Binding Materials}" Margin="10" >
+                <Frame Padding="1" 
+                       Margin="5" 
+                       BorderColor="{Binding EditingStateColor}">
+                    <CollectionView ItemsSource="{Binding Materials}" 
+                                    Margin="10" >
                         <CollectionView.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -77,9 +80,10 @@
                                 <SwipeView Padding="2">
                                     <SwipeView.RightItems>
                                         <SwipeItems>
-                                            <SwipeItem Command="{Binding DeleteItemCommand}"
-                                               IsDestructive="True"
-                                               IconImageSource="{FontImage Glyph=
+                                            <SwipeItem 
+                                                Command="{Binding DeleteItemCommand}"
+                                                IsDestructive="True"
+                                                IconImageSource="{FontImage Glyph=
                                                {
                                                    Static fontawesome:FontAwesomeIcons.Trash
                                                },
@@ -89,7 +93,9 @@
                                                />
                                         </SwipeItems>
                                     </SwipeView.RightItems>
-                                    <Frame Padding="0,10,5,10" BorderColor="{Binding Color}" HeightRequest="25">
+                                    <Frame Padding="0,10,5,10" 
+                                           BorderColor="{Binding Color}" 
+                                           HeightRequest="25">
                                         <Grid>
                                             <Grid.GestureRecognizers>
                                                 <SwipeGestureRecognizer Direction="Right"

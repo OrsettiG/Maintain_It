@@ -7,36 +7,158 @@
         <viewmodel:MaterialViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="{Binding Name}"/>
+        <ScrollView HorizontalOptions="Fill" VerticalOptions="StartAndExpand" Orientation="Vertical">
+            <StackLayout HorizontalOptions="FillAndExpand"
+                         VerticalOptions="FillAndExpand">
+                <Label Text="{Binding Name}"
+                   FontSize="Title"
+                   HorizontalOptions="CenterAndExpand"
+                       HorizontalTextAlignment="Center"
+                   VerticalOptions="Start"/>
+                <Label Text="Description"
+                       HorizontalOptions="Start"
+                       FontSize="Medium"
+                       Margin="5,2"/>
+                <Frame Margin="5">
+                    <Label Text="{Binding Description}"
+                        HorizontalOptions="StartAndExpand"/>
+                </Frame>
+                <Label Text="Details"
+                       FontSize="Medium"
+                       Margin="5,2"/>
+                <Frame Margin="5">
+                    <StackLayout>
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Owned:"/>
+                            <Label Text="{Binding QuantityOwned}"/>
+                            <Label Text="30 Day Active Demand:"
+                                   HorizontalOptions="EndAndExpand"/>
+                            <Label Text="200"/>
+                        </StackLayout>
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Units:"/>
+                            <Label Text="{Binding Size}"/>
+                            <Label Text="{Binding Units}"/>
 
-            <Label Text="Steps"/>
-            <CollectionView ItemsSource="{Binding Steps}" EmptyView="No Steps">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Label Text="{Binding Name}"
-                                   Grid.Column="0"/>
+                            <Label Text="Total Demand:"
+                                   HorizontalOptions="EndAndExpand"/>
+                            <Label Text="80"/>
+                        </StackLayout>
+                    </StackLayout>
+                </Frame>
 
-                            <Label Text="{Binding MaintenanceItemName}"
-                                   Grid.Column="1"/>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                <Grid RowDefinitions="*,*" Padding="5" VerticalOptions="Fill" HeightRequest="650">
+                    <Frame Grid.Row="0">
+                        <StackLayout>
+                            <Label Text="Used in Steps:"
+                                   FontSize="Large"
+                                   Margin="5"
+                                   VerticalOptions="Start"/>
+                            <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HeightRequest="80">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Label Text="Project Name"
+                                       Grid.Column="0"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Step Name"
+                                       Grid.Column="1"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Step Number"
+                                       Grid.Column="2"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+                            <CollectionView ItemsSource="{Binding Steps}" 
+                                                EmptyView="No Steps Use This Material" 
+                                                Margin="5"
+                                                HorizontalOptions="End">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="5"/>
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Frame HorizontalOptions="FillAndExpand">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Text="{Binding MaintenanceItemName}"
+                                                       Grid.Column="0"
+                                                       VerticalOptions="Center"
+                                                       HorizontalTextAlignment="Center"/>
 
-            <Label Text="Shopping Lists"/>
-            <CollectionView ItemsSource="{Binding ShoppingLists}" EmptyView="No Shopping Lists">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Label Text="{Binding Name}"/>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </StackLayout>
+                                                <Label Text="{Binding Name}"
+                                                       Grid.Column="1"
+                                                       VerticalOptions="Center"
+                                                       HorizontalTextAlignment="Center"/>
+                                                <Label Text="{Binding StepNum}"
+                                                       Grid.Column="2"
+                                                       VerticalOptions="Center"
+                                                       HorizontalTextAlignment="Center"/>
+                                            </Grid>
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame Grid.Row="1">
+                        <StackLayout>
+                            <Label Text="On Shopping Lists:"
+                                   FontSize="Medium"
+                                   Margin="5"/>
+                            <Grid HeightRequest="80">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Label Text="Name"
+                                       Grid.Column="0"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Quantity"
+                                       Grid.Column="1"
+                                       HorizontalOptions="Center"/>
+
+                            </Grid>
+                            <CollectionView ItemsSource="{Binding ShoppingLists}" 
+                                            EmptyView="Not On Any Shopping Lists"
+                                            HorizontalOptions="CenterAndExpand"
+                                            Margin="5"
+                                            Grid.Column="1">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="5"/>
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Frame >
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Text="{Binding Name}"
+                                       Grid.Column="0"
+                                       HorizontalOptions="Center"/>
+                                                <Label Text="{Binding Count}"
+                                       Grid.Column="1"
+                                       HorizontalOptions="Center"/>
+                                            </Grid>
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+            </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

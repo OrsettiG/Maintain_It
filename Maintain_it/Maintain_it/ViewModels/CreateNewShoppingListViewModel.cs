@@ -68,7 +68,7 @@ namespace Maintain_it.ViewModels
         {
             string encodedIds = HttpUtility.HtmlEncode( shoppingListMaterialIds );
 
-            await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{RoutingPath.ShoppingListMaterialIds}={encodedIds}" );
+            await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{QueryParameters.ShoppingListMaterialIds}={encodedIds}" );
         }
 
         // --- Save List ---
@@ -91,7 +91,7 @@ namespace Maintain_it.ViewModels
 
             if( await ShoppingListManager.UpdateShoppingListAsync( shoppingList.Id, Name, materials: shoppingList.Materials ) )
             {
-                await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+                await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
             }
             else
             {
@@ -144,15 +144,15 @@ namespace Maintain_it.ViewModels
 
             switch( kvp.Key )
             {
-                case RoutingPath.NewItem:
+                case QueryParameters.NewItem:
                     shoppingList.Id = await ShoppingListManager.NewShoppingList();
                     break;
 
-                case RoutingPath.PreSelectedMaterialIds:
+                case QueryParameters.PreSelectedMaterialIds:
                     await ProcessMaterialIds( kvp.Value );
                     break;
 
-                case RoutingPath.ShoppingListMaterialIds:
+                case QueryParameters.ShoppingListMaterialIds:
                     string[] stringIds = HttpUtility.UrlDecode(kvp.Value).Split(',');
                     int[] ids = new int[stringIds.Length];
                     for( int i = 0; i < stringIds.Length; i++ )
@@ -163,11 +163,11 @@ namespace Maintain_it.ViewModels
                     await AddShoppingListMaterialsToShoppingList();
                     break;
 
-                case RoutingPath.ItemName:
+                case QueryParameters.ItemName:
                     Name = HttpUtility.UrlDecode( kvp.Value );
                     break;
 
-                case RoutingPath.Refresh:
+                case QueryParameters.Refresh:
                     await Refresh();
                     break;
             }

@@ -138,7 +138,7 @@ namespace Maintain_it.ViewModels
             else
             {
                 await MaintenanceItemManager.CompleteMaintenance( Step.MaintenanceItemId, TimeTaken );
-                await Shell.Current.GoToAsync( $"../?{RoutingPath.Refresh}=true" );
+                await Shell.Current.GoToAsync( $"../?{QueryParameters.Refresh}=true" );
             }
         }
 
@@ -202,7 +202,7 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case RoutingPath.MaintenanceItemId:
+                case QueryParameters.MaintenanceItemId:
                     if( int.TryParse( kvp.Value, out maintenanceItemId ) )
                     {
                         maintenanceItem = await MaintenanceItemManager.GetItemRecursiveAsync( maintenanceItemId );

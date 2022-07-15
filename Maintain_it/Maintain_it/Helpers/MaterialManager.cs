@@ -31,7 +31,7 @@ namespace Maintain_it.Helpers
 
         private static async Task<int> MakeNewMaterial( string name, int quantityOwned, double? size, string units, string description, string partNumber )
         {
-            Material material = new Material()
+            Material material = new Material
             {
                 Name = name,
                 QuantityOwned = quantityOwned,

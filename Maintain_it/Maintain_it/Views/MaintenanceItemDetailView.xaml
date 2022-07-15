@@ -78,7 +78,7 @@
                            Grid.Column="0" 
                            Grid.Row="3"/>
 
-                    <DatePicker Date="{Binding FirstServiceDate}" 
+                    <DatePicker Date="{Binding ServiceDate}" 
                                 IsEnabled="True" 
                                 IsVisible="True" 
                                 Grid.Column="1" 
@@ -352,7 +352,7 @@
                 </Grid>
             </ScrollView>
 
-            <Button Text="Save" Command="{Binding AddCommand}"/>
+            <Button Text="Save" Command="{Binding SaveChangesAsyncCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

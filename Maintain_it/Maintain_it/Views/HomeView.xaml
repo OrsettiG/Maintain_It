@@ -12,45 +12,46 @@
         <ToolbarItem Text="New Project" Command="{Binding AddCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Maintain It!" 
+        <RefreshView Command="{Binding RefreshCommand}" RefreshColor="Green" IsRefreshing="{Binding IsRefreshing}">
+            <StackLayout>
+                <Label Text="Maintain It!" 
                        FontSize="32" 
                        HorizontalOptions="CenterAndExpand"
                        Padding="5"/>
-            <BoxView  
+                <BoxView  
                          WidthRequest="600" HeightRequest="1"
                          HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>
-            <StackLayout x:DataType="viewmodel:HomeViewModel">
-                <Label Text="Upcoming Maintenance" 
+                <StackLayout x:DataType="viewmodel:HomeViewModel">
+                    <Label Text="Upcoming Maintenance" 
                                     FontSize="Medium" TextDecorations="Underline" 
                                     HorizontalOptions="Center" VerticalOptions="Start" 
                                     HeightRequest="35"/>
-                <CollectionView x:Name="Items" 
+                    <CollectionView x:Name="Items" 
                                     ItemsSource="{Binding DisplayedMaintenanceItems}"
                                     VerticalOptions="FillAndExpand" HorizontalOptions="CenterAndExpand" 
                                     Margin="10">
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="{x:Type viewmodel:MaintenanceItemViewModel}">
-                            <Frame WidthRequest="350" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Padding="20,10">
-                                <StackLayout>
-                                    <ScrollView VerticalOptions="FillAndExpand">
-                                        <StackLayout>
-                                            <Grid Padding="5">
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="*"/>
-                                                </Grid.RowDefinitions>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="{x:Type viewmodel:MaintenanceItemViewModel}">
+                                <Frame WidthRequest="350" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Padding="20,10">
+                                    <StackLayout>
+                                        <ScrollView VerticalOptions="FillAndExpand">
+                                            <StackLayout>
+                                                <Grid Padding="5">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
 
-                                                <!--Delete-->
-                                                <Button   Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
+                                                    <!--Delete-->
+                                                    <Button   Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
                                               FontFamily="FA-Solid"
                                               TextColor="{StaticResource Warning}"
                                               BorderColor="{StaticResource Warning}"
@@ -61,8 +62,8 @@
                                               Command="{Binding DeleteCommand}"
                                               />
 
-                                                <!--Edit-->
-                                                <Button   Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
+                                                    <!--Edit-->
+                                                    <Button   Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
                                               FontFamily="FA-Solid"
                                               TextColor="{StaticResource Warning}"
                                               BorderColor="{StaticResource Warning}"
@@ -72,48 +73,48 @@
                                               Command="{Binding EditCommand}"
                                               />
 
-                                                <!--Name-->
-                                                <Label  Text="{Binding Name}"
+                                                    <!--Name-->
+                                                    <Label  Text="{Binding Name}"
                                             FontSize="Medium" HorizontalTextAlignment="Center"
                                             Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" 
                                             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
                                             MaxLines="2"/>
 
-                                            </Grid>
+                                                </Grid>
 
-                                            <Frame>
-                                                <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
-                                                    <Label Text="Next Service Date:"
+                                                <Frame>
+                                                    <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
+                                                        <Label Text="Next Service Date:"
                                                            VerticalOptions="Center"/>
 
-                                                    <Label Text="{Binding FirstServiceDate.DayOfWeek}" VerticalOptions="Center" />
+                                                        <Label Text="{Binding ServiceDate.DayOfWeek}" VerticalOptions="Center" />
 
-                                                    <Label Text="{Binding FirstServiceDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                                        <Label Text="{Binding ServiceDate, StringFormat='{0:MMM dd, yyyy}'}"
                                                            VerticalOptions="Center"/>
-                                                </StackLayout>
-                                            </Frame>
+                                                    </StackLayout>
+                                                </Frame>
 
-                                            <Frame>
-                                                <StackLayout Orientation="Horizontal">
-                                                    <Label Text="Steps:" VerticalOptions="Center"/>
-                                                    <Label Text="{Binding StepViewModels.Count}" VerticalOptions="Center"/>
-                                                    <Label Text="Est. Service Time:" VerticalOptions="Center" HorizontalOptions="EndAndExpand"/>
-                                                    <Label Text="{Binding CompletionTimeEstimate}" VerticalOptions="Center" HorizontalOptions="End"/>
-                                                </StackLayout>
-                                            </Frame>
+                                                <Frame>
+                                                    <StackLayout Orientation="Horizontal">
+                                                        <Label Text="Steps:" VerticalOptions="Center"/>
+                                                        <Label Text="{Binding StepViewModels.Count}" VerticalOptions="Center"/>
+                                                        <Label Text="Est. Service Time:" VerticalOptions="Center" HorizontalOptions="EndAndExpand"/>
+                                                        <Label Text="{Binding CompletionTimeEstimate}" VerticalOptions="Center" HorizontalOptions="End"/>
+                                                    </StackLayout>
+                                                </Frame>
 
-                                            <Frame>
-                                                <StackLayout>
-                                                    <Label Text="Comment:" TextDecorations="Underline" FontSize="Subtitle"/>
-                                                    <Label Text="{Binding Comment}"/>
-                                                </StackLayout>
-                                            </Frame>
+                                                <Frame>
+                                                    <StackLayout>
+                                                        <Label Text="Comment:" TextDecorations="Underline" FontSize="Subtitle"/>
+                                                        <Label Text="{Binding Comment}"/>
+                                                    </StackLayout>
+                                                </Frame>
 
-                                        </StackLayout>
-                                    </ScrollView>
+                                            </StackLayout>
+                                        </ScrollView>
 
-                                    <!--Start Maintenance Button-->
-                                    <Button                                         
+                                        <!--Start Maintenance Button-->
+                                        <Button                                         
                                         Text="Start Maintenance"
                                         FontSize="Body"
                                         Command="{Binding StartMaintenanceCommand}"
@@ -122,20 +123,21 @@
                                         TextColor="{StaticResource Cue}"
                                         FontAttributes="Bold"
                                         HeightRequest="45"/>
-                                    
-                                    <!--Add Items To Cart-->
-                                    <Button 
+
+                                        <!--Add Items To Cart-->
+                                        <Button 
                                         Text="Create Shopping List"
                                         FontSize="Body"
                                         Command="{Binding AddMaterialsToShoppingCartCommand}"
                                         HorizontalOptions="FillAndExpand" 
                                         HeightRequest="45"/>
-                                </StackLayout>
-                            </Frame>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
             </StackLayout>
-        </StackLayout>
+        </RefreshView>
     </ContentPage.Content>
 </ContentPage>

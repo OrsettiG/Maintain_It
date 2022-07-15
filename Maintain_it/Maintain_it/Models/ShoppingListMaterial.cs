@@ -40,7 +40,7 @@ namespace Maintain_it.Models
 
         public bool Equals( ShoppingListMaterial other )
         {
-            return other.Id == Id;
+            return other?.Id == Id;
         }
         #endregion
 

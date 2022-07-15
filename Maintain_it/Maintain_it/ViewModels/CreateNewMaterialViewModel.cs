@@ -109,7 +109,7 @@ namespace Maintain_it.ViewModels
             int id = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( material );
 
             string encodedId = HttpUtility.UrlEncode( id.ToString() );
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.MaterialID}={encodedId}" ); // This goes to AddStepMaterialViewModel OR AddShoppingListMaterialViewModel
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.MaterialID}={encodedId}" ); // This goes to AddStepMaterialViewModel OR AddShoppingListMaterialViewModel
         }
 
         private async Task UpdateMaterial()
@@ -122,7 +122,7 @@ namespace Maintain_it.ViewModels
             material.QuantityOwned = QuantityOwned;
 
             _ = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( material );
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" ); // This goes to AddStepMaterialViewModel
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" ); // This goes to AddStepMaterialViewModel
         }
 
         private void Increment()

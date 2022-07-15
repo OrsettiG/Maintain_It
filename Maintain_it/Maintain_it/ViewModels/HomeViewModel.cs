@@ -9,7 +9,6 @@ using System.Windows.Input;
 
 using Maintain_it.Helpers;
 using Maintain_it.Models;
-using Maintain_it.Services;
 using Maintain_it.Views;
 
 using MvvmHelpers;
@@ -23,18 +22,12 @@ namespace Maintain_it.ViewModels
     {
         public HomeViewModel()
         {
-            itemNum = rand.Next( 100000 );
-            Refresh();
+            _ = Task.Run( async () => await Refresh() );
         }
 
-        private Random rand = new Random();
-        private int itemNum;
-
         #region PROPERTIES
-        #region READ-ONLY
-        #endregion
 
-        private ObservableRangeCollection<MaintenanceItem> _maintenanceItems = new ObservableRangeCollection<MaintenanceItem>();
+        private ObservableRangeCollection<MaintenanceItem> maintenanceItems = new ObservableRangeCollection<MaintenanceItem>();
 
         private ObservableRangeCollection<MaintenanceItemViewModel> displayedMaintenanceItems;
         public ObservableRangeCollection<MaintenanceItemViewModel> DisplayedMaintenanceItems
@@ -43,142 +36,58 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref displayedMaintenanceItems, value );
         }
 
-        private bool locked { get; set; } = false;
-        private int _deletedRows;
-        public int DeletedRows { get => _deletedRows; set => SetProperty( ref _deletedRows, value ); }
+        private bool Locked { get; set; } = false;
+        public bool IsRefreshing => Locked;
 
-        private int _lastItemID;
-        public int LastItemID { get => _lastItemID; set => SetProperty( ref _lastItemID, value ); }
         #endregion
 
         #region COMMANDS
         private AsyncCommand addCommand;
         public ICommand AddCommand => addCommand ??= new AsyncCommand( Add );
-        private AsyncCommand deleteAllCommand;
-        public ICommand DeleteAllCommand => deleteAllCommand ??= new AsyncCommand( DeleteAll );
         private AsyncCommand refreshCommand;
         public ICommand RefreshCommand => refreshCommand ??= new AsyncCommand( Refresh );
-        private AsyncCommand updateCommand;
-        public ICommand UpdateCommand => updateCommand ??= new AsyncCommand( Update );
-        private AsyncCommand addAndReturnIdCommand;
-        public ICommand AddAndReturnIdCommand => addAndReturnIdCommand ??= new AsyncCommand( AddAndReturnId );
-        private AsyncCommand startMaintenanceCommand;
-        public ICommand StartMaintenanceCommand => startMaintenanceCommand ??= new AsyncCommand( StartMaintenance );
-        private AsyncCommand _deleteAllCommand;
-        public ICommand DeleteAllDbsAsyncCommand => _deleteAllCommand ??= new AsyncCommand( DeleteAllAsync );
+
         #endregion
 
         #region Methods
 
         private async Task Add()
         {
-            await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}?{RoutingPath.NewItem}=true" );
+            await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}?{QueryParameters.NewItem}=true" );
         }
-        
-        
 
-        private async Task AddAndReturnId()
-        {
-            MaintenanceItem item = new MaintenanceItem();
-            item.Name += itemNum.ToString();
-
-            LastItemID = await DbServiceLocator.AddItemAndReturnIdAsync( item );
-
-            await Refresh();
-        }
 
         private async Task Refresh()
         {
-            if( !locked )
+            if( !Locked )
             {
-                locked = true;
+                Locked = true;
 
-                _maintenanceItems.Clear();
-                DisplayedMaintenanceItems.Clear();
-
+                Console.WriteLine( "Refresh starting" );
                 List<MaintenanceItem> items = await MaintenanceItemManager.GetAllItemsRecursiveAsync();
-                
-                List<MaintenanceItemViewModel> vms = CreateRange( items );
+
+                //List<MaintenanceItemViewModel> vms = CreateRange( items );
+                Task<List<MaintenanceItemViewModel>> vmsTask = MaintenanceItemManager.GetItemRangeAsViewModelAsync( items.GetIds() );
+
+                List<MaintenanceItemViewModel> vms = await vmsTask;
+
+                maintenanceItems.Clear();
+                maintenanceItems.AddRange( items );
+
+                vmsTask.Wait();
+                DisplayedMaintenanceItems.Clear();
                 DisplayedMaintenanceItems.AddRange( vms );
-                _maintenanceItems.AddRange( items );
-
+                Console.WriteLine( "Refresh Complete" );
             }
 
-            locked = false;
-        }
-
-        private async Task StartMaintenance()
-        {
-
-        }
-
-        private List<MaintenanceItemViewModel> CreateRange( List<MaintenanceItem> items )
-        {
-            List<MaintenanceItemViewModel> vms = new List<MaintenanceItemViewModel>();
-            foreach( MaintenanceItem item in items )
-            {
-                MaintenanceItemViewModel i = new MaintenanceItemViewModel( item, this );
-                vms.Add( i );
-            }
-
-            return vms.OrderBy(x => x.FirstServiceDate).ToList();
-        }
-
-        internal async Task ItemDeleted( int id )
-        {
-            await Refresh();
-        }
-
-        private async Task DeleteAll()
-        {
-            foreach( MaintenanceItem item in _maintenanceItems )
-            {
-                //MaintenanceItem item = MaintenanceItems[0];
-
-                if( item != null )
-                {
-                    await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
-                }
-            }
-
-            await Refresh();
-        }
-
-        private async Task Update()
-        {
-            foreach( MaintenanceItem item in _maintenanceItems )
-            {
-                if( await DbServiceLocator.GetItemAsync<MaintenanceItem>( item.Id ) != item )
-                {
-                    await DbServiceLocator.UpdateItemAsync( item );
-                }
-            }
-
-            await Refresh();
-        }
-
-        private async Task DeleteAllAsync()
-        {
-            int count = 0;
-            count += await DbServiceLocator.DeleteAllAsync<MaintenanceItem>();
-            count += await DbServiceLocator.DeleteAllAsync<Step>();
-            count += await DbServiceLocator.DeleteAllAsync<Material>();
-            count += await DbServiceLocator.DeleteAllAsync<Retailer>();
-            count += await DbServiceLocator.DeleteAllAsync<ShoppingList>();
-            count += await DbServiceLocator.DeleteAllAsync<ShoppingListMaterial>();
-            count += await DbServiceLocator.DeleteAllAsync<Note>();
-            count += await DbServiceLocator.DeleteAllAsync<StepMaterial>();
-
-            DeletedRows = count;
-
-            await Refresh();
+            Locked = false;
         }
 
         private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
         {
             switch( kvp.Key )
             {
-                case RoutingPath.Refresh:
+                case QueryParameters.Refresh:
                     await Refresh();
                     break;
             }

@@ -7,6 +7,7 @@ using System.Windows.Input;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.Helpers;
 using Maintain_it.Views;
 
 using MvvmHelpers;
@@ -17,7 +18,6 @@ using Xamarin.Forms;
 using System.Linq;
 using System.Web;
 using Xamarin.Essentials;
-using Maintain_it.Helpers;
 using Xamarin.Forms.PlatformConfiguration;
 
 namespace Maintain_it.ViewModels
@@ -28,21 +28,7 @@ namespace Maintain_it.ViewModels
 
         public StepViewModel( MaintenanceItemViewModel maintenanceItemViewModel )
         {
-            maintenanceItemVM = maintenanceItemViewModel;
-        }
-        
-        public StepViewModel( Step step, MaintenanceItemViewModel maintenanceItemViewModel )
-        {
-            maintenanceItemVM = maintenanceItemViewModel;
-
-            Step = step;
-            Name = step.Name;
-            Description = step.Description;
-            StepNum = step.Index;
-            TimeRequired = step.TimeRequired;            
-            Timeframe = (Timeframe)Step.Timeframe;
-            IsCompleted = Step.IsCompleted;
-            StepNum = Step.Index;
+            MaintenanceItemVm = maintenanceItemViewModel;
         }
 
         public StepViewModel( Step step )
@@ -57,26 +43,26 @@ namespace Maintain_it.ViewModels
 
         #region Parameters
         // TODO: Create Custom Entry Renderer for Android and IOS
-        private string _name;
-        public string Name { get => _name; set => SetProperty( ref _name, value ); }
+        private string name;
+        public string Name { get => name; set => SetProperty( ref name, value ); }
 
         private int stepNum;
         public int StepNum { get => stepNum; set => SetProperty( ref stepNum, value ); }
 
-        private string _description;
-        public string Description { get => _description; set => SetProperty( ref _description, value ); }
+        private string description;
+        public string Description { get => description; set => SetProperty( ref description, value ); }
 
-        private bool _isCompleted;
-        public bool IsCompleted { get => _isCompleted; set => SetProperty( ref _isCompleted, value ); }
+        private bool isCompleted;
+        public bool IsCompleted { get => isCompleted; set => SetProperty( ref isCompleted, value ); }
 
-        private double _timeRequired;
-        public double TimeRequired { get => _timeRequired; set => SetProperty( ref _timeRequired, value ); }
+        private double timeRequired;
+        public double TimeRequired { get => timeRequired; set => SetProperty( ref timeRequired, value ); }
 
-        private Timeframe _timeframe = Timeframe.Minutes;
-        public Timeframe Timeframe { get => _timeframe; set => SetProperty( ref _timeframe, value ); }
+        private Timeframe timeframe = Timeframe.Minutes;
+        public Timeframe Timeframe { get => timeframe; set => SetProperty( ref timeframe, value ); }
 
-        private string _noteText;
-        public string NoteText { get => _noteText; set => SetProperty( ref _noteText, value ); }
+        private string noteText;
+        public string NoteText { get => noteText; set => SetProperty( ref noteText, value ); }
 
         private ImageSource noteImage;
         public ImageSource NoteImage { get => noteImage; set => SetProperty( ref noteImage, value ); }
@@ -102,20 +88,20 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref showNotes, value );
         }
 
-        private int _stepMatCounter;
-        public int StepMatCounter { get => _stepMatCounter; set => SetProperty( ref _stepMatCounter, value >= 0 ? value : 0 ); }
+        private int stepMatCounter;
+        public int StepMatCounter { get => stepMatCounter; set => SetProperty( ref stepMatCounter, value >= 0 ? value : 0 ); }
 
-        private ObservableRangeCollection<StepMaterial> _stepMaterials;
-        public ObservableRangeCollection<StepMaterial> StepMaterials { get => _stepMaterials ??= new ObservableRangeCollection<StepMaterial>(); set => SetProperty( ref _stepMaterials, value ); }
+        private ObservableRangeCollection<StepMaterial> stepMaterials;
+        public ObservableRangeCollection<StepMaterial> StepMaterials { get => stepMaterials ??= new ObservableRangeCollection<StepMaterial>(); set => SetProperty( ref stepMaterials, value ); }
 
         //TODO: Update this (and all others) to use NoteViewModel instead of the Model directly
         private ObservableRangeCollection<NoteViewModel> notes;
         public ObservableRangeCollection<NoteViewModel> Notes => notes ??= new ObservableRangeCollection<NoteViewModel>();
 
-        public List<Timeframe> timeframes => Options.timeframes;
+        public List<Timeframe> Timeframes => Options.timeframes;
 
         private Step step;
-        public Step Step { get => step; set => step = value; }
+        public Step Step { get => step; set => SetProperty(ref step, value); }
 
         private Step nextStep;
         public Step NextStep { get => nextStep; set => SetProperty( ref nextStep, value ); }
@@ -123,7 +109,7 @@ namespace Maintain_it.ViewModels
         private Step previousStep;
         public Step PreviousStep { get => previousStep; set => SetProperty( ref previousStep, value ); }
 
-        public MaintenanceItemViewModel maintenanceItemVM { get; }
+        public MaintenanceItemViewModel MaintenanceItemVm { get; }
         public string MaintenanceItemName { get; }
         private bool Dragging = false;
 
@@ -157,17 +143,8 @@ namespace Maintain_it.ViewModels
         private ICommand showHideAddNoteCommand;
         public ICommand ShowHideAddNoteCommand => showHideAddNoteCommand ??= new Command( ShowHideAddNote );
 
-        private Command decrementStepMatQuantityCommand;
-        public ICommand DecrementStepMatQuantityCommand => decrementStepMatQuantityCommand ??= new Command( DecrementStepMatCounter );
-
-        private Command incrementStepMatQuantityCommand;
-        public ICommand IncrementStepMatQuantityCommand => incrementStepMatQuantityCommand ??= new Command( IncrementStepMatCounter );
-
         private ICommand toggleCanDragCommand;
-        public ICommand ToggleCanDragCommand
-        {
-            get => toggleCanDragCommand ??= new Command( ToggleCanDrag );
-        }
+        public ICommand ToggleCanDragCommand => toggleCanDragCommand ??= new Command( ToggleCanDrag );
 
         private void ToggleCanDrag()
         {
@@ -175,10 +152,7 @@ namespace Maintain_it.ViewModels
         }
 
         private AsyncCommand openCommand;
-        public ICommand OpenCommand
-        {
-            get => openCommand ??= new AsyncCommand( Open );
-        }
+        public ICommand OpenCommand => openCommand ??= new AsyncCommand( Open );
 
         private async Task Open()
         {
@@ -189,14 +163,11 @@ namespace Maintain_it.ViewModels
 
             string encodedId = HttpUtility.UrlEncode($"{Step.Id}");
 
-            await Shell.Current.GoToAsync( $"{nameof(MaintenanceItemDetailView)}/{nameof( AddNewStepView )}?{RoutingPath.StepId}={encodedId}" );
+            await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}/{nameof( AddNewStepView )}?{QueryParameters.StepId}={encodedId}" );
         }
 
         private AsyncCommand deleteCommand;
-        public ICommand DeleteCommand
-        {
-            get => deleteCommand ??= new AsyncCommand( Delete );
-        }
+        public ICommand DeleteCommand => deleteCommand ??= new AsyncCommand( Delete );
 
         private async Task Delete()
         {
@@ -206,7 +177,7 @@ namespace Maintain_it.ViewModels
             {
                 case true:
                     await StepManager.DeleteItem( Step.Id );
-                    await maintenanceItemVM.RefreshStepsCommand.ExecuteAsync();
+                    await MaintenanceItemVm.RefreshStepsCommand.ExecuteAsync();
                     break;
 
                 case false:
@@ -226,39 +197,32 @@ namespace Maintain_it.ViewModels
         private ICommand dragOverCommand;
         public ICommand DragOverCommand => dragOverCommand ??= new AsyncCommand<StepViewModel>( x => DragOver( x ) );
 
-        private ICommand dragLeaveCommand;
-        public ICommand DragLeaveCommand => dragLeaveCommand ??= new AsyncCommand<StepViewModel>( x => DragLeave( x ) );
-
         private ICommand dropCommand;
         public ICommand DropCommand => dropCommand ??= new AsyncCommand<StepViewModel>( x => Drop( x ) );
 
         private ICommand dragStartingCommand;
-        public ICommand DragStartingCommand => dragStartingCommand ??= new AsyncCommand<StepViewModel>( x => DragStarting( x ) );
+        public ICommand DragStartingCommand => dragStartingCommand ??= new MvvmHelpers.Commands.Command<StepViewModel>( x => DragStarting( x ) );
 
         #endregion
 
         #region Drag and Drop Methods
 
-        private async Task DragStarting( StepViewModel item )
-        {
-            Dragging = true;
-        }
+        private void DragStarting( StepViewModel item ) => Dragging = true;
 
-        private async Task Drop( StepViewModel itemDroppedOn )
+        private Task Drop( StepViewModel itemDroppedOn )
         {
-            StepViewModel itemDropping = maintenanceItemVM.StepViewModels.First(i => i.Dragging);
-            if( itemDropping != null )
+            StepViewModel itemDropping = MaintenanceItemVm.StepViewModels.First(i => i.Dragging);
             {
-                int index1 = maintenanceItemVM.StepViewModels.IndexOf(itemDropping);
-                int index2 = maintenanceItemVM.StepViewModels.IndexOf(itemDroppedOn);
+                int index1 = MaintenanceItemVm.StepViewModels.IndexOf(itemDropping);
+                int index2 = MaintenanceItemVm.StepViewModels.IndexOf(itemDroppedOn);
 
-                maintenanceItemVM.StepViewModels.Move( index1, index2 );
+                MaintenanceItemVm.StepViewModels.Move( index1, index2 );
 
                 int droppedOnStepNum = itemDroppedOn.StepNum;
 
                 if( droppedOnStepNum > itemDropping.StepNum )
                 {
-                    foreach( StepViewModel item in maintenanceItemVM.StepViewModels.Where( x => x.StepNum <= droppedOnStepNum && x.StepNum >= itemDropping.StepNum && x.Step.Id != itemDropping.Step.Id ) )
+                    foreach( StepViewModel item in MaintenanceItemVm.StepViewModels.Where( x => x.StepNum <= droppedOnStepNum && x.StepNum >= itemDropping.StepNum && x.Step.Id != itemDropping.Step.Id ) )
                     {
                         item.Step.Index--;
                         item.StepNum--;
@@ -266,7 +230,7 @@ namespace Maintain_it.ViewModels
                 }
                 else if( droppedOnStepNum < itemDropping.StepNum )
                 {
-                    foreach( StepViewModel item in maintenanceItemVM.StepViewModels.Where( x => x.StepNum >= droppedOnStepNum && x.StepNum <= itemDropping.StepNum && x.Step.Id != itemDropping.Step.Id ) )
+                    foreach( StepViewModel item in MaintenanceItemVm.StepViewModels.Where( x => x.StepNum >= droppedOnStepNum && x.StepNum <= itemDropping.StepNum && x.Step.Id != itemDropping.Step.Id ) )
                     {
                         item.Step.Index++;
                         item.StepNum++;
@@ -277,10 +241,7 @@ namespace Maintain_it.ViewModels
                 itemDropping.Step.Index = droppedOnStepNum;
             }
 
-        }
-
-        private async Task DragLeave( StepViewModel item )
-        {
+            return Task.CompletedTask;
         }
 
         private async Task DragOver( StepViewModel item )
@@ -297,19 +258,33 @@ namespace Maintain_it.ViewModels
 
         #region METHODS
 
-        public async Task DeepInitAsync( int id )
+        public async Task DeepInitAsync()
         {
-            Step = await StepManager.GetItemRecursiveAsync( id );
+            if(Step == null) return;
 
-            Name = Step.Name;
-            Description = Step.Description;
-            TimeRequired = Step.TimeRequired;
-            Timeframe = (Timeframe)Step.Timeframe;
-            IsCompleted = Step.IsCompleted;
-            StepNum = Step.Index;
-            StepMaterials.AddRange( Step.StepMaterials );
-            // TODO: Make getting all these note view models a bit more elegant.
-            Notes.AddRange( await NoteManager.GetItemRangeAsViewModelsAsync( Step.Notes.GetIds() ) );
+            if( Step.PreviousNodeId != 0 )
+            {
+                PreviousStep = await StepManager.GetItemAsync( Step.PreviousNodeId );
+            }
+
+            if( Step.NextNodeId != 0 )
+            {
+                NextStep = await StepManager.GetItemAsync( Step.NextNodeId );
+            }
+
+            if( Step.StepMaterials.Count > 0 )
+            {
+                // TODO: Make convert this to using ViewModels instead of the Model directly.
+                StepMaterials.AddRange( Step.StepMaterials );
+            }
+
+            if( Step.Notes.Count > 0 )
+            {
+                // TODO: Make getting all these note view models a bit more elegant.
+                IEnumerable<NoteViewModel> noteVMs = await NoteManager.GetItemRangeAsViewModelsAsync( Step.Notes.GetIds() );
+
+                Notes.AddRange( noteVMs );
+            }
         }
 
         public async Task InitAsync()
@@ -349,7 +324,7 @@ namespace Maintain_it.ViewModels
 
         private async Task AddOrUpdate()
         {
-            if(Step == null )
+            if( Step == null )
             {
                 await AddStep();
             }
@@ -396,23 +371,20 @@ namespace Maintain_it.ViewModels
 
         private async Task UpdateStep()
         {
-            
+
             List<int> noteIds = new List<int>(), stepMaterialIds = new List<int>();
 
-            foreach(NoteViewModel vm in Notes )
+            foreach( NoteViewModel vm in Notes )
             {
                 noteIds.Add( vm.NoteId );
             }
 
             //TODO: Update StepMaterials to use ViewModels instead of the Model directly
-            foreach(var sMVM in StepMaterials )
-            {
-                stepMaterialIds.Add( sMVM.Id );
-            }
+            stepMaterialIds.AddRange(StepMaterials.Select(sMvm => sMvm.Id));
 
             await StepManager.UpdateItemAsync( Step.Id, Name, Description, IsCompleted, TimeRequired, (int)Timeframe, StepNum, NextStep?.Id, PreviousStep?.Id, maintenanceItemId, stepMaterialIds, noteIds );
 
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.RefreshSteps}=true" );
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.RefreshSteps}=true" );
         }
 
         private async Task SelectMaterials()
@@ -424,7 +396,7 @@ namespace Maintain_it.ViewModels
             }
             else
             {
-                await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?{RoutingPath.Refresh}=true" );
+                await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?{QueryParameters.Refresh}=true" );
             }
         }
 
@@ -484,7 +456,7 @@ namespace Maintain_it.ViewModels
             IsCompleted = Step.IsCompleted;
             TimeRequired = Step.TimeRequired;
             Timeframe = (Timeframe)Step.Timeframe;
-            
+
             StepMaterials.Clear();
             StepMaterials.AddRange( Step.StepMaterials.OrderByDescending( x => x.Quantity ) );
 
@@ -520,20 +492,20 @@ namespace Maintain_it.ViewModels
                     PreviousStep = null;
                     NextStep = null;
                     break;
-                case RoutingPath.MaintenanceItemId:
+                case QueryParameters.MaintenanceItemId:
                     string id = HttpUtility.UrlDecode(kvp.Value);
                     if( int.TryParse( id, out int itemId ) )
                     {
                         maintenanceItemId = itemId;
                     }
                     break;
-                case RoutingPath.RefreshNote:
+                case QueryParameters.RefreshNote:
                     if( int.TryParse( kvp.Value, out int noteId ) )
                     {
                         await RefreshNote( noteId );
                     }
                     break;
-                case RoutingPath.StepId:
+                case QueryParameters.StepId:
                     string stepId = HttpUtility.UrlDecode(kvp.Value);
                     if( int.TryParse( stepId, out int parsedStepId ) && parsedStepId != 0 )
                     {

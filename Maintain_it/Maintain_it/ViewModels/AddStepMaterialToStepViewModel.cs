@@ -256,7 +256,7 @@ namespace Maintain_it.ViewModels
             switch( kvp.Key )
             {
                 // Used when coming from CreateNewMaterialViewModel to add the Material the user just created and save them having to find it in the list of Materials.
-                case RoutingPath.MaterialID:
+                case QueryParameters.MaterialID:
                     MaterialNameSearch = string.Empty;
                     
                     // We have to do this Refresh() in because it caches the materials/selected StepMaterials. If we don't then any methods called before the next refresh that rely on cached data will throw an error.
@@ -295,7 +295,7 @@ namespace Maintain_it.ViewModels
                     await PopulatePreselectedStepMaterials();
                     break;
 
-                case RoutingPath.Refresh:
+                case QueryParameters.Refresh:
                     await Refresh();
                     break;
             }

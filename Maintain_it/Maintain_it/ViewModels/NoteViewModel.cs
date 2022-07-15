@@ -70,7 +70,7 @@ namespace Maintain_it.ViewModels
         public bool HasImage
         {
             get => imageIsVisible;
-            set => SetProperty(ref imageIsVisible, value );
+            set => SetProperty( ref imageIsVisible, value );
         }
 
         private int stepId;
@@ -92,7 +92,7 @@ namespace Maintain_it.ViewModels
         private async Task EditNote()
         {
             if( NoteId > 0 )
-                _ = Shell.Current.GoToAsync( $"{nameof( EditNoteView )}?{RoutingPath.NoteId}={NoteId}" );
+                _ = Shell.Current.GoToAsync( $"{nameof( EditNoteView )}?{QueryParameters.NoteId}={NoteId}" );
         }
 
         private AsyncCommand takePhotoCommand;
@@ -192,6 +192,27 @@ namespace Maintain_it.ViewModels
             HasImage = Image != default;
         }
 
+        public void InitWithoutImage( Note note )
+        {
+            this.note = note;
+
+            NoteId = note.Id;
+            Text = note.Text;
+            StepId = note.StepId;
+            LastUpdated = note.LastUpdated.ToLocalTime();
+            CreatedOn = note.CreatedOn.ToLocalTime();
+            HasImage = Image != default;
+        }
+
+        public void InitImage( Note note )
+        {
+            Image = note.ImageData != default( byte[] )
+            ? ImageSource.FromStream( () => new MemoryStream( note.ImageData ) )
+            : note.ImagePath != string.Empty
+            ? ImageSource.FromFile( note.ImagePath )
+            : default; // this last option will be a default "no photo" image of some sort.
+        }
+
         public async Task<int> Save()
         {
             int id = await NoteManager.NewNote(Text);
@@ -201,7 +222,7 @@ namespace Maintain_it.ViewModels
                 await NoteManager.AddImageToNote( id, Image );
             }
 
-            if(StepId > 0 )
+            if( StepId > 0 )
             {
                 await NoteManager.AddStepToNote( id, StepId );
             }

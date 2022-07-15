@@ -61,7 +61,7 @@ namespace Maintain_it.Models
 
         public bool Equals( Material other )
         {
-            return other.Id == Id;
+            return other?.Id == Id;
         }
         #endregion
     }

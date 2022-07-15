@@ -142,7 +142,7 @@ namespace Maintain_it.ViewModels
             byte[] imageData = await ConvertImageToBytes();
             await NoteManager.UpdateItemAsync( NoteId, Text, imageData );
             string encodedId = HttpUtility.UrlEncode($"{NoteId}");
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.RefreshNote}={encodedId}" );
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.RefreshNote}={encodedId}" );
         }
 
         private AsyncCommand backCommand;
@@ -161,7 +161,7 @@ namespace Maintain_it.ViewModels
                     await Save();
                     break;
                 case Alerts.Discard:
-                    await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+                    await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
                     break;
                 default:
                     break;
@@ -209,7 +209,7 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case RoutingPath.NoteId:
+                case QueryParameters.NoteId:
                     if( int.TryParse( kvp.Value, out int id ) )
                     {
                         await Refresh( id );

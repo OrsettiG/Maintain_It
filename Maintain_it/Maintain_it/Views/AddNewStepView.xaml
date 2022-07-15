@@ -46,7 +46,7 @@
                        ReturnType="Next"
                        IsTabStop="True"/>
 
-                <Picker ItemsSource="{Binding timeframes}" 
+                <Picker ItemsSource="{Binding Timeframes}" 
                         SelectedItem="{Binding Timeframe}"
                         HorizontalOptions="FillAndExpand" 
                         VerticalOptions="Center"

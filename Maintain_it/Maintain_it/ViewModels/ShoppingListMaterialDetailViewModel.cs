@@ -80,7 +80,7 @@ namespace Maintain_it.ViewModels
             shoppingListMaterial.Purchased = Purchased;
 
             await DbServiceLocator.UpdateItemAsync( shoppingListMaterial );
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
         }
 
         private AsyncCommand backCommand;
@@ -91,7 +91,7 @@ namespace Maintain_it.ViewModels
 
         private async Task Back()
         {
-            await Shell.Current.GoToAsync( $"..?{RoutingPath.Refresh}=true" );
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
         }
 
         private AsyncCommand openMaterialCommand;
@@ -104,7 +104,7 @@ namespace Maintain_it.ViewModels
         {
             string encodedId = HttpUtility.UrlEncode($"{shoppingListMaterial.MaterialId}");
 
-            await Shell.Current.GoToAsync( $"{nameof( MaterialDetailView )}?{RoutingPath.MaterialID}={encodedId}" );
+            await Shell.Current.GoToAsync( $"{nameof( MaterialDetailView )}?{QueryParameters.MaterialID}={encodedId}" );
         }
 
         #endregion
@@ -114,7 +114,7 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case RoutingPath.ShoppingListMaterialId:
+                case QueryParameters.ShoppingListMaterialId:
                     if( int.TryParse( HttpUtility.UrlDecode( kvp.Value ), out int id ) )
                     {
                         shoppingListMaterial = await DbServiceLocator.GetItemRecursiveAsync<ShoppingListMaterial>( id );

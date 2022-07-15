@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Maintain_it.Models;
 using Maintain_it.Services;
+using Maintain_it.ViewModels;
 
 namespace Maintain_it.Helpers
 {
@@ -126,6 +127,21 @@ namespace Maintain_it.Helpers
             return stepMaterial;
         }
 
+        public static async Task<List<StepMaterial>> GetItemRangeRecursiveAsync( IEnumerable<int> ids )
+        {
+            List<StepMaterial> stepMaterials = new List<StepMaterial>();
+
+            foreach( int id in ids )
+            {
+                if( id == 0 ) continue;
+
+                StepMaterial stepMaterial = await GetItemRecursiveAsync( id );
+                stepMaterials.Add( stepMaterial );
+            }
+
+            return stepMaterials;
+        }
+
         /// <summary>
         /// Deletes the StepMaterial with the passed in id
         /// </summary>
@@ -142,6 +158,21 @@ namespace Maintain_it.Helpers
             foreach( int id in ids )
             {
                 await DeleteItem( id );
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all the StepMaterials, converts them into ViewModels, and returns the List.
+        /// </summary>
+        /// <param name="ids">IEnumerable of StepMaterial Ids</param>
+        /// <returns>List of type <see cref="StepMaterialViewModel"/></returns>
+        public static async Task<List<StepMaterialViewModel>> GetItemRangeAsViewModelAsync( IEnumerable<int> ids )
+        {
+            List<StepMaterial> stepMaterials = await GetItemRangeRecursiveAsync(ids);
+            List<StepMaterialViewModel> vms = new List<StepMaterialViewModel>();
+            foreach( StepMaterial stepMaterial in stepMaterials )
+            {
+                StepMaterialViewModel vm = new StepMaterialViewModel();
             }
         }
 

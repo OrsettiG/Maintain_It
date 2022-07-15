@@ -65,7 +65,7 @@ namespace Maintain_it.Models
 
         public bool Equals( Step other )
         {
-            return other.Id == Id;
+            return other?.Id == Id;
         }
 
         #endregion
