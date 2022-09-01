@@ -17,6 +17,20 @@ namespace Maintain_it.Helpers
 {
     internal static class StepManager
     {
+        #region Cache
+        private static Dictionary<int, Step> shallowCache;
+        private static Dictionary<int, Step> ShallowCache
+        {
+            get => shallowCache ??= new Dictionary<int, Step>();
+        }
+
+        private static Dictionary<int, Step> deepCache;
+        private static Dictionary<int, Step> DeepCache
+        {
+            get => deepCache ??= new Dictionary<int, Step>();
+        }
+
+        #endregion Cache
         #region Step Creation
 
         /// <summary>
@@ -74,6 +88,8 @@ namespace Maintain_it.Helpers
             item.TimeRequired = timeRequired ?? item.TimeRequired;
             item.Timeframe = timeFrame ?? item.Timeframe;
             item.Index = index ?? item.Index;
+            item.PreviousNodeId = previousNodeId ?? item.PreviousNodeId;
+            item.NextNodeId = nextNodeId ?? item.NextNodeId;
             item.MaintenanceItemId = maintenanceItemId ?? item.MaintenanceItemId;
 
             if( stepMaterialIds != null )
@@ -380,12 +396,8 @@ namespace Maintain_it.Helpers
 
         #region Item Retrieval
 
-        public static async Task<List<Step>> GetItemRange( IEnumerable<int> stepIds )
-        {
-            return await DbServiceLocator.GetItemRangeAsync<Step>( stepIds ) as List<Step>;
-        }
 
-        public static async Task<List<StepViewModel>> GetItemRangeAsViewModel( IEnumerable<int> stepIds, MaintenanceItemViewModel mIVM )
+        public static async Task<List<StepViewModel>> GetItemRangeAsComplexViewModel( IEnumerable<int> stepIds, MaintenanceItemViewModel mIVM )
         {
             List<StepViewModel> vms = new List<StepViewModel>();
             if( stepIds.Count() == 0 )
@@ -402,6 +414,20 @@ namespace Maintain_it.Helpers
             };
 
             return vms;
+        }
+
+        public static async Task<List<SimpleStepViewModel>> GetItemRangeAsSimpleViewModel( IEnumerable<int> ids )
+        {
+            List<Step> steps = await GetItemRangeRecursiveAsync( ids ) as List<Step>;
+            List<SimpleStepViewModel> simpleVMs = new List<SimpleStepViewModel>();
+
+            _ = Parallel.ForEach( steps, step =>
+            {
+                SimpleStepViewModel vm = new SimpleStepViewModel(step);
+                simpleVMs.Add( vm );
+            } );
+
+            return simpleVMs;
         }
 
         public static async Task<StepViewModel> GetItemAsViewModel( int id, MaintenanceItemViewModel mIVM )
@@ -433,13 +459,25 @@ namespace Maintain_it.Helpers
 
         public static async Task<Step> GetItemAsync( int stepId )
         {
-            return await DbServiceLocator.GetItemAsync<Step>( stepId );
+            if( Cache.GetItem( stepId, out Step step ) )
+                return step;
+
+            if( stepId <= 0 )
+                throw new ArgumentOutOfRangeException();
+
+            step = await DbServiceLocator.GetItemAsync<Step>( stepId );
+            Cache.AddShallow( step );
+
+            return step;
         }
 
         public static async Task<Step> GetItemRecursiveAsync( int stepId )
         {
-            Step step = await DbServiceLocator.GetItemRecursiveAsync<Step>( stepId );
+            if( Cache.GetDeepItem( stepId, out Step step ) )
+                return step;
 
+            step = await DbServiceLocator.GetItemRecursiveAsync<Step>( stepId );
+            
             step.MaintenanceItem = step.MaintenanceItemId == 0 ? null : await MaintenanceItemManager.GetItemAsync( step.MaintenanceItemId );
 
             foreach( StepMaterial stepMat in step.StepMaterials )
@@ -447,7 +485,14 @@ namespace Maintain_it.Helpers
                 stepMat.Material = await MaterialManager.GetItemAsync( stepMat.MaterialId );
             }
 
+            Cache.AddDeep( step );
+
             return step;
+        }
+
+        public static async Task<List<Step>> GetItemRange( IEnumerable<int> stepIds )
+        {
+            return await DbServiceLocator.GetItemRangeAsync<Step>( stepIds ) as List<Step>;
         }
 
         internal static async Task<IEnumerable<Step>> GetItemRangeRecursiveAsync( IEnumerable<int> stepIds )
@@ -536,15 +581,16 @@ namespace Maintain_it.Helpers
 
             if( step.PreviousNodeId != 0 )
             {
-                Step preStep = await GetItemRecursiveAsync( step.PreviousNodeId );
-                preStep.NextNodeId = step.NextNodeId;
+                //Step preStep = await GetItemRecursiveAsync( step.PreviousNodeId );
+                //preStep.NextNodeId = step.NextNodeId;
+                await StepManager.UpdateItemAsync( step.PreviousNodeId, nextNodeId: step.NextNodeId );
             }
 
             if( step.NextNodeId != 0 )
             {
-                Step nextStep = await GetItemRecursiveAsync( step.NextNodeId );
-                nextStep.PreviousNodeId = step.PreviousNodeId;
-
+                //Step nextStep = await GetItemRecursiveAsync( step.NextNodeId );
+                //nextStep.PreviousNodeId = step.PreviousNodeId;
+                await StepManager.UpdateItemAsync( step.NextNodeId, previousNodeId: step.PreviousNodeId );
                 _ = await UpdateAllIndicesInStepSequence( step.NextNodeId, step.Index );
             }
 
@@ -559,6 +605,9 @@ namespace Maintain_it.Helpers
         /// <returns>true if the sequence was successfully updated, false otherwise.</returns>
         private static async Task<bool> UpdateAllIndicesInStepSequence( int fromStepId, int index )
         {
+            if( fromStepId <= 0 || index <= 0 )
+                return false;
+
             Step step = await GetItemAsync( fromStepId );
 
             int nextNodeId = await UpdateStepIndex( step, index );

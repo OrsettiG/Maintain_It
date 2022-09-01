@@ -26,6 +26,7 @@
                                     FontSize="Medium" TextDecorations="Underline" 
                                     HorizontalOptions="Center" VerticalOptions="Start" 
                                     HeightRequest="35"/>
+                    <!--Items Collection-->
                     <CollectionView x:Name="Items" 
                                     ItemsSource="{Binding DisplayedMaintenanceItems}"
                                     VerticalOptions="FillAndExpand" HorizontalOptions="CenterAndExpand" 
@@ -52,48 +53,56 @@
 
                                                     <!--Delete-->
                                                     <Button   Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
-                                              FontFamily="FA-Solid"
-                                              TextColor="{StaticResource Warning}"
-                                              BorderColor="{StaticResource Warning}"
-                                              BorderWidth="1"
-                                              CornerRadius="20" HeightRequest="40" WidthRequest="40"
-                                              Grid.Column="0" Grid.Row="0" 
-                                              HorizontalOptions="Center" VerticalOptions="Center"
-                                              Command="{Binding DeleteCommand}"
-                                              />
+                                                              FontFamily="FA-Solid"
+                                                              TextColor="{StaticResource Warning}"
+                                                              BorderColor="{StaticResource Warning}"
+                                                              BorderWidth="1"
+                                                              CornerRadius="20" HeightRequest="40" WidthRequest="40"
+                                                              Grid.Column="0" Grid.Row="0" 
+                                                              HorizontalOptions="Center" VerticalOptions="Center"
+                                                              Command="{Binding DeleteCommand}"
+                                                              />
 
                                                     <!--Edit-->
                                                     <Button   Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
-                                              FontFamily="FA-Solid"
-                                              TextColor="{StaticResource Warning}"
-                                              BorderColor="{StaticResource Warning}"
-                                              CornerRadius="20" HeightRequest="40" WidthRequest="40"
-                                              Grid.Column="3" Grid.Row="0" 
-                                              HorizontalOptions="Center" VerticalOptions="Center"
-                                              Command="{Binding EditCommand}"
-                                              />
+                                                              FontFamily="FA-Solid"
+                                                              TextColor="{StaticResource Warning}"
+                                                              BorderColor="{StaticResource Warning}"
+                                                              CornerRadius="20" HeightRequest="40" WidthRequest="40"
+                                                              Grid.Column="3" Grid.Row="0" 
+                                                              HorizontalOptions="Center" VerticalOptions="Center"
+                                                              Command="{Binding EditCommand}"
+                                                              />
 
                                                     <!--Name-->
                                                     <Label  Text="{Binding Name}"
-                                            FontSize="Medium" HorizontalTextAlignment="Center"
-                                            Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" 
-                                            HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
-                                            MaxLines="2"/>
-
+                                                            FontSize="Medium" HorizontalTextAlignment="Center"
+                                                            Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" 
+                                                            HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
+                                                            MaxLines="2"/>
                                                 </Grid>
-
+                                                
+                                                <!-- Service Info -->
                                                 <Frame>
-                                                    <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
-                                                        <Label Text="Next Service Date:"
-                                                           VerticalOptions="Center"/>
+                                                    <StackLayout>
+                                                        <!-- Last Service Date -->
+                                                        <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
+                                                            <Label Text="Last Service Date:"
+                                                               VerticalOptions="Center"/>
 
-                                                        <Label Text="{Binding ServiceDate.DayOfWeek}" VerticalOptions="Center" />
+                                                            <Label Text="{Binding LastServiceDateUIString}" VerticalOptions="Center" />
+                                                        </StackLayout>
+                                                        
+                                                        <!-- Next Service Date -->
+                                                        <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
+                                                            <Label Text="Next Service Date:"
+                                                               VerticalOptions="Center"/>
 
-                                                        <Label Text="{Binding ServiceDate, StringFormat='{0:MMM dd, yyyy}'}"
-                                                           VerticalOptions="Center"/>
+                                                            <Label Text="{Binding NextServiceDateUIString}" VerticalOptions="Center" />
+                                                        </StackLayout>
                                                     </StackLayout>
                                                 </Frame>
-
+                                                <!-- Step Info -->
                                                 <Frame>
                                                     <StackLayout Orientation="Horizontal">
                                                         <Label Text="Steps:" VerticalOptions="Center"/>
@@ -102,7 +111,7 @@
                                                         <Label Text="{Binding CompletionTimeEstimate}" VerticalOptions="Center" HorizontalOptions="End"/>
                                                     </StackLayout>
                                                 </Frame>
-
+                                                <!-- Comment -->
                                                 <Frame>
                                                     <StackLayout>
                                                         <Label Text="Comment:" TextDecorations="Underline" FontSize="Subtitle"/>

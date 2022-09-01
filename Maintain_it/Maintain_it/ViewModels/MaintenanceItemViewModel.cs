@@ -71,11 +71,34 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref comment, value );
         }
 
-        private DateTime firstServiceDate = DateTime.Now;
-        public DateTime ServiceDate
+        private DateTime nextServiceDate = DateTime.MinValue;
+        public DateTime NextServiceDate
         {
-            get => firstServiceDate;
-            set => SetProperty( ref firstServiceDate, value );
+            get => nextServiceDate;
+            set => SetProperty( ref nextServiceDate, value );
+        }
+
+        public string NextServiceDateUIString
+        {
+            get
+            {
+                return NextServiceDate != DateTime.MinValue ? $"{NextServiceDate.DayOfWeek} {NextServiceDate.Day}/{NextServiceDate.Month}/{NextServiceDate.Year}" : "No Service Scheduled";
+            }
+        }
+
+        private DateTime lastServiceDate = DateTime.MinValue;
+        public DateTime LastServiceDate
+        {
+            get => lastServiceDate;
+            set => SetProperty( ref lastServiceDate, value );
+        }
+
+        public string LastServiceDateUIString
+        {
+            get
+            {
+                return LastServiceDate != DateTime.MinValue ? $"{LastServiceDate.DayOfWeek} {LastServiceDate.Day}/{LastServiceDate.Month}/{LastServiceDate.Year}" : "No Service Completed";
+            }
         }
 
         private TimeSpan serviceTime = Config.DefaultReminderTime;
@@ -170,11 +193,11 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref maxReminders, value );
         }
 
-        private bool isActive;
-        public bool IsActive
+        private ActiveStateFlag activeState;
+        public ActiveStateFlag ActiveState
         {
-            get => isActive;
-            set => SetProperty( ref isActive, value );
+            get => activeState;
+            set => SetProperty( ref activeState, value );
         }
 
         private DateTime createdOn;
@@ -198,21 +221,17 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref stepViewModels, value.OrderBy( x => x.StepNum ) as ObservableRangeCollection<StepViewModel> );
         }
 
-        private string completionTimeEstimate;
-
         public string CompletionTimeEstimate
         {
             get
             {
-                if( completionTimeEstimate == null )
-                {
-                    CalculateServiceCompletionTimeEstimate();
-                }
+                //if( completionTimeEstimate == null )
+                //{
+                //    CalculateServiceCompletionTimeEstimate();
+                //}
 
-                return completionTimeEstimate;
+                return Item.ServiceCompletionTimeEst > 0 ? $"{Item.ServiceCompletionTimeEst} {(TimeInMinutes)Item.ServiceCompletionTimeEstTimeframe}" : "Unavailable";
             }
-
-            set => SetProperty( ref completionTimeEstimate, value );
         }
 
         #endregion
@@ -268,7 +287,7 @@ namespace Maintain_it.ViewModels
             stepIds.Clear();
             stepIds.AddRange( ids );
 
-            List<StepViewModel> stepVMs = await StepManager.GetItemRangeAsViewModel( ids, this );
+            List<StepViewModel> stepVMs = await StepManager.GetItemRangeAsComplexViewModel( ids, this );
 
             StepViewModels.Clear();
             StepViewModels.AddRange( stepVMs.OrderBy( x => x.StepNum ) );
@@ -305,7 +324,10 @@ namespace Maintain_it.ViewModels
 
         private async Task StartMaintenance()
         {
-            _ = await MaintenanceItemManager.InsertServiceRecord( ItemId );
+            if( Item.ServiceRecords.Count == 0 || Item.ServiceRecords.Last().ServiceCompleted )
+            {
+                _ = await MaintenanceItemManager.InsertServiceRecord( ItemId );
+            }
 
             string encodedId = HttpUtility.UrlEncode($"{ItemId}");
 
@@ -343,7 +365,7 @@ namespace Maintain_it.ViewModels
 
                 StringBuilder sb = new StringBuilder();
 
-                // Add those materials into the query string using = and ; as separators
+                // AddShallow those materials into the query string using = and ; as separators
                 BuildQueryString( materialIdsAndQuantitysRequired, sb );
 
 
@@ -402,79 +424,44 @@ namespace Maintain_it.ViewModels
 
         private async Task SaveChanges()
         {
-            if( IsActive != true )
+            if( ActiveState != ActiveStateFlag.Active )
             {
-                IsActive = await Shell.Current.DisplayAlert( Alerts.SetProjectActive, Alerts.ProjectActiveStateMessage, accept: Alerts.Yes, cancel: Alerts.No );
+                ActiveState = ActiveState switch
+                {
+                    ActiveStateFlag.Inactive => await Shell.Current.DisplayAlert( Alerts.SetProjectActive, Alerts.UpdateProjectActiveState_InactiveMessage, accept: Alerts.Yes, cancel: Alerts.No ) ? ActiveStateFlag.Active : ActiveStateFlag.Inactive,
+                    
+                    ActiveStateFlag.Suspended => await Shell.Current.DisplayAlert( Alerts.SetProjectActive, Alerts.UpdateProjectActiveState_SuspendedMessage, accept: Alerts.Yes, cancel: Alerts.No ) ? ActiveStateFlag.Active : ActiveStateFlag.Suspended
+                };
             }
 
             if( Item != null )
             {
-                ServiceDate = ServiceDate.AddHours( ServiceTime.Hours ).AddMinutes( ServiceTime.Minutes );
+                NextServiceDate = NextServiceDate.AddHours( ServiceTime.Hours ).AddMinutes( ServiceTime.Minutes );
 
-                await MaintenanceItemManager.UpdateProperties( Item.Id, name: Name, comment: Comment, firstServiceDate: ServiceDate, recursEvery: RecursEvery, timeframe: (int)ServiceTimeframe, hasServiceLimit: HasServiceLimit, timesToRepeatService: TimesToRepeatService, notifyOfNextServiceDate: NotifyOfNextServiceDate, advanceNotice: AdvanceNotice, advanceNoticeTimeframe: (int)NoticeTimeframe, reminders: TimesToRemind, steps: stepIds, isActive: IsActive );
+                await MaintenanceItemManager.UpdateProperties(  Item.Id, 
+                                                                name: Name, 
+                                                                comment: Comment, 
+                                                                serviceDate: NextServiceDate, 
+                                                                recursEvery: RecursEvery, 
+                                                                timeframe: (int)ServiceTimeframe, 
+                                                                hasServiceLimit: HasServiceLimit, 
+                                                                timesToRepeatService: TimesToRepeatService, 
+                                                                notifyOfNextServiceDate: NotifyOfNextServiceDate, 
+                                                                advanceNotice: AdvanceNotice, 
+                                                                advanceNoticeTimeframe: (int)NoticeTimeframe, 
+                                                                reminders: TimesToRemind, 
+                                                                steps: stepIds, 
+                                                                isActive: (int)ActiveState );
+
             }
             else
             {
-                ItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, ServiceDate, Comment, RecursEvery, true, (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
+                ItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, NextServiceDate, Comment, RecursEvery, true, (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
             }
 
             ClearData();
 
             await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
-        }
-
-        private void CalculateServiceCompletionTimeEstimate()
-        {
-            double minutes = 0;
-            TimeInMinutes largestTimeframe = TimeInMinutes.None;
-
-            foreach( Step step in Item.Steps )
-            {
-                switch( (Timeframe)step.Timeframe )
-                {
-                    case Timeframe.Minutes:
-                        minutes += step.TimeRequired;
-
-                        if( largestTimeframe < TimeInMinutes.Minutes )
-                            largestTimeframe = TimeInMinutes.Minutes;
-                        break;
-
-                    case Timeframe.Hours:
-                        minutes += step.TimeRequired * 60;
-
-                        if( largestTimeframe < TimeInMinutes.Hours )
-                            largestTimeframe = TimeInMinutes.Hours;
-                        break;
-
-                    case Timeframe.Days:
-                        minutes += step.TimeRequired * 1440;
-
-                        if( largestTimeframe < TimeInMinutes.Days )
-                            largestTimeframe = TimeInMinutes.Days;
-                        break;
-
-                    case Timeframe.Weeks:
-                        minutes += step.TimeRequired * 10080;
-
-                        if( largestTimeframe < TimeInMinutes.Weeks )
-                            largestTimeframe = TimeInMinutes.Weeks;
-                        break;
-
-                    case Timeframe.Months:
-                        minutes += step.TimeRequired * 43800;
-                        if( largestTimeframe < TimeInMinutes.Months )
-                            largestTimeframe = TimeInMinutes.Months;
-                        break;
-
-                    case Timeframe.Years:
-                        minutes += step.TimeRequired * 525600;
-                        if( largestTimeframe < TimeInMinutes.Years )
-                            largestTimeframe = TimeInMinutes.Years;
-                        break;
-                }
-            }
-
-            CompletionTimeEstimate = largestTimeframe != TimeInMinutes.None ? $"{Math.Round( minutes / (int)largestTimeframe, 1 )} {largestTimeframe}" : "Unavailable";
         }
 
         private async Task Init()
@@ -486,9 +473,11 @@ namespace Maintain_it.ViewModels
             await LoadStepsAsync();
             Name = Item.Name;
             Comment = Item.Comment;
-            IsActive = Item.IsActive;
-            ServiceDate = Item.NextServiceDate ?? Item.FirstServiceDate;
+            ActiveState = (ActiveStateFlag)Item.ActiveState;
+            NextServiceDate = Item.NextServiceDate;
+            LastServiceDate = Item.ServiceRecords.Count > 0 ? Item.ServiceRecords.Where(x => x.ServiceCompleted == true).OrderByDescending( x => x.ActualServiceCompletionDate ).First().ActualServiceCompletionDate: DateTime.MinValue;
             RecursEvery = Item.RecursEvery;
+            IsRecurring = RecursEvery > 0;
             ServiceTimeframe = (Timeframe)Item.ServiceTimeframe;
             HasServiceLimit = Item.HasServiceLimit;
             TimesToRepeatService = Item.TimesToRepeatService;
@@ -496,7 +485,6 @@ namespace Maintain_it.ViewModels
             AdvanceNotice = Item.AdvanceNotice;
             NoticeTimeframe = (Timeframe)Item.NoticeTimeframe;
             CreatedOn = Item.CreatedOn;
-
             TimesServiced = Item.ServiceRecords.Count;
             PreviousServiceCompleted = TimesServiced > 0 && Item.ServiceRecords[^1].ServiceCompleted;
 
@@ -505,7 +493,7 @@ namespace Maintain_it.ViewModels
         private async Task LoadStepsAsync()
         {
             stepIds.AddRange( Item.Steps.GetIds() );
-            List<StepViewModel> stepVMs = await StepManager.GetItemRangeAsViewModel( stepIds, this );
+            List<StepViewModel> stepVMs = await StepManager.GetItemRangeAsComplexViewModel( stepIds, this );
 
             StepViewModels.Clear();
             StepViewModels.AddRange( stepVMs );
@@ -517,7 +505,7 @@ namespace Maintain_it.ViewModels
 
             Name = Item.Name;
             Comment = Item.Comment;
-            ServiceDate = Item.NextServiceDate ?? Item.FirstServiceDate;
+            NextServiceDate = Item.NextServiceDate;
             RecursEvery = Item.RecursEvery;
             IsRecurring = Item.RecursEvery > 0;
             ServiceTimeframe = (Timeframe)Item.ServiceTimeframe;
@@ -528,6 +516,7 @@ namespace Maintain_it.ViewModels
             TimesServiced = Item.ServiceRecords.Count;
             PreviousServiceCompleted = TimesServiced > 0 && Item.ServiceRecords[^1].ServiceCompleted;
             NotifyOfNextServiceDate = Item.NotifyOfNextServiceDate;
+            ActiveState = (ActiveStateFlag)Item.ActiveState;
         }
 
         private void ClearData()
@@ -538,7 +527,7 @@ namespace Maintain_it.ViewModels
 
                 Name = string.Empty;
                 Comment = string.Empty;
-                ServiceDate = DateTime.UtcNow.ToLocalTime();
+                NextServiceDate = DateTime.UtcNow.ToLocalTime();
                 IsRecurring = false;
                 RecursEvery = 0;
                 ServiceTimeframe = Timeframe.Months;
@@ -558,11 +547,11 @@ namespace Maintain_it.ViewModels
             {
                 Locked = true;
 
-                List<StepViewModel> sVMs = await StepManager.GetItemRangeAsViewModel( stepIds, this );
+                List<StepViewModel> sVMs = await StepManager.GetItemRangeAsComplexViewModel( stepIds, this );
 
                 StepViewModels.Clear();
                 StepViewModels.AddRange( sVMs.OrderBy( x => x.StepNum ) );
-                CalculateServiceCompletionTimeEstimate();
+                //CalculateServiceCompletionTimeEstimate();
 
                 Locked = false;
             }
@@ -592,21 +581,21 @@ namespace Maintain_it.ViewModels
         {
             if( Item == null )
             {
-                ItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, ServiceDate, Comment, RecursEvery, true, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
+                ItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, NextServiceDate, Comment, RecursEvery, true, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
                 Item = await MaintenanceItemManager.GetItemAsync( ItemId );
             }
+            string encodedMaintenanceItemId = HttpUtility.UrlEncode(ItemId.ToString());
 
             if( StepViewModels.Count > 0 )
             {
                 string encodedFinalStepId = HttpUtility.UrlEncode(StepViewModels[^1].Step.Id.ToString());
-                string encodedMaintenanceItemId = HttpUtility.UrlEncode(ItemId.ToString());
                 await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?previousStepId={encodedFinalStepId}&{QueryParameters.MaintenanceItemId}={encodedMaintenanceItemId}" );
             }
 
             if( StepViewModels.Count < 1 )
             {
                 string encodedQuery = HttpUtility.UrlEncode(true.ToString());
-                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?isFirstStep={encodedQuery}" );
+                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?isFirstStep={encodedQuery}&{QueryParameters.MaintenanceItemId}={encodedMaintenanceItemId}" );
             }
 
         }
@@ -637,7 +626,6 @@ namespace Maintain_it.ViewModels
                 case QueryParameters.MaintenanceItemId:
                     if( int.TryParse( HttpUtility.UrlDecode( kvp.Value ), out itemId ) )
                     {
-                        //item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( ItemId ).ConfigureAwait( false );
                         ItemId = itemId;
                         editState = EditState.Editing;
 
@@ -647,9 +635,10 @@ namespace Maintain_it.ViewModels
                     }
                     break;
                 case QueryParameters.NewItem:
-                    ItemId = await MaintenanceItemManager.NewMaintenanceItem( string.Empty, DateTime.Now, string.Empty, notifyOfNextServiceDate: true );
-                    item = await MaintenanceItemManager.GetItemAsync( ItemId );
-                    InitData( item );
+                    ItemId = await MaintenanceItemManager.NewMaintenanceItem( string.Empty, DateTime.UtcNow, string.Empty, notifyOfNextServiceDate: true );
+                    await Init();
+                    //item = await MaintenanceItemManager.GetItemAsync( ItemId );
+                    //InitData( item );
                     editState = EditState.NewItem;
                     break;
                 case QueryParameters.RefreshSteps:

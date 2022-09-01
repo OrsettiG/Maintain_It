@@ -172,8 +172,16 @@ namespace Maintain_it.Helpers
             List<StepMaterialViewModel> vms = new List<StepMaterialViewModel>();
             foreach( StepMaterial stepMaterial in stepMaterials )
             {
-                StepMaterialViewModel vm = new StepMaterialViewModel();
+                StepMaterialViewModel vm = new StepMaterialViewModel()
+                {
+                    StepMaterial = stepMaterial,
+                    Quantity = stepMaterial.Quantity
+                };
+
+                vms.Add( vm );
             }
+
+            return vms;
         }
 
         ///// <summary>

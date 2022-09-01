@@ -340,7 +340,7 @@ namespace Maintain_it.ViewModels
 
             await StepManager.UpdateItemIndexAsync( stepId, StepNum );
             Step = await StepManager.GetItemRecursiveAsync( stepId );
-            //TODO: Add Notes to Step
+            //TODO: AddShallow Notes to Step
             if( Notes.Count > 0 )
             {
                 List<int> ids = new List<int>();
@@ -353,7 +353,7 @@ namespace Maintain_it.ViewModels
                 await StepManager.AddNotes( ids, Step.Id );
             }
 
-            //TODO: Add StepMaterials to Step
+            //TODO: AddShallow StepMaterials to Step
             if( StepMaterials.Count > 0 )
             {
                 await StepManager.AddStepMaterials( stepMaterialIds, Step.Id );

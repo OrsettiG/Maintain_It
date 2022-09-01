@@ -50,12 +50,14 @@ namespace Maintain_it.Models
 
 #nullable enable
         public double? Size { get; set; }
-        public string? Tag { get; set; }
         public string? Units { get; set; }
         public string? Description { get; set; }
         public string? PartNumber { get; set; }
 #nullable disable
 
+        public int LifeExpectancy { get; set; }
+        public int LifeExpectancyTimeframe { get; set; }
+        public byte[] ImageBytes { get; set; }
         public int QuantityOwned { get; set; }
         public DateTime CreatedOn { get; set; }
 

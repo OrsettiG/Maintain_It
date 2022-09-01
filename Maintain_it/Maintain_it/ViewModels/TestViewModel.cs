@@ -68,7 +68,7 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref databaseNoteText, value );
         }
 
-        // Add Note
+        // AddShallow Note
         private AsyncCommand addNoteCommand;
         public ICommand AddNoteCommand
         {

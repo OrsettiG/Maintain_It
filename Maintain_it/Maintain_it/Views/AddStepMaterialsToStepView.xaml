@@ -169,18 +169,12 @@
 
                                         <Label Text="{Binding StepMaterial.Material.Size}"
                                                Grid.Column="1" Grid.Row="2"/>
-                                        
+
                                         <Label Text="{Binding StepMaterial.Material.Units}"
                                                Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2"
                                                HorizontalOptions="Center"/>
 
-                                        <Label Text="Tag:"
-                                               Grid.Column="0" Grid.Row="2"
-                                               VerticalOptions="End"/>
-                                        <Label Text="{Binding StepMaterial.Material.Tag}"
-                                               Grid.Column="1" Grid.Row="2" VerticalOptions="End"/>
-                                    
-                                           
+
 
                                         <Label Text="Quantity Required:" TextDecorations="Underline"
                                                    FontSize="Medium"

@@ -15,7 +15,7 @@ namespace Maintain_it.Helpers
         /// </summary>
         public static async Task<int> GetNewTagAndReturnId( string name, TagType tagType = TagType.General )
         {
-            // Add any validation here if needed.
+            // AddShallow any validation here if needed.
 
             return await NewTag( name, tagType );
         }

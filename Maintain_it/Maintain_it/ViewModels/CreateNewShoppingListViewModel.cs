@@ -58,7 +58,7 @@ namespace Maintain_it.ViewModels
 
         #region COMMANDS
 
-        // --- Add Material(s) ---
+        // --- AddShallow Material(s) ---
         private AsyncCommand addShoppingListMaterialsCommand;
         public ICommand AddShoppingListMaterialsCommand
         {
@@ -97,6 +97,17 @@ namespace Maintain_it.ViewModels
             {
                 await Shell.Current.DisplayAlert( Alerts.Error, Alerts.DatabaseErrorMessage, Alerts.Confirmation );
             }
+        }
+
+        private AsyncCommand backWithRefreshCommand;
+        public ICommand BackWithRefreshCommand
+        {
+            get => backWithRefreshCommand ??= new AsyncCommand( BackWithRefresh );
+        }
+
+        private async Task BackWithRefresh()
+        {
+            await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
         }
         #endregion
 

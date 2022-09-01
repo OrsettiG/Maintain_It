@@ -4,7 +4,7 @@
              xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels"
              x:Class="Maintain_it.Views.MaterialDetailView">
     <ContentPage.BindingContext>
-        <viewmodel:MaterialViewModel/>
+        <viewmodel:MaterialDetailViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.Content>
         <ScrollView HorizontalOptions="Fill" VerticalOptions="StartAndExpand" Orientation="Vertical">

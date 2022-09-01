@@ -62,9 +62,14 @@ namespace Maintain_it.Helpers
         public const string SetProjectActive = "Set Project Active?";
 
         /// <summary>
-        /// "This project is currently not active and will not show up in your "Upcoming Projects". Would you like to mark it active?"
+        /// "This project is currently marked as Inactive and will not show up under \"Active Projects\" or \"Suspended Projects\". Would you like to mark it active?"
         /// </summary>
-        public const string ProjectActiveStateMessage = "This project is currently not active and will not show up in your \"Upcoming Projects\". Would you like to mark it active?";
+        public const string UpdateProjectActiveState_InactiveMessage = "This project is currently marked as Inactive and will not show up under \"Active Projects\" or \"Suspended Projects\". Would you like to mark it active?";
+
+        /// <summary>
+        /// "This project is currently marked as Suspended and will not show up under \"Active Projects\". Would you like to mark it active?"
+        /// </summary>
+        public const string UpdateProjectActiveState_SuspendedMessage = "This project is currently marked as Suspended and will not show up under \"Active Projects\". Would you like to mark it active?";
 
         /// <summary>
         /// "Yes"

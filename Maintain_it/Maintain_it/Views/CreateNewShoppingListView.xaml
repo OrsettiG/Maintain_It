@@ -11,6 +11,9 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Save" Command="{Binding SaveCommand}"/>
     </ContentPage.ToolbarItems>
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding BackWithRefreshCommand}"/>
+    </Shell.BackButtonBehavior>
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>

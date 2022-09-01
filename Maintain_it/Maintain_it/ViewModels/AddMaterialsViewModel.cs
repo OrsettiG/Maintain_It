@@ -37,7 +37,7 @@ namespace Maintain_it.ViewModels
                     if( value != string.Empty || value != null )
                     {
                         DisplayedMaterials.Clear();
-                        DisplayedMaterials.AddRange( _materials.Where( x => FilterMaterials( x ) ) );
+                        DisplayedMaterials.AddRange( _materials.Where( x => FilterMaterial( x ) ) );
                     }
                     else
                     {
@@ -90,14 +90,13 @@ namespace Maintain_it.ViewModels
         #region Methods
 
         /// <summary>
-        /// Converts the search term and the material name/tag to lower case and returns true if the name or tag starts with the search term
+        /// Converts the search term and the material name to lower case and returns true if the name starts with the search term
         /// </summary>
         /// <param name="material">The material to check</param>
         /// <returns>True if search term matches the start of the name or tag, false otherwise.</returns>
-        private protected bool FilterMaterials( Material material )
+        private protected bool FilterMaterial( Material material )
         {
-            return ( material.Name != null && material.Name.ToLowerInvariant().StartsWith( MaterialNameSearch.ToLowerInvariant() ) ) ||
-                   ( material.Tag != null && material.Tag.ToLowerInvariant().StartsWith( MaterialNameSearch.ToLowerInvariant() ) );
+            return material.Name != null && material.Name.ToLowerInvariant().StartsWith( MaterialNameSearch.ToLowerInvariant() );
         }
 
         #region Query Handling

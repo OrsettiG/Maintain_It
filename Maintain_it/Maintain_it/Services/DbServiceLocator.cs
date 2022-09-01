@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using System.Linq;
 
 using Maintain_it.Models;
+using Maintain_it.Helpers;
 
 namespace Maintain_it.Services
 {
     public static class DbServiceLocator
     {
 
-        // Private singleton class for each Service type. Async Task to add an instance is just so that all the other methods can run async without complaining. Not sure that is actually does anything, but you know, what the hell.
+        // Private singleton class for each Service type.
         private static class LocatorEntry<T, U> where T : Service<U> where U : IStorableObject, new()
         {
             public static Service<U> Instance { get; set; }
@@ -96,8 +97,13 @@ namespace Maintain_it.Services
         /// <param name="id"> The id of the item to Delete </param>
         public static async Task DeleteItemAsync<T>( int id ) where T : IStorableObject, new()
         {
-            Service<T> instance = await GetService<T>();
-            await instance.DeleteItemAsync( id ).ConfigureAwait( false );
+            if( id > 0 )
+            {
+                _ = Cache.RemoveItem<T>( id );
+
+                Service<T> instance = await GetService<T>();
+                await instance.DeleteItemAsync( id ).ConfigureAwait( false );
+            }
         }
 
         /// <summary>
@@ -134,7 +140,7 @@ namespace Maintain_it.Services
         {
             Service<T> instance = await GetService<T>();
 
-            IEnumerable<T> data = await instance.GetItemRangeAsync(ids).ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetItemRangeAsync( ids.Where( x => x > 0 ) ).ConfigureAwait(false);
             return data;
         }
 
@@ -148,7 +154,7 @@ namespace Maintain_it.Services
         {
             Service<T> instance = await GetService<T>();
 
-            IEnumerable<T> data = await instance.GetItemRangeRecursiveAsync(ids).ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetItemRangeRecursiveAsync( ids.Where( x => x > 0 ) ).ConfigureAwait(false);
             return data;
         }
 
@@ -219,11 +225,25 @@ namespace Maintain_it.Services
         /// </summary>
         /// <typeparam name="T"> The Service type to use </typeparam>
         /// <param name="id"> The id of the item to return </param>
-        /// <returns> The item with the matching id to the one passed in, if any. </returns>
+        /// <returns> The item with the matching id to the one passed in, otherwise a default item. </returns>
         public static async Task<T> GetItemAsync<T>( int id ) where T : IStorableObject, new()
         {
-            Service<T> instance = await GetService<T>();
-            return await instance.GetItemAsync( id ).ConfigureAwait( false );
+            if( id > 0 )
+            {
+                if( Cache.GetItem( id, out T item ) )
+                {
+                    return item;
+                }
+
+                Service<T> instance = await GetService<T>();
+                item = await instance.GetItemAsync( id ).ConfigureAwait( false );
+
+                _ = Cache.AddShallow( item );
+
+                return item;
+            }
+
+            return default;
         }
 
         /// <summary>
@@ -234,8 +254,16 @@ namespace Maintain_it.Services
         /// <returns> The item with the matching id to the one passed in, if any. </returns>
         public static async Task<T> GetItemRecursiveAsync<T>( int id ) where T : IStorableObject, new()
         {
+            if( Cache.GetDeepItem( id, out T item ) )
+            {
+                return item;
+            }
+
             Service<T> instance = await GetService<T>();
-            return await instance.GetItemRecursiveAsync( id ).ConfigureAwait( false );
+
+            item = await instance.GetItemRecursiveAsync( id ).ConfigureAwait( false );
+            _ = Cache.AddDeep( item );
+            return item;
         }
 
         /// <summary>
@@ -245,6 +273,8 @@ namespace Maintain_it.Services
         /// <param name="item"> The item to update (the version currently in the db will be updated to match this item) </param>
         public static async Task UpdateItemAsync<T>( T item ) where T : IStorableObject, new()
         {
+            Cache.UpdateItem( item.Id, item );
+
             Service<T> instance = await GetService<T>();
             await instance.UpdateItemAsync( item ).ConfigureAwait( false );
         }
@@ -255,10 +285,10 @@ namespace Maintain_it.Services
         /// <typeparam name="T"></typeparam>
         /// <param name="item"></param>
         /// <returns></returns>
-        public static async Task AddOrUpdateItemAsync<T>(T item) where T : IStorableObject, new()
+        public static async Task AddOrUpdateItemAsync<T>( T item ) where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
-            await instance.AddOrUpdate( item ).ConfigureAwait(false);
+            await instance.AddOrUpdate( item ).ConfigureAwait( false );
         }
 
         /// <summary>
@@ -267,7 +297,7 @@ namespace Maintain_it.Services
         /// <typeparam name="T">Service type to use</typeparam>
         /// <param name="item">The item to update</param>
         /// <returns>The item id, regardless of whether is was added or updated</returns>
-        public static async Task<int> AddOrUpdateItemAndReturnIdAsync<T>(T item) where T : IStorableObject, new()
+        public static async Task<int> AddOrUpdateItemAndReturnIdAsync<T>( T item ) where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
             int id = await instance.AddOrUpdateAndReturnId( item ).ConfigureAwait(false);

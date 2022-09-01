@@ -62,8 +62,6 @@ namespace Maintain_it.ViewModels
             if( !Locked )
             {
                 Locked = true;
-
-                Console.WriteLine( "Refresh starting" );
                 List<MaintenanceItem> items = await MaintenanceItemManager.GetAllItemsRecursiveAsync();
 
                 //List<MaintenanceItemViewModel> vms = CreateRange( items );
@@ -77,7 +75,6 @@ namespace Maintain_it.ViewModels
                 vmsTask.Wait();
                 DisplayedMaintenanceItems.Clear();
                 DisplayedMaintenanceItems.AddRange( vms );
-                Console.WriteLine( "Refresh Complete" );
             }
 
             Locked = false;

@@ -74,8 +74,6 @@ namespace Maintain_it.Helpers
                 list.Active = active ?? list.Active;
                 list.Materials = materials ?? list.Materials;
 
-                //await Task.Delay( 1 );
-
                 await DbServiceLocator.UpdateItemAsync( list );
                 return true;
             }
@@ -88,8 +86,6 @@ namespace Maintain_it.Helpers
                 await DbServiceLocator.UpdateItemAsync( list );
                 return true;
             }
-
-            return false;
         }
 
         public static async Task<int> GetItemIdByName( string name )

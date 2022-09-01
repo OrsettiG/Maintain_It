@@ -81,10 +81,10 @@ namespace Maintain_it.ViewModels
 
         private ConcurrentDictionary<int, StepViewModel> uniqueSteps = new ConcurrentDictionary<int, StepViewModel>();
 
-        private ObservableRangeCollection<StepViewModel> steps;
-        public ObservableRangeCollection<StepViewModel> Steps
+        private ObservableRangeCollection<SimpleStepViewModel> steps;
+        public ObservableRangeCollection<SimpleStepViewModel> Steps
         {
-            get => steps ??= new ObservableRangeCollection<StepViewModel>();
+            get => steps ??= new ObservableRangeCollection<SimpleStepViewModel>();
             set => SetProperty( ref steps, value );
         }
 
@@ -117,8 +117,20 @@ namespace Maintain_it.ViewModels
             QuantityOwned = Material.QuantityOwned;
             CreatedOn = Material.CreatedOn;
 
-            StepMaterials.Clear();
-            StepMaterials.AddRange( await StepMaterialManager.GetItemRangeAsViewModelAsync( Material.StepMaterials.GetIds ) );
+            HashSet<int>stepIds = new HashSet<int>();
+            foreach( StepMaterial mat in Material.StepMaterials )
+            {
+                _ = stepIds.Add( mat.StepId );
+            }
+
+            HashSet<int>shoppingListIds = new HashSet<int>();
+            foreach( ShoppingListMaterial mat in Material.ShoppingListMaterials )
+            {
+                _ = shoppingListIds.Add( mat.ShoppingListId );
+            }
+            List<SimpleStepViewModel> simpleVMs = await StepManager.GetItemRangeAsSimpleViewModel( stepIds );
+            Steps.Clear();
+            Steps.AddRange( simpleVMs );
         }
 
         private async Task Init( int id )

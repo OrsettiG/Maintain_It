@@ -29,7 +29,7 @@
                     <!--<Entry.Keyboard>
                         <Keyboard x:FactoryMethod="Create">
                             <x:Arguments>
-                                <KeyboardFlags>CapitalizeWord,Spellcheck,Suggestions</KeyboardFlags>
+                                <KeyboardFlags>All</KeyboardFlags>
                             </x:Arguments>
                         </Keyboard>
                     </Entry.Keyboard>-->
@@ -78,7 +78,7 @@
                            Grid.Column="0" 
                            Grid.Row="3"/>
 
-                    <DatePicker Date="{Binding ServiceDate}" 
+                    <DatePicker Date="{Binding NextServiceDate}" 
                                 IsEnabled="True" 
                                 IsVisible="True" 
                                 Grid.Column="1" 

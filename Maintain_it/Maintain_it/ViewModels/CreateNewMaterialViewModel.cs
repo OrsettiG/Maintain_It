@@ -30,9 +30,6 @@ namespace Maintain_it.ViewModels
         private string? materialDescription;
         public string? MaterialDescription { get => materialDescription; set => SetProperty( ref materialDescription, value ); }
 
-        private string? materialTag;
-        public string? MaterialTag { get => materialTag; set => SetProperty( ref materialTag, value ); }
-
         private string? materialUnits;
         public string? MaterialUnits { get => materialUnits; set => SetProperty( ref materialUnits, value ); }
 
@@ -97,7 +94,6 @@ namespace Maintain_it.ViewModels
                 Name = materialName,
                 Size = size,
                 Description = materialDescription,
-                Tag = materialTag,
                 Units = materialUnits,
                 CreatedOn = createdOn,
                 QuantityOwned = QuantityOwned,
@@ -117,7 +113,6 @@ namespace Maintain_it.ViewModels
             material.Name = materialName;
             material.Size = size;
             material.Description = materialDescription;
-            material.Tag = materialTag;
             material.Units = materialUnits;
             material.QuantityOwned = QuantityOwned;
 
@@ -143,7 +138,6 @@ namespace Maintain_it.ViewModels
 
             MaterialName = material.Name;
             MaterialDescription = material.Description;
-            MaterialTag = material.Tag;
             MaterialUnits = material.Units;
             Size = material.Size;
             QuantityOwned = material.QuantityOwned;

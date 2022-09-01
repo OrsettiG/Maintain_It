@@ -100,7 +100,7 @@ namespace Maintain_it.ViewModels
 
         }
 
-        // Add Remove Items from Shopping List
+        // AddShallow Remove Items from Shopping List
         private AsyncCommand addRemoveItemsCommand;
         public ICommand AddRemoveItemsCommand
         {
@@ -134,7 +134,6 @@ namespace Maintain_it.ViewModels
         }
         private async Task OpenShoppingList()
         {
-            Console.WriteLine( $"Open Shopping List with Id {Id}" );
             string encodedId = HttpUtility.UrlEncode($"{_shoppingList.Id}");
 
             await Shell.Current.GoToAsync( $"{nameof( ShoppingListDetailView )}?{QueryParameters.ShoppingListId}={encodedId}" );

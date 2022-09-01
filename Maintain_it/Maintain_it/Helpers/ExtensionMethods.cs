@@ -54,9 +54,9 @@ namespace Maintain_it.Helpers
                 }
 
                 // TODO: Should be able to make this loop into the following:
-                //if( set.Add( t ) )
+                //if( set.AddShallow( t ) )
                 //{
-                //    Added.Add( t );
+                //    Added.AddShallow( t );
                 //    Console.WriteLine( $"Added {t}" );
                 //}
             }

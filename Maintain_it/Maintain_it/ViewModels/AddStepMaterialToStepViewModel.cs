@@ -101,7 +101,7 @@ namespace Maintain_it.ViewModels
                             Console.WriteLine( ex.StackTrace );
                         }
                     }
-                    // Add all our selected materials into our DisplayedMaterialSelections collection so that the user can easily see/interact with what they have selected.
+                    // AddShallow all our selected materials into our DisplayedMaterialSelections collection so that the user can easily see/interact with what they have selected.
                     DisplayedMaterialSelections.AddRange( DisplayedMaterials.Where( x => SelectedMaterialIds.Contains( x.Id ) ) );
                 }
 

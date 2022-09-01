@@ -210,7 +210,7 @@
                     </StackLayout>
                 </Frame>
 
-                <Button Text="Add Step" 
+                <Button Text="Save" 
                         Command="{Binding AddStepCommand}"
                         Margin="0, 10"/>
             </StackLayout>
