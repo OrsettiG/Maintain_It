@@ -101,7 +101,7 @@ namespace Maintain_it.ViewModels
         public List<Timeframe> Timeframes => Options.timeframes;
 
         private Step step;
-        public Step Step { get => step; set => SetProperty(ref step, value); }
+        public Step Step { get => step; set => SetProperty( ref step, value ); }
 
         private Step nextStep;
         public Step NextStep { get => nextStep; set => SetProperty( ref nextStep, value ); }
@@ -176,6 +176,7 @@ namespace Maintain_it.ViewModels
             switch( choice )
             {
                 case true:
+                    _ = await MaintenanceItemManager.RemoveStep( Step.MaintenanceItemId, Step.Id );
                     await StepManager.DeleteItem( Step.Id );
                     await MaintenanceItemVm.RefreshStepsCommand.ExecuteAsync();
                     break;
@@ -183,6 +184,12 @@ namespace Maintain_it.ViewModels
                 case false:
                     break;
             }
+        }
+
+        private AsyncCommand refreshAllCommand;
+        public ICommand RefreshAllCommand
+        {
+            get => refreshAllCommand ??= new AsyncCommand( RefreshAll );
         }
 
         #endregion
@@ -260,7 +267,8 @@ namespace Maintain_it.ViewModels
 
         public async Task DeepInitAsync()
         {
-            if(Step == null) return;
+            if( Step == null )
+                return;
 
             if( Step.PreviousNodeId != 0 )
             {
@@ -361,7 +369,8 @@ namespace Maintain_it.ViewModels
 
             if( maintenanceItemId != null )
             {
-                _ = await StepManager.UpdateMaintenanceItem( (int)maintenanceItemId, stepId );
+                if( await StepManager.UpdateMaintenanceItem( (int)maintenanceItemId, stepId ) )
+                    await MaintenanceItemManager.AddStep( (int)maintenanceItemId, stepId );
             }
 
             string encodedId = HttpUtility.UrlEncode( stepId.ToString());
@@ -380,9 +389,9 @@ namespace Maintain_it.ViewModels
             }
 
             //TODO: Update StepMaterials to use ViewModels instead of the Model directly
-            stepMaterialIds.AddRange(StepMaterials.Select(sMvm => sMvm.Id));
+            stepMaterialIds.AddRange( StepMaterials.Select( sMvm => sMvm.Id ) );
 
-            await StepManager.UpdateItemAsync( Step.Id, Name, Description, IsCompleted, TimeRequired, (int)Timeframe, StepNum, NextStep?.Id, PreviousStep?.Id, maintenanceItemId, stepMaterialIds, noteIds );
+            await StepManager.UpdateItemAsync( Step.Id, name: Name, description: Description, isCompleted: IsCompleted, timeRequired: TimeRequired, timeFrame: (int)Timeframe, stepMaterialIds: stepMaterialIds, noteIds: noteIds );
 
             await Shell.Current.GoToAsync( $"..?{QueryParameters.RefreshSteps}=true" );
         }

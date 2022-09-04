@@ -128,6 +128,11 @@ namespace Maintain_it.Helpers
         /// <returns></returns>
         public static async Task<bool> UpdateMaintenanceItem( int maintenanceItemId, int stepId )
         {
+            if(maintenanceItemId == 0 || stepId == 0 )
+            {
+                return false;
+            }
+
             MaintenanceItem item = null;
             Step step = null;
 
@@ -142,7 +147,7 @@ namespace Maintain_it.Helpers
                 Console.WriteLine( ex.StackTrace );
             }
 
-            return item != null && step != null && await UpdateMaintenanceItem( item, step );
+            return await UpdateMaintenanceItem( item, step );
         }
 
         /// <summary>

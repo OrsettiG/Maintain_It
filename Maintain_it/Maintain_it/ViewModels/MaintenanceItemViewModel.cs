@@ -144,7 +144,7 @@ namespace Maintain_it.ViewModels
             }
         }
 
-        private int timesToRepeatService;
+        private int timesToRepeatService = 0;
         public int TimesToRepeatService
         {
             get => timesToRepeatService;
@@ -280,17 +280,32 @@ namespace Maintain_it.ViewModels
 
         private async Task RefreshStepsFromDb()
         {
-            MaintenanceItem tempItem = await MaintenanceItemManager.GetItemAsync( ItemId );
+            MaintenanceItem tempItem = await MaintenanceItemManager.GetItemRecursiveAsync( ItemId );
 
             int[] ids = tempItem.Steps.GetIds().ToArray();
 
-            stepIds.Clear();
-            stepIds.AddRange( ids );
+            if( ids.Length > 0 )
+            {
+                stepIds.Clear();
+                stepIds.AddRange( ids );
 
-            List<StepViewModel> stepVMs = await StepManager.GetItemRangeAsComplexViewModel( ids, this );
+                List<StepViewModel> stepVMs = await StepManager.GetItemRangeAsComplexViewModel( ids, this );
 
-            StepViewModels.Clear();
-            StepViewModels.AddRange( stepVMs.OrderBy( x => x.StepNum ) );
+                StepViewModels.Clear();
+                StepViewModels.AddRange( stepVMs.OrderBy( x => x.StepNum ) );
+            }
+            else
+            {
+                stepIds.Clear();
+                StepViewModels.Clear();
+            }
+            //else if( StepViewModels.Count > 0 )
+            //{
+            //    foreach( StepViewModel svm in StepViewModels )
+            //    {
+            //        svm.RefreshAllCommand.Execute(null);
+            //    }
+            //}
         }
 
         private Command onIncrementCommand;
@@ -429,7 +444,7 @@ namespace Maintain_it.ViewModels
                 ActiveState = ActiveState switch
                 {
                     ActiveStateFlag.Inactive => await Shell.Current.DisplayAlert( Alerts.SetProjectActive, Alerts.UpdateProjectActiveState_InactiveMessage, accept: Alerts.Yes, cancel: Alerts.No ) ? ActiveStateFlag.Active : ActiveStateFlag.Inactive,
-                    
+
                     ActiveStateFlag.Suspended => await Shell.Current.DisplayAlert( Alerts.SetProjectActive, Alerts.UpdateProjectActiveState_SuspendedMessage, accept: Alerts.Yes, cancel: Alerts.No ) ? ActiveStateFlag.Active : ActiveStateFlag.Suspended
                 };
             }
@@ -438,25 +453,25 @@ namespace Maintain_it.ViewModels
             {
                 NextServiceDate = NextServiceDate.AddHours( ServiceTime.Hours ).AddMinutes( ServiceTime.Minutes );
 
-                await MaintenanceItemManager.UpdateProperties(  Item.Id, 
-                                                                name: Name, 
-                                                                comment: Comment, 
-                                                                serviceDate: NextServiceDate, 
-                                                                recursEvery: RecursEvery, 
-                                                                timeframe: (int)ServiceTimeframe, 
-                                                                hasServiceLimit: HasServiceLimit, 
-                                                                timesToRepeatService: TimesToRepeatService, 
-                                                                notifyOfNextServiceDate: NotifyOfNextServiceDate, 
-                                                                advanceNotice: AdvanceNotice, 
-                                                                advanceNoticeTimeframe: (int)NoticeTimeframe, 
-                                                                reminders: TimesToRemind, 
-                                                                steps: stepIds, 
+                await MaintenanceItemManager.UpdateProperties( Item.Id,
+                                                                name: Name,
+                                                                comment: Comment,
+                                                                serviceDate: NextServiceDate,
+                                                                recursEvery: RecursEvery,
+                                                                timeframe: (int)ServiceTimeframe,
+                                                                hasServiceLimit: HasServiceLimit,
+                                                                timesToRepeatService: TimesToRepeatService,
+                                                                notifyOfNextServiceDate: NotifyOfNextServiceDate,
+                                                                advanceNotice: AdvanceNotice,
+                                                                advanceNoticeTimeframe: (int)NoticeTimeframe,
+                                                                reminders: TimesToRemind,
+                                                                steps: stepIds,
                                                                 isActive: (int)ActiveState );
 
             }
             else
             {
-                ItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, NextServiceDate, Comment, RecursEvery, true, (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
+                ItemId = await MaintenanceItemManager.NewMaintenanceItem( name: Name, firstServiceDate: NextServiceDate, comment: Comment, recursEvery: RecursEvery, hasServiceLimit: HasServiceLimit, timesToRepeatService: TimesToRepeatService, serviceTimeframe: (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
             }
 
             ClearData();
@@ -475,7 +490,7 @@ namespace Maintain_it.ViewModels
             Comment = Item.Comment;
             ActiveState = (ActiveStateFlag)Item.ActiveState;
             NextServiceDate = Item.NextServiceDate;
-            LastServiceDate = Item.ServiceRecords.Count > 0 ? Item.ServiceRecords.Where(x => x.ServiceCompleted == true).OrderByDescending( x => x.ActualServiceCompletionDate ).First().ActualServiceCompletionDate: DateTime.MinValue;
+            LastServiceDate = Item.ServiceRecords.Count > 0 ? Item.ServiceRecords.Where( x => x.ServiceCompleted == true ).OrderByDescending( x => x.ActualServiceCompletionDate ).First().ActualServiceCompletionDate : DateTime.MinValue;
             RecursEvery = Item.RecursEvery;
             IsRecurring = RecursEvery > 0;
             ServiceTimeframe = (Timeframe)Item.ServiceTimeframe;

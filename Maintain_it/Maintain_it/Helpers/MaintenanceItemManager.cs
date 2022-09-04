@@ -13,7 +13,7 @@ namespace Maintain_it.Helpers
 {
     public static class MaintenanceItemManager
     {
-        public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, bool hasServiceLimit = false, int timesToRepeatService = 1, int serviceTimeframe = 3, int timesToRemind = 0, bool notifyOfNextServiceDate = false, int advanceNotice = 1, int noticeTimeframe = 3, IEnumerable<int> stepIds = null, int? isActive = null )
+        public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, bool hasServiceLimit = false, int timesToRepeatService = 0, int serviceTimeframe = 3, int timesToRemind = 0, bool notifyOfNextServiceDate = false, int advanceNotice = 1, int noticeTimeframe = 3, IEnumerable<int> stepIds = null, int? isActive = null )
         {
             MaintenanceItem item = new MaintenanceItem()
             {
@@ -100,15 +100,15 @@ namespace Maintain_it.Helpers
             }
         }
 
-        public static async Task<List<Step>> UpdateStepSequence( IEnumerable<int> stepIds )
+        public static async Task<List<Step>> UpdateStepSequence( IEnumerable<int> stepIds, int? startingIndex = null )
         {
             List<Step> steps = await StepManager.GetItemRangeRecursiveAsync(stepIds) as List<Step>;
 
-            steps = await UpdateStepSequence( steps );
+            steps = await UpdateStepSequence( steps, startingIndex );
             return steps;
         }
 
-        private static async Task<List<Step>> UpdateStepSequence( IEnumerable<Step> newSteps )
+        private static async Task<List<Step>> UpdateStepSequence( IEnumerable<Step> newSteps, int? startingIndex = null )
         {
             IOrderedEnumerable<Step> steps = newSteps.OrderBy(x => x.Index);
             List<Step> updatedSteps = new List<Step>();
@@ -127,6 +127,11 @@ namespace Maintain_it.Helpers
 
             foreach( Step step in steps )
             {
+                if( startingIndex != null )
+                {
+                    step.Index = startingIndex.Value;
+                    startingIndex++;
+                }
 
                 // Set the step's previous node to the upStream node. This will always be null on the first node so we need the null propogation on the id.
                 step.PreviousNodeId = upStream != null ? upStream.Id : 0;
@@ -192,6 +197,25 @@ namespace Maintain_it.Helpers
                 await DbServiceLocator.UpdateItemAsync( item );
         }
 
+        public static async Task<bool> RemoveStep( int itemId, int stepId )
+        {
+            MaintenanceItem item = await GetItemRecursiveAsync(itemId);
+
+            return await RemoveStep( item, stepId );
+        }
+
+        private static async Task<bool> RemoveStep( MaintenanceItem item, int stepId )
+        {
+            if( item.Steps.RemoveAll( x => x.Id == stepId ) > 0 )
+            {
+                List<Step> steps = await UpdateStepSequence(item.Steps.GetIds(), 1);
+                await UpdateProperties( item.Id, steps: steps.GetIds() );
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Retrieves the passed in <see cref="MaintenanceItem"/> and <see cref="Step"/> from the Db. Adds the Step to the MaintenanceItem's Steps List, if it is not already there, and updates the Db if specified. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
         /// </summary>
@@ -201,7 +225,6 @@ namespace Maintain_it.Helpers
 
             item.Steps = await UpdateStepSequence( stepIds );
             await DbServiceLocator.UpdateItemAsync( item );
-            _ = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( item.Id );
         }
 
 
@@ -234,20 +257,6 @@ namespace Maintain_it.Helpers
                 item.Steps = await UpdateStepSequence( item.Steps );
                 (item.ServiceCompletionTimeEst, item.ServiceCompletionTimeEstTimeframe) = CalculateServiceCompletionTimeEstimate( item.Steps );
             }
-
-            // This is supposed to calculate the NextServiceDate for the MI, but that will either be explicitly set by the user, or calculated on task completion, so I don't think we actually need this.
-
-            //if( serviceDate == null && item.ServiceRecords.Count > 0 )
-            //{
-            //    item.NextServiceDate = CalculateNextServiceDate( item.ServiceRecords[^1].ActualServiceCompletionDate, item.RecursEvery, item.ServiceTimeframe ) ?? ;
-
-            //    item.NextServiceDate = nextServiceDate;
-            //}
-            //else
-            //{
-            //    nextServiceDate = serviceDate;
-            //    item.NextServiceDate = serviceDate;
-            //}
 
             if( notifyOfNextServiceDate.HasValue && notifyOfNextServiceDate.Value )
             {
@@ -423,9 +432,9 @@ namespace Maintain_it.Helpers
         }
 
         public static async Task<MaintenanceItem> GetItemRecursiveAsync( int maintenanceItemId )
-        {
+        { 
 
-            return await DbServiceLocator.GetItemAsync<MaintenanceItem>( maintenanceItemId );
+            return await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( maintenanceItemId );
         }
 
         public static async Task<List<MaintenanceItem>> GetAllItemsAsync()
