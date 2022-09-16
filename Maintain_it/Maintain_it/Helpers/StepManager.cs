@@ -113,7 +113,7 @@ namespace Maintain_it.Helpers
             {
                 int quantityOwned = stepMaterial.Material.QuantityOwned -= stepMaterial.Quantity;
 
-                await MaterialManager.UpdateMaterial( stepMaterial.Material.Id, quantityOwned: quantityOwned );
+                await MaterialManager.UpdateMaterial( stepMaterial.Material.Id, quantityOwned: quantityOwned >= 0 ? quantityOwned : 0 );
             }
 
             await UpdateItemAsync( id, isCompleted: true );

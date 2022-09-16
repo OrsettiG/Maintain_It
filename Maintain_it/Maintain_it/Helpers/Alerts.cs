@@ -6,6 +6,7 @@ namespace Maintain_it.Helpers
 {
     public static class Alerts
     {
+        #region Generic Strings
         /// <summary>
         /// "Information"
         /// </summary>
@@ -25,6 +26,11 @@ namespace Maintain_it.Helpers
         /// "Cancel"
         /// </summary>
         public const string Cancel = "Cancel";
+
+        /// <summary>
+        /// "Create New"
+        /// </summary>
+        public const string CreateNew = "Create New";
 
         /// <summary>
         /// "Error"
@@ -56,6 +62,18 @@ namespace Maintain_it.Helpers
         /// </summary>
         public const string Save = "Save";
 
+        /// <summary>
+        /// "Yes"
+        /// </summary>
+        public const string Yes = "Yes";
+
+        /// <summary>
+        /// "No"
+        /// </summary>
+        public const string No = "No";
+        #endregion Generic Strings
+
+        #region MaintenanceItem Strings
         ///<summary>
         ///"Set Project Active?"
         /// </summary>
@@ -70,17 +88,9 @@ namespace Maintain_it.Helpers
         /// "This project is currently marked as Suspended and will not show up under \"Active Projects\". Would you like to mark it active?"
         /// </summary>
         public const string UpdateProjectActiveState_SuspendedMessage = "This project is currently marked as Suspended and will not show up under \"Active Projects\". Would you like to mark it active?";
+        #endregion MaintenanceItem Strings
 
-        /// <summary>
-        /// "Yes"
-        /// </summary>
-        public const string Yes = "Yes";
-
-        /// <summary>
-        /// "No"
-        /// </summary>
-        public const string No = "No";
-
+        #region Camera/Image Strings
         /// <summary>
         /// "There was an error accessing the camera. Please ensure that the app has permission and try again."
         /// </summary>
@@ -95,8 +105,9 @@ namespace Maintain_it.Helpers
         /// "This Item already has an image associated with it, are you sure you want to replace it?"
         /// </summary>
         public const string ReplaceImageMessage = "This Item already has an image associated with it, are you sure you want to replace it?";
+        #endregion Camera/Image Strings
 
-
+        #region Step Strings
         /// <summary>
         /// "Are you sure you want to permenantly delete this step? This action is irreversable."
         /// </summary>
@@ -116,5 +127,10 @@ namespace Maintain_it.Helpers
         /// "Delete Step?"
         /// </summary>
         public const string DeleteStepTitle = "Delete Step?";
+        #endregion Step Strings
+
+        #region ShoppingList Strings
+        public const string AddToShoppingListTitle = "Available Shopping Lists";
+        #endregion ShoppingList Strings
     }
 }

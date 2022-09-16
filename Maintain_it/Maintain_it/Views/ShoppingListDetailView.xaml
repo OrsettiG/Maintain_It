@@ -95,7 +95,7 @@
                                     </SwipeView.RightItems>
                                     <Frame Padding="0,10,5,10" 
                                            BorderColor="{Binding Color}" 
-                                           HeightRequest="25">
+                                           HeightRequest="45">
                                         <Grid>
                                             <Grid.GestureRecognizers>
                                                 <SwipeGestureRecognizer Direction="Right"

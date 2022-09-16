@@ -235,6 +235,24 @@ namespace Maintain_it.ViewModels
 
             return await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( ShoppingListMaterial );
         }
+
+        // TODO: Pick up here. Sort out the creation of SLMVMs and then flesh out this method.
+        private async Task Refresh()
+        {
+            
+        }
         #endregion
+
+        #region Query Handling
+        private protected override async Task EvaluateQueryParams( KeyValuePair<string, string> kvp )
+        {
+            switch( kvp.Key )
+            {
+                case QueryParameters.Refresh:
+                    await Refresh();
+                    break;
+            }
+        }
+        #endregion Query Handling
     }
 }

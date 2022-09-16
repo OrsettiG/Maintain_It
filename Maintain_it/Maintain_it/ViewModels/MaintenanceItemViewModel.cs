@@ -387,9 +387,28 @@ namespace Maintain_it.ViewModels
                 string encodedQuery = HttpUtility.UrlEncode( sb.ToString() );
                 if( encodedQuery != string.Empty )
                 {
-                    string encodedName = HttpUtility.UrlEncode( $"{Item.Name} Shopping List" );
+                    Dictionary<string, int> ActiveShoppingListNamesAndIds = await ShoppingListManager.GetActiveShoppingListNamesAndIds();
 
-                    await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{QueryParameters.PreSelectedMaterialIds}={encodedQuery}&{QueryParameters.ItemName}={encodedName}" );
+                    string value = await Shell.Current.DisplayActionSheet( Alerts.AddToShoppingListTitle, Alerts.Cancel, Alerts.CreateNew, ActiveShoppingListNamesAndIds.Keys.ToArray() );
+
+                    if( value != string.Empty && value != null )
+                    {
+                        switch( value )
+                        {
+                            case Alerts.Cancel:
+                                break;
+                            case Alerts.CreateNew:
+                                string encodedName = HttpUtility.UrlEncode( $"{Item.Name} Shopping List" );
+
+                                await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{QueryParameters.PreSelectedMaterialIds}={encodedQuery}&{QueryParameters.ItemName}={encodedName}" );
+                                break;
+                            default:
+                                if( ActiveShoppingListNamesAndIds.ContainsKey( value ) )
+                                    await ShoppingListManager.AddShoppingListItemsToListAsync( ActiveShoppingListNamesAndIds[value], materialIdsAndQuantitysRequired );
+                                break;
+                        }
+                    }
+
                 }
                 else
                 {

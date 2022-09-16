@@ -33,7 +33,7 @@ namespace Maintain_it.Helpers
             {
                 foreach( int key in CacheInstance<T>.ShallowCache.Keys.ToList() )
                 {
-                    if( DateTime.Now.Ticks - CacheInstance<T>.ShallowCache[key].Item1.Ticks >= TimeSpan.TicksPerMinute * 20 )
+                    if( DateTime.Now.Ticks - CacheInstance<T>.ShallowCache[key].Item1.Ticks >= TimeSpan.TicksPerMinute * 5 )
                     {
                         await DbServiceLocator.UpdateItemAsync<T>( CacheInstance<T>.ShallowCache[key].Item2 );
                         _ = CacheInstance<T>.ShallowCache.Remove( key );
@@ -45,7 +45,7 @@ namespace Maintain_it.Helpers
             {
                 foreach( int key in CacheInstance<T>.DeepCache.Keys.ToList() )
                 {
-                    if( DateTime.Now.Ticks - CacheInstance<T>.DeepCache[key].Item1.Ticks >= TimeSpan.TicksPerMinute * 20 )
+                    if( DateTime.Now.Ticks - CacheInstance<T>.DeepCache[key].Item1.Ticks >= TimeSpan.TicksPerMinute * 5 )
                     {
                         await DbServiceLocator.UpdateItemAsync<T>( CacheInstance<T>.DeepCache[key].Item2 );
                         _ = CacheInstance<T>.DeepCache.Remove( key );
@@ -91,7 +91,7 @@ namespace Maintain_it.Helpers
             if( CacheInstance<T>.DeepCache.ContainsKey( id ) )
             {
                 item = CacheInstance<T>.DeepCache[id].Item2;
-                CacheInstance<T>.DeepCache[id] = ( new TimeSpan( DateTime.Now.Ticks ), item );
+                CacheInstance<T>.DeepCache[id] = (new TimeSpan( DateTime.Now.Ticks ), item);
                 return true;
             }
 
@@ -117,9 +117,9 @@ namespace Maintain_it.Helpers
 
         internal static void UpdateItem<T>( int id, T item ) where T : IStorableObject, new()
         {
-            if( CacheInstance<T>.ShallowCache.ContainsKey(id) )
+            if( CacheInstance<T>.ShallowCache.ContainsKey( id ) )
             {
-                CacheInstance<T>.ShallowCache[id] = ( new TimeSpan( DateTime.Now.Ticks), item );
+                CacheInstance<T>.ShallowCache[id] = (new TimeSpan( DateTime.Now.Ticks ), item);
             }
 
             if( CacheInstance<T>.DeepCache.ContainsKey( id ) )
@@ -133,7 +133,10 @@ namespace Maintain_it.Helpers
         /// </summary>
         internal static bool RemoveItem<T>( int id ) where T : IStorableObject, new()
         {
-            return CacheInstance<T>.ShallowCache.Remove( id ) || CacheInstance<T>.DeepCache.Remove( id );
+            bool shallow = CacheInstance<T>.ShallowCache.Remove( id );
+            bool deep = CacheInstance<T>.DeepCache.Remove( id );
+
+            return shallow || deep;
         }
     }
 }

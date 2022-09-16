@@ -13,7 +13,7 @@ namespace Maintain_it.Helpers
     public static class ShoppingListMaterialManager
     {
         /// <summary>
-        /// Creates a new instance of a ShoppingListMaterial and adds it to the database.
+        /// Creates a new instance of a ShoppingListMaterial and adds it to the database. Also adds the newly created SLM to the ShoppingList with the passed in Id.
         /// </summary>
         /// <returns>The Id of the newly created ShoppingListMaterial</returns>
         public static async Task<int> NewShoppingListMaterial( int materialId, int shoppingListId, string name, int quantityRequired = 1, bool purchased = false )
@@ -31,21 +31,51 @@ namespace Maintain_it.Helpers
                 CreatedOn = DateTime.UtcNow
             };
 
-            return await DbServiceLocator.AddItemAndReturnIdAsync( mat );
+            int matId = await DbServiceLocator.AddItemAndReturnIdAsync( mat );
+            await ShoppingListManager.InsertNewShoppingListMaterial( list.Id, matId );
+
+            return matId;
         }
+
+        #region Item Modification
+        /// <summary>
+        /// Updates the ShoppingListMaterial with the passed in Id with the passed in values.
+        /// </summary>
+        public static async Task UpdateItemAsync( int id, int? materialId = null, int? shoppingListId = null, string? name = null, int? quantity = null, bool? purchased = null )
+        {
+            ShoppingListMaterial item = await GetItemRecursiveAsync(id);
+
+            if( materialId != null && materialId != 0 )
+                item.Material = await MaterialManager.GetItemAsync( materialId.Value );
+
+            if( shoppingListId != null && shoppingListId != 0 )
+                item.ShoppingList = await ShoppingListManager.GetItemAsync( shoppingListId.Value );
+
+            item.Name = name ?? item.Name;
+            item.Quantity = quantity ?? item.Quantity;
+            item.Purchased = purchased ?? item.Purchased;
+        }
+        #endregion Item Modification
+
+        #region Item Retrieval
 
         /// <summary>
         /// Retrieves the ShoppingListMaterial with the passed in Id from the Db and returns it.
         /// </summary>
         public static async Task<ShoppingListMaterial> GetItemAsync( int id )
         {
-
             return await DbServiceLocator.GetItemAsync<ShoppingListMaterial>( id );
         }
 
         public static async Task<ShoppingListMaterial> GetItemRecursiveAsync( int id )
         {
-            throw new NotImplementedException();
+            ShoppingListMaterial item = await DbServiceLocator.GetItemRecursiveAsync<ShoppingListMaterial>(id);
+
+            item.Material ??= await DbServiceLocator.GetItemAsync<Material>( item.MaterialId );
+
+            item.ShoppingList ??= await DbServiceLocator.GetItemAsync<ShoppingList>( item.ShoppingListId );
+
+            return item;
         }
 
         public static async Task<ShoppingListMaterial> GetItemRangeAsync( IEnumerable<int> ids )
@@ -57,5 +87,7 @@ namespace Maintain_it.Helpers
         {
             throw new NotImplementedException();
         }
+
+        #endregion Item Retrieval
     }
 }

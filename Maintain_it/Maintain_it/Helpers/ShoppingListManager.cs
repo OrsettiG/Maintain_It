@@ -21,7 +21,7 @@ namespace Maintain_it.Helpers
         public static async Task<int> NewShoppingList( string name = DefaultStrings.DefaultShoppingListName, bool active = true )
         {
             ShoppingList list = AllLists?.Where( x => x.Name == name ).FirstOrDefault();
-            
+
             if( AllLists == null || list == null )
             {
                 list = new ShoppingList()
@@ -45,6 +45,11 @@ namespace Maintain_it.Helpers
             return await DbServiceLocator.GetItemAsync<ShoppingList>( shoppingListId );
         }
 
+        public static async Task<ShoppingList> GetItemRecursiveAsync( int shoppingListId )
+        {
+            return await DbServiceLocator.GetItemRecursiveAsync<ShoppingList>( shoppingListId );
+        }
+
         public static async Task<List<ShoppingList>> GetAllItemsAsync()
         {
             return await DbServiceLocator.GetAllItemsAsync<ShoppingList>() as List<ShoppingList>;
@@ -58,7 +63,7 @@ namespace Maintain_it.Helpers
             if( name != null )
             {
                 listsWithSameName = modifier == 0 ? AllLists?.Where( x => x.Name == name ).ToList() : AllLists?.Where( x => x.Name == $"{name} {modifier}" ).ToList();
-                
+
                 if( listsWithSameName != null && listsWithSameName.Count > 0 )
                 {
                     modifier++;
@@ -86,6 +91,64 @@ namespace Maintain_it.Helpers
                 await DbServiceLocator.UpdateItemAsync( list );
                 return true;
             }
+        }
+
+        public static async Task InsertNewShoppingListMaterial( int shoppingListId, int shoppingListItemId )
+        {
+            ShoppingList list = await GetItemRecursiveAsync(shoppingListId);
+            ShoppingListMaterial item = await ShoppingListMaterialManager.GetItemAsync(shoppingListItemId);
+
+            if( !list.Materials.Contains( item ) )
+                list.Materials.Add( item );
+
+            if( item.ShoppingListId != shoppingListId )
+                await ShoppingListMaterialManager.UpdateItemAsync( item.Id, list.Id );
+
+            await DbServiceLocator.UpdateItemAsync( list );
+        }
+
+        public static async Task AddShoppingListItemsToListAsync( int shoppingListId, IDictionary<int, int> matsAndQuants )
+        {
+            ShoppingList list = await GetItemRecursiveAsync(shoppingListId);
+
+            if( list.Materials != null && list.Materials.Count > 0 )
+            {
+                foreach( ShoppingListMaterial mat in list.Materials )
+                {
+                    if( matsAndQuants.ContainsKey( mat.MaterialId ) )
+                    {
+                        int quant = mat.Quantity + matsAndQuants[mat.MaterialId];
+                        await ShoppingListMaterialManager.UpdateItemAsync( mat.Id, quantity: quant );
+                    }
+
+                    _ = matsAndQuants.Remove( mat.MaterialId );
+                }
+            }
+
+            List<Material> mats = await DbServiceLocator.GetItemRangeAsync<Material>( matsAndQuants.Keys.ToArray() ) as List<Material>;
+
+            foreach( Material mat in mats )
+            {
+                _ = await ShoppingListMaterialManager.NewShoppingListMaterial( mat.Id, list.Id, mat.Name, matsAndQuants[mat.Id] );
+            }
+
+            await RefreshAllLists();
+        }
+
+        private static async Task RefreshAllLists()
+        {
+            AllLists = await DbServiceLocator.GetAllItemsAsync<ShoppingList>() as List<ShoppingList>;
+        }
+
+        public static async Task<Dictionary<string, int>> GetActiveShoppingListNamesAndIds()
+        {
+            await RefreshAllLists();
+
+            List<KeyValuePair<string, int>> values = AllLists.Where(x => x.Active).Select( x => KeyValuePair.Create( x.Name, x.Id ) ).ToList();
+
+            Dictionary<string, int> pairs = new Dictionary<string, int>( values );
+
+            return pairs;
         }
 
         public static async Task<int> GetItemIdByName( string name )

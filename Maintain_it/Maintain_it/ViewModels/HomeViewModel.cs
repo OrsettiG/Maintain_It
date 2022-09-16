@@ -13,7 +13,7 @@ using Maintain_it.Views;
 
 using MvvmHelpers;
 using MvvmHelpers.Commands;
-
+ 
 using Xamarin.Forms;
 
 namespace Maintain_it.ViewModels

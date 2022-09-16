@@ -12,6 +12,7 @@ namespace Maintain_it.Helpers
         /// Query Param for:
         /// <list type="bullet">
         /// <item><see cref="AddMaterialsViewModel"/></item>
+        /// <item><see cref="ShoppingListMaterialDetailViewModel"/> >> <see cref="ShoppingListMaterialViewModel"/></item>
         /// </list>
         /// </summary>
         public const string Refresh = "refresh";

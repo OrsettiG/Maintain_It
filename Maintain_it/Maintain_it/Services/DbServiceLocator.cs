@@ -273,7 +273,7 @@ namespace Maintain_it.Services
         /// <param name="item"> The item to update (the version currently in the db will be updated to match this item) </param>
         public static async Task UpdateItemAsync<T>( T item ) where T : IStorableObject, new()
         {
-            Cache.UpdateItem( item.Id, item );
+            _ = Cache.RemoveItem<T>( item.Id );
 
             Service<T> instance = await GetService<T>();
             await instance.UpdateItemAsync( item ).ConfigureAwait( false );
