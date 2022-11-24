@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Maintain_it.Views.Custom_ViewCells"
              xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels" 
              xmlns:fontAwesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
              x:Class="Maintain_it.Views.HomeView"
@@ -13,117 +14,193 @@
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <RefreshView Command="{Binding RefreshCommand}" RefreshColor="Green" IsRefreshing="{Binding IsRefreshing}">
-            <StackLayout>
-                <Label Text="Maintain It!" 
-                       FontSize="32" 
-                       HorizontalOptions="CenterAndExpand"
-                       Padding="5"/>
-                <BoxView  
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackLayout Grid.Column="0"
+                             Grid.ColumnSpan="3"
+                             Grid.Row="0"
+                             Grid.RowSpan="3">
+                    <StackLayout Orientation="Horizontal" HeightRequest="50">
+                        <Entry Placeholder="Search..."
+                           HorizontalOptions="FillAndExpand"
+                           Text="{Binding SearchTerm}"/>
+                        <ImageButton Source="{FontImage Glyph={Static fontAwesome:FontAwesomeIcons.Filter}, 
+                                                    FontFamily={Static fontAwesome:Config.FontFamilySolid}, 
+                                                    Color={StaticResource Cue}}"
+                                 Command="{Binding ToggleFilterCommand}"
+                                 BackgroundColor="{StaticResource Transition}"
+                                 WidthRequest="25"
+                                 HeightRequest="25"
+                                 Margin="5"/>
+                    </StackLayout>
+                    <!--<BoxView  
                          WidthRequest="600" HeightRequest="1"
-                         HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>
-                <StackLayout x:DataType="viewmodel:HomeViewModel">
-                    <Label Text="Upcoming Maintenance" 
+                         HorizontalOptions="CenterAndExpand" VerticalOptions="Start"/>-->
+                    <StackLayout x:DataType="viewmodel:HomeViewModel">
+                        <!--<Label Text="Upcoming Maintenance" 
                                     FontSize="Medium" TextDecorations="Underline" 
                                     HorizontalOptions="Center" VerticalOptions="Start" 
-                                    HeightRequest="35"/>
-                    <!--Items Collection-->
-                    <CollectionView x:Name="Items" 
+                                    HeightRequest="35"/>-->
+                        <!--Items Collection-->
+                        <CollectionView x:Name="Items" 
                                     ItemsSource="{Binding DisplayedMaintenanceItems}"
                                     VerticalOptions="FillAndExpand" HorizontalOptions="CenterAndExpand" 
                                     Margin="10">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="{x:Type viewmodel:MaintenanceItemViewModel}">
-                                <Frame WidthRequest="350" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Padding="20,10">
-                                    <StackLayout>
-                                        <ScrollView VerticalOptions="FillAndExpand">
-                                            <StackLayout>
-                                                <Grid Padding="5">
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition Height="*"/>
-                                                    </Grid.RowDefinitions>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" 
+                                               ItemSpacing="2" 
+                                               SnapPointsAlignment="Center" 
+                                               SnapPointsType="MandatorySingle"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="{x:Type viewmodel:MaintenanceItemViewModel}">
+                                    <Frame WidthRequest="350" 
+                                       VerticalOptions="FillAndExpand" 
+                                       HorizontalOptions="FillAndExpand" 
+                                       Padding="20,10"
+                                       Margin="0"
+                                       BorderColor="{Binding ActiveStateColor}">
+                                        <StackLayout>
+                                            <Grid Padding="5" HeightRequest="60">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
 
-                                                    <!--Delete-->
-                                                    <Button   Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
-                                                              FontFamily="FA-Solid"
+                                                <!--Delete-->
+                                                <Button   Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
+                                                              FontFamily="{Static fontAwesome:Config.FontFamilySolid}"
                                                               TextColor="{StaticResource Warning}"
                                                               BorderColor="{StaticResource Warning}"
                                                               BorderWidth="1"
-                                                              CornerRadius="20" HeightRequest="40" WidthRequest="40"
+                                                              CornerRadius="25" HeightRequest="40" WidthRequest="40"
                                                               Grid.Column="0" Grid.Row="0" 
                                                               HorizontalOptions="Center" VerticalOptions="Center"
                                                               Command="{Binding DeleteCommand}"
                                                               />
 
-                                                    <!--Edit-->
-                                                    <Button   Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
-                                                              FontFamily="FA-Solid"
+                                                <!--Edit-->
+                                                <Button   Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
+                                                              FontFamily="{Static fontAwesome:Config.FontFamilySolid}"
                                                               TextColor="{StaticResource Warning}"
                                                               BorderColor="{StaticResource Warning}"
-                                                              CornerRadius="20" HeightRequest="40" WidthRequest="40"
+                                                              CornerRadius="25" HeightRequest="40" WidthRequest="40"
                                                               Grid.Column="3" Grid.Row="0" 
                                                               HorizontalOptions="Center" VerticalOptions="Center"
                                                               Command="{Binding EditCommand}"
                                                               />
 
-                                                    <!--Name-->
-                                                    <Label  Text="{Binding Name}"
+                                                <!--Name-->
+                                                <Label  Text="{Binding Name}"
                                                             FontSize="Medium" HorizontalTextAlignment="Center"
                                                             Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" 
                                                             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
                                                             MaxLines="2"/>
-                                                </Grid>
-                                                
-                                                <!-- Service Info -->
-                                                <Frame>
-                                                    <StackLayout>
-                                                        <!-- Last Service Date -->
-                                                        <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
-                                                            <Label Text="Last Service Date:"
+                                            </Grid>
+                                            <ScrollView VerticalOptions="FillAndExpand">
+                                                <StackLayout>
+
+                                                    <!-- Service Info -->
+                                                    <Frame>
+                                                        <StackLayout>
+                                                            <!-- Last Service Date -->
+                                                            <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
+                                                                <Label Text="Last Service Date:"
                                                                VerticalOptions="Center"/>
 
-                                                            <Label Text="{Binding LastServiceDateUIString}" VerticalOptions="Center" />
-                                                        </StackLayout>
-                                                        
-                                                        <!-- Next Service Date -->
-                                                        <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
-                                                            <Label Text="Next Service Date:"
+                                                                <Label Text="{Binding LastServiceDateUIString}" VerticalOptions="Center" />
+                                                            </StackLayout>
+
+                                                            <!-- Previous Service Completion State -->
+                                                            <StackLayout Orientation="Horizontal">
+                                                                <Label Text="Previous Service Completed:"/>
+                                                                <Label Text="{Binding PreviousServiceCompleted}"/>
+                                                            </StackLayout>
+
+                                                            <!-- Next Service Date -->
+                                                            <StackLayout FlowDirection="LeftToRight" Orientation="Horizontal">
+                                                                <Label Text="Next Service Date:"
                                                                VerticalOptions="Center"/>
 
-                                                            <Label Text="{Binding NextServiceDateUIString}" VerticalOptions="Center" />
+                                                                <Label Text="{Binding NextServiceDateUIString}" VerticalOptions="Center" />
+                                                            </StackLayout>
                                                         </StackLayout>
-                                                    </StackLayout>
-                                                </Frame>
-                                                <!-- Step Info -->
-                                                <Frame>
-                                                    <StackLayout Orientation="Horizontal">
-                                                        <Label Text="Steps:" VerticalOptions="Center"/>
-                                                        <Label Text="{Binding StepViewModels.Count}" VerticalOptions="Center"/>
-                                                        <Label Text="Est. Service Time:" VerticalOptions="Center" HorizontalOptions="EndAndExpand"/>
-                                                        <Label Text="{Binding CompletionTimeEstimate}" VerticalOptions="Center" HorizontalOptions="End"/>
-                                                    </StackLayout>
-                                                </Frame>
-                                                <!-- Comment -->
-                                                <Frame>
-                                                    <StackLayout>
-                                                        <Label Text="Comment:" TextDecorations="Underline" FontSize="Subtitle"/>
-                                                        <Label Text="{Binding Comment}"/>
-                                                    </StackLayout>
-                                                </Frame>
+                                                    </Frame>
+                                                    <!-- Step Info -->
+                                                    <Frame>
+                                                        <StackLayout Orientation="Horizontal">
+                                                            <Label Text="Steps:" VerticalOptions="Center"/>
+                                                            <Label Text="{Binding StepViewModels.Count}" VerticalOptions="Center"/>
+                                                            <Label Text="Est. Service Time:" VerticalOptions="Center" HorizontalOptions="EndAndExpand"/>
+                                                            <Label Text="{Binding CompletionTimeEstimate}" VerticalOptions="Center" HorizontalOptions="End"/>
+                                                        </StackLayout>
+                                                    </Frame>
+                                                    <!-- Misc -->
+                                                    <Frame>
+                                                        <StackLayout>
+                                                            <!-- Active State -->
+                                                            <StackLayout Orientation="Horizontal">
+                                                                <Label Text="Activity State:"/>
+                                                                <Label Text="{Binding ActiveState}"/>
+                                                            </StackLayout>
+                                                            <!-- Reminder Notifications -->
+                                                            <StackLayout Orientation="Horizontal">
+                                                                <Label Text="Reminder Me:"/>
+                                                                <Label Text="{Binding NotifyOfNextServiceDate}"/>
+                                                                <!-- Advance Notice -->
+                                                                <Label Text="{Binding AdvanceNotice}" 
+                                                                   HorizontalOptions="EndAndExpand" 
+                                                                   IsVisible="{Binding NotifyOfNextServiceDate}"/>
+                                                                <Label Text="{Binding NoticeTimeframe}" 
+                                                                   HorizontalOptions="End" 
+                                                                   IsVisible="{Binding NotifyOfNextServiceDate}"/>
+                                                                <Label Text="Before Service Date" 
+                                                                   HorizontalOptions="End" 
+                                                                   IsVisible="{Binding NotifyOfNextServiceDate}"/>
+                                                            </StackLayout>
+                                                            <!-- Times Serviced -->
+                                                            <StackLayout Orientation="Horizontal">
+                                                                <Label Text="Times Serviced:"/>
+                                                                <Label Text="{Binding TimesServiced}"/>
+                                                            </StackLayout>
 
-                                            </StackLayout>
-                                        </ScrollView>
+                                                            <!-- Remaining Life Expectency -->
+                                                            <StackLayout Orientation="Horizontal">
+                                                                <Label Text="Original Life Expectency:"/>
+                                                                <Label Text="//!!//!!//"/>
+                                                            </StackLayout>
+                                                            <StackLayout Orientation="Horizontal">
+                                                                <Label Text="Remaining Life Expectency:"/>
+                                                                <Label Text="//!!//!!//"/>
+                                                            </StackLayout>
+                                                        </StackLayout>
+                                                    </Frame>
+                                                    <!-- Comment -->
+                                                    <Frame>
+                                                        <StackLayout>
+                                                            <Label Text="Comment:" TextDecorations="Underline" FontSize="Subtitle"/>
+                                                            <Label Text="{Binding Comment}"/>
+                                                        </StackLayout>
+                                                    </Frame>
+                                                </StackLayout>
+                                            </ScrollView>
 
-                                        <!--Start Maintenance Button-->
-                                        <Button                                         
+                                            <!--Start Maintenance Button-->
+                                            <Button                                         
                                         Text="Start Maintenance"
                                         FontSize="Body"
                                         Command="{Binding StartMaintenanceCommand}"
@@ -133,20 +210,80 @@
                                         FontAttributes="Bold"
                                         HeightRequest="45"/>
 
-                                        <!--Add Items To Cart-->
-                                        <Button 
-                                        Text="Create Shopping List"
+                                            <!--Add Items To Cart-->
+                                            <Button 
+                                        Text="Add To Shopping List"
                                         FontSize="Body"
                                         Command="{Binding AddMaterialsToShoppingCartCommand}"
                                         HorizontalOptions="FillAndExpand" 
                                         HeightRequest="45"/>
-                                    </StackLayout>
-                                </Frame>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                                        </StackLayout>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
                 </StackLayout>
-            </StackLayout>
+                <Frame Grid.Column="1"
+                       Grid.Row="1"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Fill"
+                       IsVisible="{Binding ShowFilters}">
+                    <StackLayout HorizontalOptions="Fill"
+                                 VerticalOptions="Fill">
+                        <TableView HorizontalOptions="FillAndExpand"
+                                   VerticalOptions="FillAndExpand"
+                                   Intent="Menu"
+                                   HasUnevenRows="True"
+                                   BackgroundColor="{StaticResource Transition}">
+                            <TableRoot>
+                                <TableSection Title="Active State"
+                                      TextColor="{StaticResource Secondary}">
+
+                                    <!-- Active State Filters -->
+                                    <local:CustomSwitchViewCell Text="Show Active"
+                                                                IsToggled="{Binding ShowActiveFilterFlag}"/>
+                                    <local:CustomSwitchViewCell Text="Show Inactive"
+                                                                IsToggled="{Binding ShowInactiveFilterFlag}"/>
+                                    <local:CustomSwitchViewCell Text="Show Suspended"
+                                                                IsToggled="{Binding ShowSuspendedFilterFlag}"/>
+                                    <local:CustomSwitchViewCell Text="Test"
+                                                                TextColor="{StaticResource Secondary}"
+                                                                IsToggled="{Binding ShowActiveFilterFlag}"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                </TableSection>
+                                <TableSection Title="Service Dates"
+                                              TextColor="{StaticResource Secondary}">
+                                    <ViewCell>
+                                        <StackLayout Padding="15,10">
+                                                <Label Text="Next Service Date Range"/>
+                                            <StackLayout Orientation="Horizontal">
+                                                <DatePicker Date="{Binding NextServiceDateFilterRangeStart}"
+                                                            HorizontalOptions="FillAndExpand"/>
+                                                <Label Text="to" VerticalOptions="Center"/>
+                                                <DatePicker Date="{Binding NextServiceDateFilterRangeEnd}"
+                                                            HorizontalOptions="FillAndExpand"/>
+                                            </StackLayout>
+                                        </StackLayout>
+                                    </ViewCell>
+                                </TableSection>
+                            </TableRoot>
+
+                        </TableView>
+
+                        <Button Text="Close"
+                                Command="{Binding ToggleFilterCommand}"/>
+                    </StackLayout>
+                </Frame>
+            </Grid>
         </RefreshView>
     </ContentPage.Content>
 </ContentPage>

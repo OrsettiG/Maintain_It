@@ -17,20 +17,6 @@ namespace Maintain_it.Helpers
 {
     internal static class StepManager
     {
-        #region Cache
-        private static Dictionary<int, Step> shallowCache;
-        private static Dictionary<int, Step> ShallowCache
-        {
-            get => shallowCache ??= new Dictionary<int, Step>();
-        }
-
-        private static Dictionary<int, Step> deepCache;
-        private static Dictionary<int, Step> DeepCache
-        {
-            get => deepCache ??= new Dictionary<int, Step>();
-        }
-
-        #endregion Cache
         #region Step Creation
 
         /// <summary>
@@ -107,7 +93,7 @@ namespace Maintain_it.Helpers
         {
             Step step = await GetItemRecursiveAsync(id);
 
-            await MaintenanceItemManager.UpdateServiceRecord( step.MaintenanceItem.ServiceRecords.Last().Id, false, true, step.Index );
+            await ServiceItemManager.UpdateServiceRecord( step.MaintenanceItem.ServiceRecords.Last().Id, false, true, step.Index );
 
             foreach( StepMaterial stepMaterial in step.StepMaterials )
             {
@@ -123,22 +109,22 @@ namespace Maintain_it.Helpers
         #endregion
         #region MaintenanceItem Management
         /// <summary>
-        /// Changes the passed in Step's MaintenanceItem to match the passed in stepId and updates database. DOES NOT MODIFY THE <see cref="MaintenanceItem"/> MAKE SURE TO UPDATE THAT AS WELL.
+        /// Changes the passed in Step's ServiceItem to match the passed in stepId and updates database. DOES NOT MODIFY THE <see cref="ServiceItem"/> MAKE SURE TO UPDATE THAT AS WELL.
         /// </summary>
         /// <returns></returns>
-        public static async Task<bool> UpdateMaintenanceItem( int maintenanceItemId, int stepId )
+        public static async Task<bool> UpdateServiceItem( int maintenanceItemId, int stepId )
         {
             if(maintenanceItemId == 0 || stepId == 0 )
             {
                 return false;
             }
 
-            MaintenanceItem item = null;
+            ServiceItem item = null;
             Step step = null;
 
             try
             {
-                item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( maintenanceItemId );
+                item = await DbServiceLocator.GetItemRecursiveAsync<ServiceItem>( maintenanceItemId );
 
                 step = await DbServiceLocator.GetItemRecursiveAsync<Step>( stepId );
             }
@@ -147,14 +133,14 @@ namespace Maintain_it.Helpers
                 Console.WriteLine( ex.StackTrace );
             }
 
-            return await UpdateMaintenanceItem( item, step );
+            return await UpdateServiceItem( item, step );
         }
 
         /// <summary>
-        /// Changes the passed in Step's MaintenanceItem to match the passed in stepId and updates database. DOES NOT MODIFY THE <see cref="MaintenanceItem"/> MAKE SURE TO UPDATE THAT AS WELL.
+        /// Changes the passed in Step's ServiceItem to match the passed in stepId and updates database. DOES NOT MODIFY THE <see cref="ServiceItem"/> MAKE SURE TO UPDATE THAT AS WELL.
         /// </summary>
         /// <returns></returns>
-        private static async Task<bool> UpdateMaintenanceItem( MaintenanceItem item, Step step )
+        private static async Task<bool> UpdateServiceItem( ServiceItem item, Step step )
         {
             if( step.MaintenanceItem != item || step.MaintenanceItemId != item.Id )
             {
@@ -464,33 +450,33 @@ namespace Maintain_it.Helpers
 
         public static async Task<Step> GetItemAsync( int stepId )
         {
-            if( Cache.GetItem( stepId, out Step step ) )
-                return step;
+            //if( Cache.GetItem( stepId, out Step step ) )
+            //    return step;
 
             if( stepId <= 0 )
                 throw new ArgumentOutOfRangeException();
 
-            step = await DbServiceLocator.GetItemAsync<Step>( stepId );
-            Cache.AddShallow( step );
+            Step step = await DbServiceLocator.GetItemAsync<Step>( stepId );
+//            Cache.AddShallow( step );
 
             return step;
         }
 
         public static async Task<Step> GetItemRecursiveAsync( int stepId )
         {
-            if( Cache.GetDeepItem( stepId, out Step step ) )
-                return step;
+            //if( Cache.GetDeepItem( stepId, out Step step ) )
+            //    return step;
 
-            step = await DbServiceLocator.GetItemRecursiveAsync<Step>( stepId );
+            Step step = await DbServiceLocator.GetItemRecursiveAsync<Step>( stepId );
             
-            step.MaintenanceItem = step.MaintenanceItemId == 0 ? null : await MaintenanceItemManager.GetItemAsync( step.MaintenanceItemId );
+            step.MaintenanceItem = step.MaintenanceItemId == 0 ? null : await ServiceItemManager.GetItemAsync( step.MaintenanceItemId );
 
             foreach( StepMaterial stepMat in step.StepMaterials )
             {
                 stepMat.Material = await MaterialManager.GetItemAsync( stepMat.MaterialId );
             }
 
-            Cache.AddDeep( step );
+            //Cache.AddDeep( step );
 
             return step;
         }

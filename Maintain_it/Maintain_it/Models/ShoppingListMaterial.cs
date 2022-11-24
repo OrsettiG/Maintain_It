@@ -18,11 +18,13 @@ namespace Maintain_it.Models
 
         #region Many To One Relationships
 
+        //Material
         [ForeignKey(typeof(Material))]
         public int MaterialId { get; set; }
-        [ManyToOne]
+        [ManyToOne( CascadeOperations = CascadeOperation.CascadeRead )]
         public Material Material { get; set; }
 
+        //ShoppingList
         [ForeignKey(typeof(ShoppingList))]
         public int ShoppingListId { get; set; }
         [ManyToOne]

@@ -12,10 +12,7 @@ namespace Maintain_it.Helpers
         /// </summary>
         public const string Information = "Information";
 
-        /// <summary>
-        /// "You already have all the materials required for this project. You can get right to work, no need for shopping."
-        /// </summary>
-        public const string MaterialsAlreadyOwned = "You already have all the materials required for this project. You can get right to work, no need for shopping.";
+
 
         /// <summary>
         /// "Ok"
@@ -73,7 +70,14 @@ namespace Maintain_it.Helpers
         public const string No = "No";
         #endregion Generic Strings
 
-        #region MaintenanceItem Strings
+        #region ShoppingList Strings
+        /// <summary>
+        /// "You already have all the looseMaterials required for this project. Would you still like to add them to a shopping list?"
+        /// </summary>
+        public const string MaterialsAlreadyOwned = "You already have all the looseMaterials required for this project. Would you still like to add them to a shopping list?";
+        #endregion ShoppingList Strings
+
+        #region ServiceItem Strings
         ///<summary>
         ///"Set Project Active?"
         /// </summary>
@@ -88,7 +92,7 @@ namespace Maintain_it.Helpers
         /// "This project is currently marked as Suspended and will not show up under \"Active Projects\". Would you like to mark it active?"
         /// </summary>
         public const string UpdateProjectActiveState_SuspendedMessage = "This project is currently marked as Suspended and will not show up under \"Active Projects\". Would you like to mark it active?";
-        #endregion MaintenanceItem Strings
+        #endregion ServiceItem Strings
 
         #region Camera/Image Strings
         /// <summary>
@@ -132,5 +136,9 @@ namespace Maintain_it.Helpers
         #region ShoppingList Strings
         public const string AddToShoppingListTitle = "Available Shopping Lists";
         #endregion ShoppingList Strings
+
+        #region Tag Strings
+        public const string UniqueTagNameErrorMessage = "Tags must be unique, please enter a different tag and try again";
+        #endregion
     }
 }

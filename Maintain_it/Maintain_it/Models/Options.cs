@@ -8,6 +8,7 @@ namespace Maintain_it.Models
     public enum TagType { General, Step, Retailer, ShoppingList }
     public enum TimeInMinutes { None = 0, Minutes = 1, Hours = 60, Days = 1440, Weeks = 10080, Months = 43800, Years = 525600 }
     public enum ActiveStateFlag { Inactive = 0, Suspended = 1, Active = 2}
+    public enum BoolianFilterFlag { Inactive = 0, True = 1, False = 2 }
 
     public static class Options
     {

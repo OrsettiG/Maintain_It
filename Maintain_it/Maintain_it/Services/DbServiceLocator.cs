@@ -67,7 +67,7 @@ namespace Maintain_it.Services
         }
 
         /// <summary>
-        /// Adds a new item to the db and gives back the id. Use this when building up a list of new objects within an object you're building (new Steps() within a new MaintenanceItem())
+        /// Adds a new item to the db and gives back the id. Use this when building up a list of new objects within an object you're building (new Steps() within a new ServiceItem())
         /// </summary>
         /// <typeparam name="T"> The item type you are adding </typeparam>
         /// <param name="Item"> The item you are adding </param>
@@ -75,11 +75,19 @@ namespace Maintain_it.Services
         public static async Task<int> AddItemAndReturnIdAsync<T>( T Item ) where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
-            return await instance.AddItemAndReturnRowIdAsync( Item ).ConfigureAwait( false );
+
+            try
+            {
+                return await instance.AddItemAndReturnRowIdAsync( Item ).ConfigureAwait( false );
+            }
+            catch( Exception )
+            {
+                throw;
+            }
         }
 
         /// <summary>
-        /// Adds a new item to the db and gives back the id. Use this when building up a list of new objects within an object you're building (new Steps() within a new MaintenanceItem())
+        /// Adds a new item to the db and gives back the id. Use this when building up a list of new objects within an object you're building (new Steps() within a new ServiceItem())
         /// </summary>
         /// <typeparam name="T"> The item type you are adding </typeparam>
         /// <param name="Item"> The item you are adding </param>
@@ -99,8 +107,6 @@ namespace Maintain_it.Services
         {
             if( id > 0 )
             {
-                _ = Cache.RemoveItem<T>( id );
-
                 Service<T> instance = await GetService<T>();
                 await instance.DeleteItemAsync( id ).ConfigureAwait( false );
             }
@@ -228,22 +234,10 @@ namespace Maintain_it.Services
         /// <returns> The item with the matching id to the one passed in, otherwise a default item. </returns>
         public static async Task<T> GetItemAsync<T>( int id ) where T : IStorableObject, new()
         {
-            if( id > 0 )
-            {
-                if( Cache.GetItem( id, out T item ) )
-                {
-                    return item;
-                }
+            Service<T> instance = await GetService<T>();
+            T item = await instance.GetItemAsync( id ).ConfigureAwait( false );
 
-                Service<T> instance = await GetService<T>();
-                item = await instance.GetItemAsync( id ).ConfigureAwait( false );
-
-                _ = Cache.AddShallow( item );
-
-                return item;
-            }
-
-            return default;
+            return item;
         }
 
         /// <summary>
@@ -254,15 +248,10 @@ namespace Maintain_it.Services
         /// <returns> The item with the matching id to the one passed in, if any. </returns>
         public static async Task<T> GetItemRecursiveAsync<T>( int id ) where T : IStorableObject, new()
         {
-            if( Cache.GetDeepItem( id, out T item ) )
-            {
-                return item;
-            }
-
             Service<T> instance = await GetService<T>();
 
-            item = await instance.GetItemRecursiveAsync( id ).ConfigureAwait( false );
-            _ = Cache.AddDeep( item );
+            T item = await instance.GetItemRecursiveAsync( id ).ConfigureAwait( false );
+
             return item;
         }
 
@@ -273,8 +262,6 @@ namespace Maintain_it.Services
         /// <param name="item"> The item to update (the version currently in the db will be updated to match this item) </param>
         public static async Task UpdateItemAsync<T>( T item ) where T : IStorableObject, new()
         {
-            _ = Cache.RemoveItem<T>( item.Id );
-
             Service<T> instance = await GetService<T>();
             await instance.UpdateItemAsync( item ).ConfigureAwait( false );
         }

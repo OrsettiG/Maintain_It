@@ -18,31 +18,11 @@
                    Padding="5" 
                    Margin="5">
                 <StackLayout>
-                    <CollectionView ItemsSource="{Binding ShoppingListViewModels}">
+                    <CollectionView ItemsSource="{Binding ShoppingListViewModels}"
+                                    EmptyView="No Shopping Lists">
                         <CollectionView.ItemsLayout>
                             <LinearItemsLayout ItemSpacing="5" Orientation="Vertical"/>
                         </CollectionView.ItemsLayout>
-                        <CollectionView.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Label Text="Name"
-                                   FontSize="Title"
-                                   Grid.Column="0"
-                                   HorizontalOptions="CenterAndExpand"
-                                   VerticalOptions="End"
-                                   TextDecorations="Underline"/>
-                                <Label Text="Item Count"
-                                   FontSize="Title"
-                                   Grid.Column="1"
-                                   HorizontalOptions="CenterAndExpand"
-                                   VerticalOptions="End"
-                                   TextDecorations="Underline"/>
-                            </Grid>
-                        </CollectionView.Header>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <SwipeView>
@@ -63,18 +43,12 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="3*"/>
-                                                <ColumnDefinition Width="3*"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <Label Text="{Binding Name}"
                                                FontSize="Medium"
                                                Grid.Column="0"
                                                HorizontalOptions="Start"
-                                               Margin="2"/>
-                                            <Label Text="{Binding Count}"
-                                               FontSize="Medium"
-                                               Grid.Column="1"
-                                               HorizontalOptions="CenterAndExpand"
                                                Margin="2"/>
                                             <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}"
                                                FontFamily="FA-Solid"

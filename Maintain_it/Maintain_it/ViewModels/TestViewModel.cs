@@ -117,7 +117,7 @@ namespace Maintain_it.ViewModels
             };
         }
 
-        // Refresh View
+        // ItemDeleted View
         private AsyncCommand refreshCommand;
         public ICommand RefreshCommand
         {

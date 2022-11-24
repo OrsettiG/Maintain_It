@@ -5,117 +5,244 @@
              xmlns:models="clr-namespace:Maintain_it.Models"
              xmlns:fontAwesome="clr-namespace:Maintain_it.Helpers.FontAwesome"
              x:Class="Maintain_it.Views.CreateNewMaterialView"
-             x:DataType="viewmodels:CreateNewMaterialViewModel"
              Title="Create New Material">
+    <ContentPage.BindingContext>
+        <viewmodels:CreateNewMaterialViewModel/>
+        <!--
+             x:DataType="viewmodels:CreateNewMaterialViewModel"-->
+    </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem IconImageSource="{FontImage Glyph={Static fontAwesome:FontAwesomeIcons.Camera}, 
+                                                 FontFamily={Static fontAwesome:Config.FontFamilySolid}, 
+                                                 Size=Large}"
+                     Command="{Binding TakePhotoCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <ScrollView>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="1.5*"/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Entry Placeholder="Material Name" Text="{Binding MaterialName}"
-                       Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-                       HorizontalOptions="CenterAndExpand" VerticalOptions="Center"
-                       HorizontalTextAlignment="Center"
-                       WidthRequest="250"
-                       MaxLength="25"/>
+        <Grid VerticalOptions="Fill" HorizontalOptions="Fill">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                <!--<Frame HeightRequest="200" WidthRequest="120" BackgroundColor="LightGray"
-                   Grid.Row="1" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2">
+            <StackLayout VerticalOptions="FillAndExpand" 
+                         Grid.Column="0"
+                         Grid.ColumnSpan="3"
+                         Grid.Row="0"
+                         Grid.RowSpan="3">
+                <ScrollView VerticalOptions="FillAndExpand" HorizontalScrollBarVisibility="Always">
+                    <StackLayout VerticalOptions="Fill"
+                                 Padding="5">
+                        <Entry Placeholder="Material Name" Text="{Binding MaterialName}"
+                           HorizontalTextAlignment="Center"
+                           MaxLength="25"
+                           FlexLayout.AlignSelf="Stretch"/>
 
-            </Frame>-->
+                        <!--Description-->
+                        <StackLayout>
+                            <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="2*"/>
+                                    <RowDefinition Height="2*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Label Text="Description:"
+                                   FontSize="Medium"
+                                   Grid.Row="0" Grid.Column="0" Padding="5,0"
+                                   VerticalOptions="End"/>
+                                <Editor Placeholder="Enter Description..." Text="{Binding MaterialDescription}"
+                                Grid.Row="1" Grid.RowSpan="2"
+                                Grid.Column="0" Grid.ColumnSpan="2"
+                                Margin="2"
+                                MaxLength="125"/>
+                                <Label Text="&#xf129; 125 character limit"
+                               FontFamily="FA-Solid" FontSize="Small"
+                               Grid.Column="0" Grid.Row="3"
+                               VerticalOptions="Start"
+                               Margin="5,0"/>
+                            </Grid>
+                        </StackLayout>
 
-                <!--Description-->
-                <Label Text="Description:"
-                       FontSize="Medium"
-                       Grid.Row="1" Grid.Column="0" Margin="2, 0"
-                       VerticalOptions="End"/>
-                <Editor Placeholder="Enter Description..." Text="{Binding MaterialDescription}"
-                        Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" 
-                        VerticalOptions="FillAndExpand"
-                        Margin="2"
-                        MaxLength="125"/>
-                <Label Text="&#xf129; 125 character limit"
-                       FontFamily="FA-Solid" FontSize="Small"
-                       Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3"
-                       VerticalOptions="Start"
-                       Margin="5,0"/>
+                        <!-- Special Itentifier -->
+                        <StackLayout Orientation="Horizontal"
+                                     FlexLayout.AlignSelf="Stretch">
+                            <Label Text="Special Identifier:"
+                               VerticalOptions="End"
+                               HorizontalOptions="Start"
+                               Padding="5"
+                               FontSize="Medium"/>
+                            <Entry Placeholder="####-####-####-####"
+                               HorizontalTextAlignment="Center" VerticalTextAlignment="End"
+                               HorizontalOptions="FillAndExpand" WidthRequest="225" VerticalOptions="End"
+                               FontSize="Medium" Keyboard="Telephone">
+                            </Entry>
+                        </StackLayout>
 
-                <!-- Special Itentifier -->
-                <Label Text="Special Identifier:"
-                       Grid.Row="3" Grid.Column="0"
-                       Grid.ColumnSpan="2"
-                       VerticalOptions="End"
-                       HorizontalOptions="StartAndExpand"
-                       Padding="5"
-                       FontSize="Medium"/>
-                <Entry Placeholder="####-####-####-####"
-                       HorizontalTextAlignment="Center" VerticalTextAlignment="End"
-                       Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
-                       HorizontalOptions="FillAndExpand" VerticalOptions="End"
-                       FontSize="Medium" Keyboard="Telephone">
-                </Entry>
-                
-                <!-- Life Expectancy -->
-                <Label Text="Service Life:"
-                       Grid.Row="4" Grid.Column="0"
-                       FontSize="Medium"
-                       HorizontalOptions="Start" VerticalOptions="Center"/>
+                        <!-- Life Expectancy -->
+                        <StackLayout Orientation="Horizontal" 
+                                 FlexLayout.AlignSelf="Stretch" Padding="5">
+                            <Label Text="Service Life:"
+                               FontSize="Medium"
+                               HorizontalOptions="Start" VerticalOptions="Center"/>
 
-                <Entry Placeholder="5"
-                       Grid.Row="4" Grid.Column="1"
-                       HorizontalOptions="FillAndExpand" VerticalOptions="Center"
-                       HorizontalTextAlignment="Center" VerticalTextAlignment="End"
-                       Keyboard="Numeric"/>
-                <Picker ItemsSource="{Static models:Options.timeframes}"
-                        Grid.Row="4" Grid.Column="2"
-                        HorizontalOptions="FillAndExpand" VerticalOptions="Center"
-                        HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
-                
-                <!--Size-->
-                <Label Text="Unit Size:"
-                       Padding="5"
-                       FontSize="Medium"
-                       Grid.Row="5" Grid.Column="0" 
-                       HorizontalOptions="Fill" VerticalOptions="Center"/>
-                <Entry Text="{Binding Size}" Placeholder="i.e. 10"
-                       MaxLength="7"
-                       Keyboard="Numeric"
-                       VerticalTextAlignment="End" HorizontalTextAlignment="Center"
-                       VerticalOptions="Center"
-                       Grid.Row="5" Grid.Column="1"/>
-                <Entry Text="{Binding MaterialUnits}" Placeholder="i.e. cm"
-                       VerticalTextAlignment="End" VerticalOptions="Center"
-                       HorizontalTextAlignment="Center"
-                       Grid.Row="5" Grid.Column="2"/>
-                
-                <!--Quantity-->
-                <Label Text="Quanity Owned:"
-                   FontSize="Medium"
-                   Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
-                   HorizontalOptions="Fill" VerticalOptions="Center"
-                   Padding="5"/>
+                            <Entry Placeholder="5"
+                               HorizontalOptions="FillAndExpand" VerticalOptions="Center"
+                               HorizontalTextAlignment="Center" VerticalTextAlignment="End"
+                               Keyboard="Numeric"/>
+                            <Picker ItemsSource="{Static models:Options.timeframes}"
+                                HorizontalOptions="FillAndExpand" VerticalOptions="Center"
+                                HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
+                        </StackLayout>
 
-                <Entry  Text="{Binding QuantityOwned}" Keyboard="Numeric"
-                        Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"
-                        MaxLength="8"
-                        VerticalOptions="Center"
-                        HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
+                        <!--Size-->
+                        <StackLayout Orientation="Horizontal" FlexLayout.AlignSelf="Stretch">
+                            <Label Text="Unit Size:"
+                               Padding="5"
+                               FontSize="Medium"
+                               HorizontalOptions="Start" VerticalOptions="Center"/>
+                            <Entry Text="{Binding Size}" Placeholder="i.e. 10"
+                               MaxLength="7"
+                               Keyboard="Numeric"
+                               VerticalTextAlignment="End" HorizontalTextAlignment="Center"
+                               VerticalOptions="Center"
+                               HorizontalOptions="FillAndExpand"/>
+                            <Entry Text="{Binding MaterialUnits}" Placeholder="i.e. cm"
+                               VerticalTextAlignment="End" VerticalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               HorizontalOptions="FillAndExpand"/>
+                        </StackLayout>
 
-                <Button Text="Save" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Command="{Binding SaveMaterialCommand}"/>
-            </Grid>
-        </ScrollView>
+                        <!--Tags-->
+                        <StackLayout Orientation="Horizontal"
+                                     FlexLayout.AlignSelf="Stretch"
+                                     HeightRequest="50">
+                            <Label Text="Tags:"
+                                   FontSize="Medium"
+                                   Margin="5"
+                                   HorizontalOptions="FillAndExpand"
+                                   VerticalTextAlignment="Center"
+                                   WidthRequest="55"/>
+                            <Frame Padding="5">
+                                <CollectionView ItemsSource="{Binding SelectedTags}"
+                                            HorizontalOptions="FillAndExpand"
+                                            VerticalOptions="FillAndExpand">
+                                    <CollectionView.ItemsLayout>
+                                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5"/>
+                                    </CollectionView.ItemsLayout>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Frame BackgroundColor="{StaticResource Secondary}"
+                                                   CornerRadius="8"
+                                                   Padding="5"
+                                                   Margin="5">
+                                                <StackLayout Orientation="Horizontal"
+                                                             HeightRequest="20"
+                                                             BackgroundColor="{StaticResource Secondary}">
+                                                    <Label Text="{Binding Name}"
+                                                           TextColor="{StaticResource Primary}"
+                                                           HorizontalOptions="StartAndExpand"
+                                                           VerticalTextAlignment="Center"
+                                                           VerticalOptions="Center"/>
+                                                    <ImageButton Source="{FontImage 
+                                                                            Glyph={Static fontAwesome:FontAwesomeIcons.WindowClose}
+                                                                            , Color={StaticResource Cue}, 
+                                                                            FontFamily={Static fontAwesome:Config.FontFamilySolid}}"
+                                                                 HorizontalOptions="End"
+                                                                 Command="{Binding ToggleSelectionStateCommand}"/>
+                                                </StackLayout>
+                                            </Frame>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </Frame>
+                        </StackLayout>
+
+                        <!--Select Tags-->
+                        <Button Text="Select Tags" FlexLayout.AlignSelf="Stretch" Command="{Binding SelectTagsCommand}"/>
+
+                        <!--Quantity-->
+                        <StackLayout Orientation="Horizontal" FlexLayout.AlignSelf="Stretch">
+                            <Label Text="Quanity Owned:"
+                               FontSize="Medium"
+                               Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
+                               HorizontalOptions="Fill" VerticalOptions="Center"
+                               Padding="5"/>
+
+                            <Entry  Text="{Binding QuantityOwned}" Keyboard="Numeric"
+                                Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"
+                                MaxLength="8"
+                                VerticalOptions="Center"
+                                HorizontalTextAlignment="Center" VerticalTextAlignment="End"
+                                HorizontalOptions="FillAndExpand"/>
+                        </StackLayout>
+
+                        <!--Image-->
+                        <StackLayout FlexLayout.AlignSelf="Stretch">
+                            <Image Source="{Binding Image}" 
+                               Aspect="AspectFill"
+                               HorizontalOptions="FillAndExpand"
+                               VerticalOptions="FillAndExpand"
+                               Rotation="90"/>
+                        </StackLayout>
+                    </StackLayout>
+                </ScrollView>
+                <Button Text="Save" 
+                    Command="{Binding SaveMaterialCommand}"
+                    VerticalOptions="End"/>
+            </StackLayout>
+            <!--Tag Popup-->
+            <ContentView IsVisible="{Binding IsVisible}"
+                         Grid.Column="1"
+                         Grid.Row="1"
+                         HorizontalOptions="Fill"
+                         VerticalOptions="Fill">
+                <Frame CornerRadius="3">
+                    <StackLayout VerticalOptions="Fill" HorizontalOptions="Fill">
+                        <Label Text="Tags:"
+                           FontSize="Large"
+                           HorizontalOptions="Start"
+                           VerticalOptions="Start"/>
+                        <CollectionView ItemsSource="{Binding AvailableTags}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackLayout Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding Selected}" Color="{StaticResource Cue}"/>
+                                        <Label Text="{Binding Name}" 
+                                           FontSize="Medium"
+                                           HorizontalOptions="CenterAndExpand" 
+                                           VerticalTextAlignment="Center"/>
+                                        <StackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleSelectionStateCommand}"/>
+                                        </StackLayout.GestureRecognizers>
+                                    </StackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                            <Entry HorizontalOptions="FillAndExpand"
+                               Placeholder="Enter Tag"
+                               Text="{Binding TagSearch}"/>
+                            <Button HorizontalOptions="End"
+                                Text="Add"
+                                Command="{Binding CreateNewTagCommand}"/>
+                        </StackLayout>
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                            <Button Text="Close"
+                                HorizontalOptions="FillAndExpand"
+                                Command="{Binding AddSelectedTagsCommand}"/>
+                        </StackLayout>
+                    </StackLayout>
+                </Frame>
+            </ContentView>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>  

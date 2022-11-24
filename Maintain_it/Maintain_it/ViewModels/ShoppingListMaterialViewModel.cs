@@ -8,6 +8,7 @@ using System.Windows.Input;
 
 using Maintain_it.Helpers;
 using Maintain_it.Models;
+using Maintain_it.Models.Interfaces;
 using Maintain_it.Services;
 using Maintain_it.Views;
 
@@ -20,12 +21,12 @@ using Command = MvvmHelpers.Commands.Command;
 
 namespace Maintain_it.ViewModels
 {
-    public class ShoppingListMaterialViewModel : BaseViewModel
+    public class ShoppingListMaterialViewModel : BaseViewModel, IEquatable<ShoppingListMaterialViewModel>, IShoppingListItemViewModel
     {
 
         public ShoppingListMaterialViewModel( ShoppingListMaterial shoppingListMaterial )
         {
-            _shoppingListMaterial = shoppingListMaterial;
+            ShoppingListMaterial = shoppingListMaterial;
             MaterialId = shoppingListMaterial.MaterialId;
             Material = shoppingListMaterial.Material;
             Name = shoppingListMaterial.Name;
@@ -40,9 +41,28 @@ namespace Maintain_it.ViewModels
             if( Purchased )
             {
                 TextDecoration = TextDecorations.Strikethrough;
-                Color = Color.Green;
+                Color = (Color)App.Current.Resources["Secondary"];
+            }
+            else
+            {
+                TextDecoration = TextDecorations.None;
+                Color = (Color)App.Current.Resources["Cue"];
             }
         }
+
+        // Used when creating ShoppingListItemGroupViewModels on the fly.
+        public ShoppingListMaterialViewModel( StepMaterial stepMaterial, ShoppingList shoppingList )
+        {
+            ShoppingListMaterial = new ShoppingListMaterial()
+            {
+                Material = stepMaterial.Material,
+                MaterialId = stepMaterial.MaterialId,
+                ShoppingList = shoppingList,
+                ShoppingListId = shoppingList.Id,
+
+            };
+        }
+
         public ShoppingListMaterialViewModel( Material material, ShoppingList shoppingList )
         {
             _shoppingListMaterial = new ShoppingListMaterial()
@@ -62,14 +82,31 @@ namespace Maintain_it.ViewModels
             Quantity = 1;
             Purchased = false;
 
-            Tags = material.Tags.Where( x => x.TagType == TagType.ShoppingList || x.TagType == TagType.General ) as ObservableRangeCollection<Tag>;
+            Tags = new ObservableRangeCollection<Tag>( material.Tags );
         }
+
+        //public ShoppingListMaterialViewModel( string name, Material mat, ShoppingList sList, int QuantityRequired )
+        //{
+        //    Name = name;
+        //    Material = mat;
+        //    MaterialId = mat.Id;
+        //    ShoppingList = sList;
+        //    ShoppingListId = sList.Id;
+            
+        //    ShoppingListMaterial
+        //}
 
         #region _PROPERTIES_
         public event Action<int> OnPurchasedChanged;
-        public AsyncCommand RefreshParentPageOnItemDeleteAsyncCommand;
+        public event Action<int> OnItemPurchased;
+        public event Action<int> OnItemDeleted;
+        public event Action<int> OnItemSaved;
 
-        private Color _color = Color.DarkRed;
+        public AsyncCommand<int> OnItemDeletedAsyncCommand;
+
+
+
+        private Color _color;
         public Color Color
         {
             get => _color;
@@ -84,7 +121,11 @@ namespace Maintain_it.ViewModels
         }
 
         private ShoppingListMaterial _shoppingListMaterial;
-        public ShoppingListMaterial ShoppingListMaterial { get => _shoppingListMaterial; }
+        public ShoppingListMaterial ShoppingListMaterial
+        {
+            get => _shoppingListMaterial;
+            private set => SetProperty( ref _shoppingListMaterial, value );
+        }
 
         private int materialId;
         public int MaterialId
@@ -113,21 +154,7 @@ namespace Maintain_it.ViewModels
         public bool Purchased
         {
             get => purchased;
-            set
-            {
-                if( !CanEdit && SetProperty( ref purchased, value ) )
-                {
-                    if( !value )
-                    {
-                        OnPurchasedChanged?.Invoke( 1 );
-                    }
-                    else
-                    {
-                        OnPurchasedChanged?.Invoke( -1 );
-                    }
-                }
-
-            }
+            set => SetProperty( ref purchased, value );
         }
 
         private ObservableRangeCollection<Tag> tags;
@@ -139,11 +166,29 @@ namespace Maintain_it.ViewModels
             get => textDecoration;
             set => SetProperty( ref textDecoration, value );
         }
+
+
+        public int ShoppingListId { get; set; }
+        public Config.EditState EditState { get; set; }
         #endregion
 
         #region _COMMANDS_
 
+        // Cross Off
         private AsyncCommand crossOffCommand;
+        private AsyncCommand togglePurchasedCommand;
+        public ICommand TogglePurchasedCommand { get => togglePurchasedCommand ??= new AsyncCommand(TogglePurchased); }
+        private async Task TogglePurchased()
+        {
+            Purchased = !Purchased;
+            TextDecoration = Purchased ? TextDecorations.Strikethrough : TextDecorations.None;
+            Color = Purchased ? (Color)App.Current.Resources["Secondary"] : (Color)App.Current.Resources["Cue"];
+
+            await ShoppingListMaterialManager.PurchaseItemAsync( ShoppingListMaterial.Id, Purchased );
+
+            OnItemPurchased?.Invoke( Purchased ? Quantity : -Quantity );
+        }
+
         public ICommand CrossOffCommand { get => crossOffCommand ??= new AsyncCommand( CrossOff ); }
         private async Task CrossOff()
         {
@@ -182,6 +227,14 @@ namespace Maintain_it.ViewModels
             await DbServiceLocator.UpdateItemAsync( Material );
         }
 
+        // Toggle Edit State Command
+        private AsyncCommand toggleEditStateCommand;
+        public ICommand ToggleEditStateCommand { get => toggleEditStateCommand ??= new AsyncCommand(ToggleEditState); }
+        private async Task ToggleEditState()
+        {
+            Console.WriteLine( $"{Name} Edit State Changed!!" );
+        }
+
         private MvvmHelpers.Commands.Command<bool> toggleCanEditCommand;
         public ICommand ToggleCanEditCommand
         {
@@ -192,28 +245,83 @@ namespace Maintain_it.ViewModels
             CanEdit = value;
         }
 
+        // Delete Command
         private AsyncCommand deleteItemCommand;
+        private AsyncCommand deleteCommand;
+        public ICommand DeleteCommand { get => deleteCommand ??= new AsyncCommand(Delete); }
+        private async Task Delete()
+        {
+            Console.WriteLine( $"{Name} Deleted!!" );
+        }
+
         public ICommand DeleteItemCommand
         {
             get => deleteItemCommand ??= new AsyncCommand( DeleteItem );
         }
         public async Task DeleteItem()
         {
-            await DbServiceLocator.DeleteItemAsync<ShoppingListMaterial>( ShoppingListMaterial.Id );
+            if( ShoppingListMaterial.Id > 0 )
+            {
+                await OnItemDeletedAsyncCommand?.ExecuteAsync( ShoppingListMaterial.Id );
 
-            await RefreshParentPageOnItemDeleteAsyncCommand?.ExecuteAsync();
+                await DbServiceLocator.DeleteItemAsync<ShoppingListMaterial>( ShoppingListMaterial.Id );
+            }
         }
 
+        // Open Command
         private AsyncCommand openCommand;
         public ICommand OpenCommand { get => openCommand ??= new AsyncCommand( Open ); }
         private async Task Open()
         {
-            if( !CanEdit )
-            {
-                string encodedId = HttpUtility.UrlEncode(ShoppingListMaterial.Id.ToString());
+            Console.WriteLine( $"{Name} Opened!!" );
+            //if( !CanEdit )
+            //{
+            //    string encodedId = HttpUtility.UrlEncode(ShoppingListMaterial.Id.ToString());
 
-                await Shell.Current.GoToAsync( $"{nameof( ShoppingListMaterialDetailView )}?{QueryParameters.ShoppingListMaterialId}={encodedId}" );
-            }
+            //    await Shell.Current.GoToAsync( $"{nameof( ShoppingListMaterialDetailView )}?{QueryParameters.ShoppingListMaterialId}={encodedId}" );
+            //}
+        }
+
+        // Save Command
+        private AsyncCommand saveCommand;
+        public ICommand SaveCommand { get => saveCommand ??= new AsyncCommand(Save); }
+        private async Task Save() 
+        {
+            Console.WriteLine( $"{Name} Saved!!" );
+        }
+
+        // Refresh Command
+        private AsyncCommand refreshCommand;
+        public ICommand RefreshCommand { get => refreshCommand ??= new AsyncCommand(Refresh); }
+
+        // TODO: Pick up here. Sort out the creation of SLMVMs and then flesh out this method.
+        private async Task Refresh()
+        {
+
+            Console.WriteLine( $"{Name} Refreshed!!" );
+            //if( ShoppingListMaterial != null )
+            //{
+            //    ShoppingListMaterial = await ShoppingListMaterialManager.GetItemRecursiveAsync( ShoppingListMaterial.Id );
+
+            //    Name = ShoppingListMaterial.Name;
+            //    Quantity = ShoppingListMaterial.Quantity;
+            //    // Set the field directly to avoid triggering any logic in the Purchased setter
+            //    purchased = ShoppingListMaterial.Purchased;
+            //    Material = ShoppingListMaterial.Material;
+            //    MaterialId = ShoppingListMaterial.MaterialId;
+            //    ShoppingList = ShoppingListMaterial.ShoppingList;
+
+            //}
+        }
+
+
+        // Back Command
+        private AsyncCommand backCommand;
+        public ICommand BackCommand { get => backCommand ??= new AsyncCommand(Back); }
+        private async Task Back() 
+        {
+            Console.WriteLine( $"{Name} Sent Back!!" );
+            //await Shell.Current.GoToAsync( $".." );
         }
         #endregion
 
@@ -226,21 +334,38 @@ namespace Maintain_it.ViewModels
 
         internal async Task<int> AddOrUpdateAndReturnIdAsync()
         {
+            Console.WriteLine( $"----- AddOrUpdateAndReturnIdAsync:" );
+
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: Old Name - {ShoppingListMaterial.Name}" );
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: New Name - {Name}" );
             ShoppingListMaterial.Name = Name;
+
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: Old Quanitiy - {ShoppingListMaterial.Quantity}" );
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: New Quanitiy - {Quantity}" );
             ShoppingListMaterial.Quantity = Quantity;
+
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: Old Material - {ShoppingListMaterial.Material}" );
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: New Material - {Material}" );
             ShoppingListMaterial.Material = Material;
+
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: Old Purchased State - {ShoppingListMaterial.Purchased}" );
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: New Purchased State - {Purchased}" );
             ShoppingListMaterial.Purchased = Purchased;
+
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: Old ShoppingListId - {ShoppingListMaterial.ShoppingList.Id}" );
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: New ShoppingListId - {ShoppingList.Id}" );
             ShoppingListMaterial.ShoppingList = ShoppingList;
+
             ShoppingListMaterial.CreatedOn = ShoppingListMaterial.CreatedOn != null ? ShoppingListMaterial.CreatedOn : DateTime.UtcNow;
 
-            return await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( ShoppingListMaterial );
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: Original ShoppingListMaterial Id - {ShoppingListMaterial.Id} " );
+            
+            int id = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( ShoppingListMaterial );
+
+            Console.WriteLine( $"----------  AddOrUpdateAndReturnIdAsync: New ShoppingListMaterial Id - {id}" );
+            return id;
         }
 
-        // TODO: Pick up here. Sort out the creation of SLMVMs and then flesh out this method.
-        private async Task Refresh()
-        {
-            
-        }
         #endregion
 
         #region Query Handling
@@ -253,6 +378,12 @@ namespace Maintain_it.ViewModels
                     break;
             }
         }
+
+        public bool Equals( ShoppingListMaterialViewModel other )
+        {
+            return other?.ShoppingListMaterial.Id == ShoppingListMaterial.Id;
+        }
+
         #endregion Query Handling
     }
 }

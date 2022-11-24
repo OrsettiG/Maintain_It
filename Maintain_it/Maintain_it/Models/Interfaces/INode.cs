@@ -12,7 +12,7 @@ using Maintain_it.Services;
 
 using SQLite;
 
-namespace Maintain_it.Models
+namespace Maintain_it.Models.Interfaces
 {
     public interface INode<T> : IEquatable<T>, IComparable<T> where T : IStorableObject, new()
     {
@@ -32,8 +32,8 @@ namespace Maintain_it.Models
         public NodeList()
         {
             CreatedOn = DateTime.UtcNow;
-            Name = $"{typeof( T )} NodeList";
-            Type = typeof( T );
+            Name = $"{typeof(T)} NodeList";
+            Type = typeof(T);
         }
 
         public int Id { get; set; }
@@ -54,37 +54,37 @@ namespace Maintain_it.Models
 
         public int Count => nodes.Count();
         public bool IsReadOnly => IsReadOnly;
-        public INode<T> this[int index] { get => nodes[index]; set => AddNode( value, index ); }
+        public INode<T> this[int index] { get => nodes[index]; set => AddNode(value, index); }
 
         public IOrderedEnumerable<T> GetNodeList
         {
-            get => nodes.OrderBy( x => x.Index ) as IOrderedEnumerable<T>;
+            get => nodes.OrderBy(x => x.Index) as IOrderedEnumerable<T>;
         }
 
         public IOrderedEnumerable<INode<T>> GetINodeTList
         {
-            get => nodes.OrderBy( x => x.Index );
+            get => nodes.OrderBy(x => x.Index);
         }
 
         public SortedSet<T> GetSortedNodeSet
         {
-            get => nodes.OrderBy( x => x.Index ) as SortedSet<T>;
+            get => nodes.OrderBy(x => x.Index) as SortedSet<T>;
         }
 
         public SortedSet<INode<T>> GetSortedINodeTSet
         {
-            get => nodes.OrderBy( x => x.Index ) as SortedSet<INode<T>>;
+            get => nodes.OrderBy(x => x.Index) as SortedSet<INode<T>>;
         }
 
         /// <summary>
         /// Adds the passed in node to the end of the NodeList and updates all the 
         /// </summary>
-        public void AddNode( INode<T> node )
+        public void AddNode(INode<T> node)
         {
-            if( !Contains( node ) )
+            if (!Contains(node))
             {
                 node.Index = nodes.Count() + 1;
-                nodes.Add( node );
+                nodes.Add(node);
             }
         }
 
@@ -93,49 +93,49 @@ namespace Maintain_it.Models
         /// <para>I.E. given the following nodelist : n1, n2, n3, n4, n5, n6 inserting a new node (nn) into the list and specifying an index of 3 would result in a final list of:
         /// n1, n2, nn, n3, n4, n5, n6</para>
         /// </summary>
-        public void AddNode( INode<T> node, int index )
+        public void AddNode(INode<T> node, int index)
         {
-            if( !Contains( node ) )
+            if (!Contains(node))
             {
-                if( index > nodes.Count() )
+                if (index > nodes.Count())
                 {
-                    AddNode( node );
+                    AddNode(node);
                 }
                 else
                 {
 
-                    List<INode<T>> subList = nodes.Where( x => x.Index >= index) as List<INode<T>>;
+                    List<INode<T>> subList = nodes.Where(x => x.Index >= index) as List<INode<T>>;
 
-                    foreach( INode<T> n in subList )
+                    foreach (INode<T> n in subList)
                     {
                         n.Index++;
                     }
 
                     node.Index = index;
-                    nodes.Add( node );
+                    nodes.Add(node);
                 }
             }
         }
 
-        public int IndexOf( INode<T> item )
+        public int IndexOf(INode<T> item)
         {
             return item.Index;
         }
 
-        public void Insert( int index, INode<T> item )
+        public void Insert(int index, INode<T> item)
         {
-            AddNode( item, index );
+            AddNode(item, index);
         }
 
-        public void RemoveAt( int index )
+        public void RemoveAt(int index)
         {
             INode<T> node = nodes.Where(x => x.Index == index).SingleOrDefault();
-            _ = Remove( node );
+            _ = Remove(node);
         }
 
-        public void Add( INode<T> item )
+        public void Add(INode<T> item)
         {
-            AddNode( item );
+            AddNode(item);
         }
 
         public void Clear()
@@ -143,11 +143,11 @@ namespace Maintain_it.Models
             nodes.Clear();
         }
 
-        public bool Contains( INode<T> item )
+        public bool Contains(INode<T> item)
         {
-            foreach( INode<T> n in nodes )
+            foreach (INode<T> n in nodes)
             {
-                if( item.Id == n.Id )
+                if (item.Id == n.Id)
                 {
                     return true;
                 }
@@ -156,19 +156,19 @@ namespace Maintain_it.Models
             return false;
         }
 
-        public void CopyTo( INode<T>[] array, int arrayIndex )
+        public void CopyTo(INode<T>[] array, int arrayIndex)
         {
-            nodes.CopyTo( array, arrayIndex );
+            nodes.CopyTo(array, arrayIndex);
         }
 
-        public bool Remove( INode<T> item )
+        public bool Remove(INode<T> item)
         {
-            if( Contains( item ) && nodes.Remove( item ))
+            if (Contains(item) && nodes.Remove(item))
             {
                 int i = item.Index;
-                List<INode<T>> subList = nodes.Where( x => x.Index > i ) as List<INode<T>>;
+                List<INode<T>> subList = nodes.Where(x => x.Index > i) as List<INode<T>>;
 
-                foreach( INode<T> n in subList )
+                foreach (INode<T> n in subList)
                 {
                     n.Index--;
                 }

@@ -41,7 +41,7 @@ namespace Maintain_it.Services
         /// </summary>
         public static async Task DropAllTablesAsync()
         {
-            _ = await db.DropTableAsync<MaintenanceItem>().ConfigureAwait(false);
+            _ = await db.DropTableAsync<ServiceItem>().ConfigureAwait(false);
             _ = await db.DropTableAsync<ServiceRecord>().ConfigureAwait(false);
             _ = await db.DropTableAsync<Step>().ConfigureAwait(false);
             _ = await db.DropTableAsync<StepMaterial>().ConfigureAwait(false);
@@ -55,6 +55,7 @@ namespace Maintain_it.Services
             _ = await db.DropTableAsync<MaterialTag>().ConfigureAwait(false);
             _ = await db.DropTableAsync<NotificationEventArgs>().ConfigureAwait( false );
             _ = await db.DropTableAsync<ShutdownDateTime>().ConfigureAwait( false );
+            
         }
 
         /// <summary>
@@ -81,20 +82,34 @@ namespace Maintain_it.Services
             public static readonly AsyncLazy<Database> Instance = new AsyncLazy<Database>( async () =>
             {
                 Database instance = new Database();
-                _ = await database.CreateTableAsync<MaintenanceItem>().ConfigureAwait(false);
-                _ = await database.CreateTableAsync<ServiceRecord>().ConfigureAwait(false);
+                // Material
                 _ = await database.CreateTableAsync<Material>().ConfigureAwait(false);
-                _ = await database.CreateTableAsync<Step>().ConfigureAwait(false);
-                _ = await database.CreateTableAsync<StepMaterial>().ConfigureAwait(false);
-                _ = await database.CreateTableAsync<Note>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<Tag>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<PreferredRetailer>().ConfigureAwait( false );
+
+                // ShoppingList
                 _ = await database.CreateTableAsync<ShoppingList>().ConfigureAwait(false);
                 _ = await database.CreateTableAsync<ShoppingListMaterial>().ConfigureAwait(false);
-                _ = await database.CreateTableAsync<Retailer>().ConfigureAwait(false);
-                _ = await database.CreateTableAsync<RetailerMaterial>().ConfigureAwait(false);
-                _ = await database.CreateTableAsync<Tag>().ConfigureAwait(false);
-                _ = await database.CreateTableAsync<MaterialTag>().ConfigureAwait(false);
+
+                // ServiceItem
+                _ = await database.CreateTableAsync<ServiceItem>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<ServiceRecord>().ConfigureAwait(false);
                 _ = await database.CreateTableAsync<NotificationEventArgs>().ConfigureAwait( false );
                 _ = await database.CreateTableAsync<ShutdownDateTime>().ConfigureAwait( false );
+
+                // Step
+                _ = await database.CreateTableAsync<Step>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<Note>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<StepMaterial>().ConfigureAwait(false);
+
+                // Joins
+                _ = await database.CreateTableAsync<MaterialTag>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<ServiceItemShoppingList>().ConfigureAwait( false );
+
+                // Not in use
+                _ = await database.CreateTableAsync<Retailer>().ConfigureAwait(false);
+                _ = await database.CreateTableAsync<RetailerMaterial>().ConfigureAwait(false);
+
 
                 return instance;
             });

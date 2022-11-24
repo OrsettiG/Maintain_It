@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -10,10 +11,36 @@ using Maintain_it.Models;
 
 using MvvmHelpers;
 
+using Xamarin.Forms;
+
 namespace Maintain_it.ViewModels
 {
     internal class MaterialDetailViewModel : BaseViewModel
     {
+        #region Constructors
+        public MaterialDetailViewModel() { }
+
+        public MaterialDetailViewModel( Material material )
+        {
+            Material = material;
+
+            Name = material.Name;
+            Description = material.Description;
+            QuantityOwned = material.QuantityOwned;
+            Size = material.Size;
+            Units = material.Units;
+            PartNumber = material.PartNumber;
+            LifeExpectancy = material.LifeExpectancy;
+            LifeExpectancyTimeframe = (Timeframe)material.LifeExpectancyTimeframe;
+            imageData = material.ImageBytes;
+            Tags.AddRange( material.Tags );
+
+            PreferredRetailerId = material.PreferredRetailerId;
+            PreferredRetailer = material.PreferredRetailer;
+
+            CreatedOn = material.CreatedOn;
+        }
+        #endregion
 
         #region Properties
         private Material material;
@@ -65,6 +92,43 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref quantityOwned, value );
         }
 
+        private int lifeExpectancy;
+        public int LifeExpectancy
+        {
+            get => lifeExpectancy;
+            set => SetProperty( ref lifeExpectancy, value );
+        }
+
+        private Timeframe lifeExpectancyTimeframe;
+        public Timeframe LifeExpectancyTimeframe
+        {
+            get => lifeExpectancyTimeframe;
+            set => SetProperty( ref lifeExpectancyTimeframe, value );
+        }
+
+        private byte[] imageData;
+        private ImageSource materialImage;
+        ImageSource MaterialImage
+        {
+            get => materialImage ??= imageData != null ? ImageSource.FromStream( () => new MemoryStream( imageData ) ) : default;
+
+            set => SetProperty( ref materialImage, value );
+        }
+
+        private int preferredRetailerId;
+        public int PreferredRetailerId
+        {
+            get => preferredRetailerId;
+            set => SetProperty( ref preferredRetailerId, value );
+        }
+
+        private PreferredRetailer preferredRetailer;
+        public PreferredRetailer PreferredRetailer
+        {
+            get => preferredRetailer;
+            set => SetProperty( ref preferredRetailer, value );
+        }
+
         private DateTime createdOn;
         public DateTime CreatedOn
         {
@@ -109,13 +173,21 @@ namespace Maintain_it.ViewModels
 
         private async Task Init()
         {
-            Name = Material.Name;
-            Description = Material.Description;
-            PartNumber = Material.PartNumber;
-            Size = Material.Size;
-            Units = Material.Units;
-            QuantityOwned = Material.QuantityOwned;
-            CreatedOn = Material.CreatedOn;
+            Name = material.Name;
+            Description = material.Description;
+            QuantityOwned = material.QuantityOwned;
+            Size = material.Size;
+            Units = material.Units;
+            PartNumber = material.PartNumber;
+            LifeExpectancy = material.LifeExpectancy;
+            LifeExpectancyTimeframe = (Timeframe)material.LifeExpectancyTimeframe;
+            imageData = material.ImageBytes;
+            Tags.AddRange( material.Tags );
+
+            PreferredRetailerId = material.PreferredRetailerId;
+            PreferredRetailer = material.PreferredRetailer;
+
+            CreatedOn = material.CreatedOn;
 
             HashSet<int>stepIds = new HashSet<int>();
             foreach( StepMaterial mat in Material.StepMaterials )

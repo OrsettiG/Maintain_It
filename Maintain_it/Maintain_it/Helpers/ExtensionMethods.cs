@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -163,6 +166,24 @@ namespace Maintain_it.Helpers
             chars[0] = char.ToUpperInvariant( chars[0] );
 
             return new string( chars );
+        }
+
+        public static byte[] ToByteArray(this Image image, ImageFormat format )
+        {
+            using( MemoryStream ms = new MemoryStream() )
+            {
+                image.Save( ms, format );
+                return ms.ToArray();
+            }
+        }
+
+        public static int Sum( this IEnumerable<int> source )
+        {
+            int sum = 0;
+            foreach(int n in source)
+            { sum += n; }
+
+            return sum;
         }
     }
 }

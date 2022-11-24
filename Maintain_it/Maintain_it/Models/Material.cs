@@ -24,7 +24,7 @@ namespace Maintain_it.Models
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        #region One To Many Relationships
+        #region Relationships
 
         [OneToMany( CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true )]
         public List<StepMaterial> StepMaterials { get; set; }
@@ -35,13 +35,13 @@ namespace Maintain_it.Models
         [OneToMany( CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true )]
         public List<ShoppingListMaterial> ShoppingListMaterials { get; set; }
 
-
-        #endregion
-
-        #region Many To Many Relationships
-
-        [ManyToMany(typeof(MaterialTag))]
+        [ManyToMany( typeof( MaterialTag ) )]
         public List<Tag> Tags { get; set; }
+
+        [ForeignKey(typeof(PreferredRetailer))]
+        public int PreferredRetailerId { get; set; }
+        [ManyToOne]
+        public PreferredRetailer PreferredRetailer { get; set; }
 
         #endregion
 

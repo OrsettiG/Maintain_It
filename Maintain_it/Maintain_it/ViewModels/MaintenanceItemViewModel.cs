@@ -35,12 +35,12 @@ namespace Maintain_it.ViewModels
             ItemId = itemId;
         }
 
-        //public MaintenanceItemViewModel( MaintenanceItem item ) => Item = item;
+        //public MaintenanceItemViewModel( ServiceItem item ) => Item = item;
         #endregion
 
         #region PROPERTIES
-        private MaintenanceItem item;
-        public MaintenanceItem Item
+        private ServiceItem item;
+        public ServiceItem Item
         {
             get => item;
             private set => SetProperty( ref item, value );
@@ -200,6 +200,20 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref activeState, value );
         }
 
+        public Color ActiveStateColor
+        {
+            get
+            {
+                return ActiveState switch
+                {
+                    ActiveStateFlag.Inactive => (Color)App.Current.Resources["Secondary"],
+                    ActiveStateFlag.Suspended => (Color)App.Current.Resources["Warning"],
+                    ActiveStateFlag.Active => (Color)App.Current.Resources["Cue"],
+                    _ => (Color)App.Current.Resources["Cue"],
+                };
+            }
+        }
+
         private DateTime createdOn;
         public DateTime CreatedOn
         {
@@ -280,7 +294,7 @@ namespace Maintain_it.ViewModels
 
         private async Task RefreshStepsFromDb()
         {
-            MaintenanceItem tempItem = await MaintenanceItemManager.GetItemRecursiveAsync( ItemId );
+            ServiceItem tempItem = await ServiceItemManager.GetItemRecursiveAsync( ItemId );
 
             int[] ids = tempItem.Steps.GetIds().ToArray();
 
@@ -299,7 +313,7 @@ namespace Maintain_it.ViewModels
                 stepIds.Clear();
                 StepViewModels.Clear();
             }
-            //else if( StepViewModels.Count > 0 )
+            //else if( StepViewModels.RemainingItemsCount > 0 )
             //{
             //    foreach( StepViewModel svm in StepViewModels )
             //    {
@@ -341,12 +355,12 @@ namespace Maintain_it.ViewModels
         {
             if( Item.ServiceRecords.Count == 0 || Item.ServiceRecords.Last().ServiceCompleted )
             {
-                _ = await MaintenanceItemManager.InsertServiceRecord( ItemId );
+                _ = await ServiceItemManager.InsertServiceRecord( ItemId );
             }
 
             string encodedId = HttpUtility.UrlEncode($"{ItemId}");
 
-            await Shell.Current.GoToAsync( $"{nameof( PerformMaintenanceView )}?{QueryParameters.MaintenanceItemId}={encodedId}" );
+            await Shell.Current.GoToAsync( $"{nameof( PerformMaintenanceView )}?{QueryParameters.ServiceItemId}={encodedId}" );
         }
 
         private AsyncCommand initCommand;
@@ -373,47 +387,65 @@ namespace Maintain_it.ViewModels
 
         private async Task GoToAddMaterialsToShoppingList()
         {
-            if( item != null )
+            if( Item != null )
             {
-                // Parallel loop through all the materials to get the amounts needed.
-                ConcurrentDictionary<int, int> materialIdsAndQuantitysRequired = await GetMaterialIdsAndQuantitysRequired();
+                bool hasMissingMats = await HasMissingMaterials();
+                //// Parallel loop through all the looseMaterials to get the amounts needed.
+                //ConcurrentDictionary<int, int> materialIdsAndQuantitysRequired = await GetMaterialIdsAndQuantitysRequired();
 
-                StringBuilder sb = new StringBuilder();
+                //StringBuilder sb = new StringBuilder();
 
-                // AddShallow those materials into the query string using = and ; as separators
-                BuildQueryString( materialIdsAndQuantitysRequired, sb );
+                //// Add those looseMaterials into the query string using = and ; as separators
+                //BuildQueryString( materialIdsAndQuantitysRequired, sb );
 
 
-                string encodedQuery = HttpUtility.UrlEncode( sb.ToString() );
-                if( encodedQuery != string.Empty )
+                //string encodedQuery = HttpUtility.UrlEncode( sb.ToString() );
+
+                if( hasMissingMats )
                 {
-                    Dictionary<string, int> ActiveShoppingListNamesAndIds = await ShoppingListManager.GetActiveShoppingListNamesAndIds();
-
-                    string value = await Shell.Current.DisplayActionSheet( Alerts.AddToShoppingListTitle, Alerts.Cancel, Alerts.CreateNew, ActiveShoppingListNamesAndIds.Keys.ToArray() );
-
-                    if( value != string.Empty && value != null )
-                    {
-                        switch( value )
-                        {
-                            case Alerts.Cancel:
-                                break;
-                            case Alerts.CreateNew:
-                                string encodedName = HttpUtility.UrlEncode( $"{Item.Name} Shopping List" );
-
-                                await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{QueryParameters.PreSelectedMaterialIds}={encodedQuery}&{QueryParameters.ItemName}={encodedName}" );
-                                break;
-                            default:
-                                if( ActiveShoppingListNamesAndIds.ContainsKey( value ) )
-                                    await ShoppingListManager.AddShoppingListItemsToListAsync( ActiveShoppingListNamesAndIds[value], materialIdsAndQuantitysRequired );
-                                break;
-                        }
-                    }
+                    await CreateOrAddServiceItemToShoppingList();
 
                 }
                 else
                 {
-                    // If the string is empty then there are no materials that we do not own. This doesn't check any projects other than the one the user is looking at.
-                    await Shell.Current.DisplayAlert( Alerts.Information, Alerts.MaterialsAlreadyOwned, Alerts.Confirmation );
+                    // If the string is empty then there are no looseMaterials that we do not own. This doesn't check any projects other than the one the user is looking at.
+                    bool choice = await Shell.Current.DisplayAlert( Alerts.Information, Alerts.MaterialsAlreadyOwned, Alerts.Yes, Alerts.Cancel );
+
+                    switch( choice )
+                    {
+                        case true:
+                            await CreateOrAddServiceItemToShoppingList();
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        private async Task CreateOrAddServiceItemToShoppingList()
+        {
+            Dictionary<string, int> ActiveShoppingListNamesAndIds = await ShoppingListManager.GetActiveShoppingListNamesAndIds();
+
+            string value = await Shell.Current.DisplayActionSheet( Alerts.AddToShoppingListTitle, Alerts.Cancel, Alerts.CreateNew, ActiveShoppingListNamesAndIds.Keys.ToArray() );
+
+            if( value != string.Empty && value != null )
+            {
+                switch( value )
+                {
+                    case Alerts.Cancel:
+                        break;
+                    case Alerts.CreateNew:
+                        string encodedName = HttpUtility.UrlEncode( $"{Item.Name} Shopping List" );
+                        string encodedId = HttpUtility.UrlEncode($"{Item.Id}");
+                        await Shell.Current.GoToAsync( $"{nameof( CreateNewShoppingListView )}?{QueryParameters.NewItem}={true}&{QueryParameters.ServiceItemId}={encodedId}&{QueryParameters.ItemName}={encodedName}" );
+                        break;
+                    default:
+                        if( ActiveShoppingListNamesAndIds.ContainsKey( value ) )
+                            //await ShoppingListManager.AddShoppingListItemsToListAsync( ActiveShoppingListNamesAndIds[value], materialIdsAndQuantitysRequired );
+                            await ShoppingListManager.AddServiceItemToShoppingList( ActiveShoppingListNamesAndIds[value], Item.Id );
+                        break;
                 }
             }
         }
@@ -456,6 +488,45 @@ namespace Maintain_it.ViewModels
             return materialIdsAndQuantitysRequired;
         }
 
+        private async Task<bool> HasMissingMaterials()
+        {
+            bool hasMissingMaterials = false;
+
+            foreach( Step step in Item.Steps )
+            {
+                if( !hasMissingMaterials )
+                {
+                    Step s = await StepManager.GetItemRecursiveAsync( step.Id );
+
+                    ParallelLoopResult loop = Parallel.ForEach( s.StepMaterials, (x, state) =>
+                    {
+                        if( !state.ShouldExitCurrentIteration )
+                        {
+                            if( x.Quantity > x.Material.QuantityOwned )
+                            {
+                                hasMissingMaterials = true;
+                                state.Break();
+                            }
+                        }
+
+                        return;
+                    } );
+
+                    if( !loop.IsCompleted )
+                    {
+                        Console.WriteLine( $"Loop did not run to completion, hasMissingMaterials value: {hasMissingMaterials}" );
+
+                        if( hasMissingMaterials )
+                            break;
+                    }
+
+                    Console.WriteLine( $"Loop Ran to completion. hasMissingMaterials value: {hasMissingMaterials}" );
+                }
+            }
+
+            return hasMissingMaterials;
+        }
+
         private async Task SaveChanges()
         {
             if( ActiveState != ActiveStateFlag.Active )
@@ -472,7 +543,7 @@ namespace Maintain_it.ViewModels
             {
                 NextServiceDate = NextServiceDate.AddHours( ServiceTime.Hours ).AddMinutes( ServiceTime.Minutes );
 
-                await MaintenanceItemManager.UpdateProperties( Item.Id,
+                await ServiceItemManager.UpdateProperties( Item.Id,
                                                                 name: Name,
                                                                 comment: Comment,
                                                                 serviceDate: NextServiceDate,
@@ -490,7 +561,7 @@ namespace Maintain_it.ViewModels
             }
             else
             {
-                ItemId = await MaintenanceItemManager.NewMaintenanceItem( name: Name, firstServiceDate: NextServiceDate, comment: Comment, recursEvery: RecursEvery, hasServiceLimit: HasServiceLimit, timesToRepeatService: TimesToRepeatService, serviceTimeframe: (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
+                ItemId = await ServiceItemManager.NewMaintenanceItem( name: Name, firstServiceDate: NextServiceDate, comment: Comment, recursEvery: RecursEvery, hasServiceLimit: HasServiceLimit, timesToRepeatService: TimesToRepeatService, serviceTimeframe: (int)ServiceTimeframe, notifyOfNextServiceDate: NotifyOfNextServiceDate, timesToRemind: TimesToRemind, advanceNotice: AdvanceNotice, noticeTimeframe: (int)NoticeTimeframe, stepIds: stepIds );
             }
 
             ClearData();
@@ -503,24 +574,44 @@ namespace Maintain_it.ViewModels
             if( ItemId == 0 )
                 return;
 
-            Item = await MaintenanceItemManager.GetItemRecursiveAsync( ItemId );
+            Item = await ServiceItemManager.GetItemRecursiveAsync( ItemId );
             await LoadStepsAsync();
+
+            // IStorableObject
             Name = Item.Name;
+            CreatedOn = Item.CreatedOn;
+
+            // Information
             Comment = Item.Comment;
-            ActiveState = (ActiveStateFlag)Item.ActiveState;
+
+            // Service Schedule
             NextServiceDate = Item.NextServiceDate;
-            LastServiceDate = Item.ServiceRecords.Count > 0 ? Item.ServiceRecords.Where( x => x.ServiceCompleted == true ).OrderByDescending( x => x.ActualServiceCompletionDate ).First().ActualServiceCompletionDate : DateTime.MinValue;
-            RecursEvery = Item.RecursEvery;
             IsRecurring = RecursEvery > 0;
+            RecursEvery = Item.RecursEvery;
             ServiceTimeframe = (Timeframe)Item.ServiceTimeframe;
             HasServiceLimit = Item.HasServiceLimit;
             TimesToRepeatService = Item.TimesToRepeatService;
+
+            // Notifications
+            ActiveState = (ActiveStateFlag)Item.ActiveState;
             NotifyOfNextServiceDate = Item.NotifyOfNextServiceDate;
             AdvanceNotice = Item.AdvanceNotice;
             NoticeTimeframe = (Timeframe)Item.NoticeTimeframe;
-            CreatedOn = Item.CreatedOn;
-            TimesServiced = Item.ServiceRecords.Count;
+
+            // Life Expectancy
+
+            // Step Data Summary
+
+            // Service Record Summary
             PreviousServiceCompleted = TimesServiced > 0 && Item.ServiceRecords[^1].ServiceCompleted;
+            TimesServiced = Item.ServiceRecords.Count;
+            LastServiceDate = Item.ServiceRecords.Count > 0 ? Item.ServiceRecords.Where( x => x.ServiceCompleted == true ).OrderByDescending( x => x.ActualServiceCompletionDate ).First().ActualServiceCompletionDate : DateTime.MinValue;
+
+            // Steps
+
+            // Service Records
+
+
 
         }
 
@@ -533,7 +624,7 @@ namespace Maintain_it.ViewModels
             StepViewModels.AddRange( stepVMs );
         }
 
-        private void InitData( MaintenanceItem maintenanceItem, bool _update = false )
+        private void InitData( ServiceItem maintenanceItem, bool _update = false )
         {
             Item = maintenanceItem;
 
@@ -595,7 +686,7 @@ namespace Maintain_it.ViewModels
         {
             if( item != null )
             {
-                await MaintenanceItemManager.DeleteItem( Item.Id );
+                await ServiceItemManager.DeleteItem( Item.Id );
                 await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
             }
         }
@@ -606,7 +697,7 @@ namespace Maintain_it.ViewModels
             {
                 string encodedQuery = HttpUtility.UrlEncode( ItemId.ToString() );
 
-                await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}?{QueryParameters.MaintenanceItemId}={encodedQuery}" );
+                await Shell.Current.GoToAsync( $"{nameof( MaintenanceItemDetailView )}?{QueryParameters.ServiceItemId}={encodedQuery}" );
             }
         }
 
@@ -615,21 +706,21 @@ namespace Maintain_it.ViewModels
         {
             if( Item == null )
             {
-                ItemId = await MaintenanceItemManager.NewMaintenanceItem( Name, NextServiceDate, Comment, RecursEvery, true, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
-                Item = await MaintenanceItemManager.GetItemAsync( ItemId );
+                ItemId = await ServiceItemManager.NewMaintenanceItem( Name, NextServiceDate, Comment, RecursEvery, true, TimesServiced, notifyOfNextServiceDate: NotifyOfNextServiceDate );
+                Item = await ServiceItemManager.GetItemAsync( ItemId );
             }
             string encodedMaintenanceItemId = HttpUtility.UrlEncode(ItemId.ToString());
 
             if( StepViewModels.Count > 0 )
             {
                 string encodedFinalStepId = HttpUtility.UrlEncode(StepViewModels[^1].Step.Id.ToString());
-                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?previousStepId={encodedFinalStepId}&{QueryParameters.MaintenanceItemId}={encodedMaintenanceItemId}" );
+                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?previousStepId={encodedFinalStepId}&{QueryParameters.ServiceItemId}={encodedMaintenanceItemId}" );
             }
 
             if( StepViewModels.Count < 1 )
             {
                 string encodedQuery = HttpUtility.UrlEncode(true.ToString());
-                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?isFirstStep={encodedQuery}&{QueryParameters.MaintenanceItemId}={encodedMaintenanceItemId}" );
+                await Shell.Current.GoToAsync( $"/{nameof( AddNewStepView )}?isFirstStep={encodedQuery}&{QueryParameters.ServiceItemId}={encodedMaintenanceItemId}" );
             }
 
         }
@@ -657,7 +748,7 @@ namespace Maintain_it.ViewModels
                         await LoadSteps();
                     }
                     break;
-                case QueryParameters.MaintenanceItemId:
+                case QueryParameters.ServiceItemId:
                     if( int.TryParse( HttpUtility.UrlDecode( kvp.Value ), out itemId ) )
                     {
                         ItemId = itemId;
@@ -669,9 +760,9 @@ namespace Maintain_it.ViewModels
                     }
                     break;
                 case QueryParameters.NewItem:
-                    ItemId = await MaintenanceItemManager.NewMaintenanceItem( string.Empty, DateTime.UtcNow, string.Empty, notifyOfNextServiceDate: true );
+                    ItemId = await ServiceItemManager.NewMaintenanceItem( string.Empty, DateTime.UtcNow, string.Empty, notifyOfNextServiceDate: true );
                     await Init();
-                    //item = await MaintenanceItemManager.GetItemAsync( ItemId );
+                    //item = await ServiceItemManager.GetItemAsync( ItemId );
                     //InitData( item );
                     editState = EditState.NewItem;
                     break;

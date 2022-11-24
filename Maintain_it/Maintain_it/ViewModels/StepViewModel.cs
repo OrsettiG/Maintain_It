@@ -176,7 +176,7 @@ namespace Maintain_it.ViewModels
             switch( choice )
             {
                 case true:
-                    _ = await MaintenanceItemManager.RemoveStep( Step.MaintenanceItemId, Step.Id );
+                    _ = await ServiceItemManager.RemoveStep( Step.MaintenanceItemId, Step.Id );
                     await StepManager.DeleteItem( Step.Id );
                     await MaintenanceItemVm.RefreshStepsCommand.ExecuteAsync();
                     break;
@@ -369,8 +369,8 @@ namespace Maintain_it.ViewModels
 
             if( maintenanceItemId != null )
             {
-                if( await StepManager.UpdateMaintenanceItem( (int)maintenanceItemId, stepId ) )
-                    await MaintenanceItemManager.AddStep( (int)maintenanceItemId, stepId );
+                if( await StepManager.UpdateServiceItem( (int)maintenanceItemId, stepId ) )
+                    await ServiceItemManager.AddStep( (int)maintenanceItemId, stepId );
             }
 
             string encodedId = HttpUtility.UrlEncode( stepId.ToString());
@@ -501,7 +501,7 @@ namespace Maintain_it.ViewModels
                     PreviousStep = null;
                     NextStep = null;
                     break;
-                case QueryParameters.MaintenanceItemId:
+                case QueryParameters.ServiceItemId:
                     string id = HttpUtility.UrlDecode(kvp.Value);
                     if( int.TryParse( id, out int itemId ) )
                     {

@@ -30,7 +30,7 @@ namespace Maintain_it.Models
         // Material
         [ForeignKey( typeof( Material ) )]
         public int MaterialId { get; set; }
-        [ManyToOne]
+        [ManyToOne( CascadeOperations = CascadeOperation.CascadeRead )]
         public Material Material { get; set; }
         
         // Step

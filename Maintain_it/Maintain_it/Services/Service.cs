@@ -35,11 +35,19 @@ namespace Maintain_it.Services
 
         public virtual async Task<int> AddItemAndReturnRowIdAsync( T item )
         {
-            await Init();
-            await db.InsertWithChildrenAsync( item );
-            List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
+            try
+            {
+                await Init();
+                await db.InsertWithChildrenAsync( item );
+                List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
 
-            return lastIds[0];
+                return lastIds[0];
+            }
+            catch( Exception )
+            {
+
+                throw;
+            }
         }
 
         public virtual async Task<int> AddItemAndReturnRowIdRecursiveAsync( T item )
@@ -167,14 +175,14 @@ namespace Maintain_it.Services
             if( item.Id != 0 )
             {
                 await db.UpdateWithChildrenAsync( item );
+                return item.Id;
             }
             else
             {
                 await db.InsertWithChildrenAsync( item );
+                List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
+                return lastIds[0];
             }
-
-            List<int> lastIds = await db.QueryScalarsAsync<int>(_SQLiteCommandString_last_insert_rowid_per_table);
-            return lastIds[0];
         }
 
         public virtual async Task<int> DeleteAllAsync<T>()

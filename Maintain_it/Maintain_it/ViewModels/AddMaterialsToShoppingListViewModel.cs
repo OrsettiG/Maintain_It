@@ -61,20 +61,55 @@ namespace Maintain_it.ViewModels
             {
                 foreach( ShoppingListMaterialViewModel vm in DisplayedShoppingListMaterials )
                 {
+                    Console.WriteLine( $"Items to Add to Shopping List {vm.Name}" );
+
                     vm.ShoppingList = shoppingList;
                     int id = await vm.AddOrUpdateAndReturnIdAsync();
 
+                    Console.WriteLine( $"Id: {id}" );
                     ShoppingListMaterial mat = await DbServiceLocator.GetItemRecursiveAsync<ShoppingListMaterial>(id);
-                    if( !shoppingList.Materials.Contains( mat ) )
+                    if( !shoppingList.LooseMaterials.Select(x => x.Id).Contains( mat.Id ) )
                     {
-                        shoppingList.Materials.Add( mat );
+                        Console.WriteLine( $"Adding {mat.Name} to ShoppingList" );
+                        shoppingList.LooseMaterials.Add( mat );
+                    }
+                    else
+                    {
+                        Console.WriteLine( $"{mat.Name} already in Shopping List" );
+                    }
+                }
+
+                foreach( ShoppingListMaterialViewModel item in cache )
+                {
+                    Console.WriteLine( $"Items to Remove from Shopping List {item.Name}" );
+
+                    if( shoppingList.LooseMaterials.Select( x => x.MaterialId ).Contains( item.MaterialId ) )
+                    {
+                        Console.WriteLine( $"Removing Material with id {item.MaterialId} from ShoppingList" );
+
+                        List<ShoppingListMaterial> matsToRemove = shoppingList.LooseMaterials.Where( x => x.MaterialId == item.MaterialId ).ToList();
+
+                        int removedCount = shoppingList.LooseMaterials.RemoveAll( x => matsToRemove.Contains(x) );
+
+                        if( removedCount == matsToRemove.Count )
+                        {
+                            Console.WriteLine( "All items removed successfully" );
+                        }
+                        else
+                        {
+                            Console.WriteLine( $"Removal Failure. Expected to remove {matsToRemove.Count} but instead removed {removedCount}" );
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine( $"Item with id {item.MaterialId} not in ShoppingList" );
                     }
                 }
 
                 int shoppingListId = await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( shoppingList );
 
                 string encodedId = HttpUtility.UrlEncode( shoppingListId.ToString() );
-                await Shell.Current.GoToAsync( $"..?{QueryParameters.ShoppingListId}={encodedId}" );
+                await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}={true}" );
             }
             else
             {
@@ -145,7 +180,7 @@ namespace Maintain_it.ViewModels
 #nullable disable
                         if( shoppingList != null )
                         {
-                            foreach( ShoppingListMaterial sLMat in shoppingList.Materials )
+                            foreach( ShoppingListMaterial sLMat in shoppingList.LooseMaterials )
                             {
                                 if( sLMat.MaterialId == id )
                                 {
@@ -159,13 +194,17 @@ namespace Maintain_it.ViewModels
                         if( material != null )
                         {
                             vm = new ShoppingListMaterialViewModel( material );
+                            DisplayedShoppingListMaterials.Add( vm );
                         }
                         else
                         {
-                            vm = new ShoppingListMaterialViewModel( mat, shoppingList );
+                            Console.WriteLine( "SHOPPING LIST MATERIAL NOT IN DB" );
+                            int slmId = await ShoppingListMaterialManager.NewShoppingListMaterial( id, shoppingList.Id );
+                            vm = new ShoppingListMaterialViewModel( await ShoppingListMaterialManager.GetItemAsync( slmId ) );
+                            DisplayedShoppingListMaterials.Add( vm );
+                            //vm = new ShoppingListMaterialViewModel( mat, shoppingList );
                         }
 
-                        DisplayedShoppingListMaterials.Add( vm );
                     }
 
                 }
@@ -207,7 +246,7 @@ namespace Maintain_it.ViewModels
             locked = true;
 
 
-            // All we really care about in this collection is the Id, Name, Description, Size, Units, and CreatedOn properties so we don't need to call recursive. If we want the Tags we will need to either call recursive on each individual material, or get things from the Tag side and filter by material id. Not sure which to do yet.
+            // All we really care about in this collection is the Id, Name, Description, Size, Units, and CreatedOn properties so we don't need to call recursive. If we want the AllTags we will need to either call recursive on each individual material, or get things from the Tag side and filter by material id. Not sure which to do yet.
             materials = await DbServiceLocator.GetAllItemsAsync<Material>() as List<Material>;
 
             _ = Parallel.ForEach( materials, material =>
@@ -250,11 +289,11 @@ namespace Maintain_it.ViewModels
                             Console.WriteLine( $"ID:{s.Id} - Name: {s.Name} - Material ID: {s.MaterialId}" );
                         }
 
-                        if( shoppingList.Materials.Count > 0 )
+                        if( shoppingList.LooseMaterials.Count > 0 )
                         {
                             HashSet<int> items = new HashSet<int>();
 
-                            foreach( ShoppingListMaterial material in shoppingList.Materials.ToList() )
+                            foreach( ShoppingListMaterial material in shoppingList.LooseMaterials.ToList() )
                             {
                                 _ = items.Add( material.MaterialId );
                             }
@@ -319,8 +358,5 @@ namespace Maintain_it.ViewModels
         }
         #endregion
         #endregion
-
-
-
     }
 }

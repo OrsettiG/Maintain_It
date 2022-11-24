@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
-using Maintain_it.Models;
+using Maintain_it.Models.Interfaces;
 using Maintain_it.Services;
 
 namespace Maintain_it.Helpers

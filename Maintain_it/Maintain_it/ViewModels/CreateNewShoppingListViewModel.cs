@@ -52,6 +52,12 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref shoppingListMaterials, value );
         }
 
+        private HashSet<int> serviceItemIds;
+        public HashSet<int> ServiceItemIds
+        {
+            get => serviceItemIds ??= new HashSet<int>();
+        }
+
         private Dictionary<int, int> preSelectedMaterialsAndQuantities = new Dictionary<int, int>();
         HashSet<int> shoppingListMaterialIds = new HashSet<int>();
         #endregion
@@ -67,8 +73,8 @@ namespace Maintain_it.ViewModels
         private async Task AddShoppingListMaterials()
         {
             string encodedIds = HttpUtility.HtmlEncode( shoppingListMaterialIds );
-
-            await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{QueryParameters.ShoppingListMaterialIds}={encodedIds}" );
+            string encodedShoppingListId = HttpUtility.HtmlEncode( shoppingList.Id );
+            await Shell.Current.GoToAsync( $"{nameof( AddMaterialsToShoppingListView )}?{QueryParameters.ShoppingListId}={encodedShoppingListId}&{QueryParameters.ShoppingListMaterialIds}={encodedIds}" );
         }
 
         // --- Save List ---
@@ -76,20 +82,25 @@ namespace Maintain_it.ViewModels
         public ICommand SaveCommand { get => saveCommand ??= new AsyncCommand( Save ); }
         private async Task Save()
         {
-            shoppingList.Materials.Clear();
+            shoppingList.LooseMaterials.Clear();
 
             foreach( ShoppingListMaterialViewModel vm in ShoppingListMaterials )
             {
                 _ = await vm.AddOrUpdateAndReturnIdAsync();
                 vm.ShoppingListMaterial.ShoppingList = shoppingList;
-                shoppingList.Materials.Add( vm.ShoppingListMaterial );
+                shoppingList.LooseMaterials.Add( vm.ShoppingListMaterial );
             }
 
             shoppingList.Name = Name;
             shoppingList.CreatedOn = DateTime.UtcNow;
             shoppingList.Active = true;
 
-            if( await ShoppingListManager.UpdateShoppingListAsync( shoppingList.Id, Name, materials: shoppingList.Materials ) )
+            foreach( int id in ServiceItemIds )
+            {
+                await ShoppingListManager.AddServiceItemToShoppingList( shoppingList.Id, id );
+            }
+
+            if( await ShoppingListManager.UpdateShoppingListAsync( shoppingList.Id, Name, looseMaterials: shoppingList.LooseMaterials ) )
             {
                 await Shell.Current.GoToAsync( $"..?{QueryParameters.Refresh}=true" );
             }
@@ -115,7 +126,7 @@ namespace Maintain_it.ViewModels
 
         private async Task Init()
         {
-            shoppingList.Materials = new List<ShoppingListMaterial>();
+            shoppingList.LooseMaterials = new List<ShoppingListMaterial>();
             shoppingList.CreatedOn = DateTime.UtcNow;
 
 
@@ -124,7 +135,16 @@ namespace Maintain_it.ViewModels
 
         private async Task Refresh()
         {
+            ShoppingList list = await ShoppingListManager.GetItemRecursiveAsync( shoppingList.Id );
+            shoppingList.LooseMaterials = list.LooseMaterials;
 
+            ShoppingListMaterials.Clear();
+
+            foreach( ShoppingListMaterial mat in shoppingList.LooseMaterials )
+            {
+                ShoppingListMaterialViewModel matVM = new ShoppingListMaterialViewModel( mat );
+                ShoppingListMaterials.Add( matVM );
+            }
         }
 
         /// <summary>
@@ -143,7 +163,7 @@ namespace Maintain_it.ViewModels
 
             shoppingList.Name = Name;
             shoppingList.CreatedOn = DateTime.UtcNow;
-            shoppingList.Materials = new List<ShoppingListMaterial>( mats );
+            shoppingList.LooseMaterials = new List<ShoppingListMaterial>( mats );
             shoppingList.Active = true;
 
             return await DbServiceLocator.AddOrUpdateItemAndReturnIdAsync( shoppingList );
@@ -157,6 +177,7 @@ namespace Maintain_it.ViewModels
             {
                 case QueryParameters.NewItem:
                     shoppingList.Id = await ShoppingListManager.NewShoppingList();
+                    shoppingList.Active = true;
                     break;
 
                 case QueryParameters.PreSelectedMaterialIds:
@@ -176,6 +197,13 @@ namespace Maintain_it.ViewModels
 
                 case QueryParameters.ItemName:
                     Name = HttpUtility.UrlDecode( kvp.Value );
+                    break;
+
+                case QueryParameters.ServiceItemId:
+                    if( int.TryParse( kvp.Value, out int serviceItemId ) )
+                    {
+                        _ = ServiceItemIds.Add( serviceItemId );
+                    }
                     break;
 
                 case QueryParameters.Refresh:

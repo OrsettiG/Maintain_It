@@ -18,7 +18,10 @@ namespace Maintain_it.Models
         #region Many To Many Relationships
 
         [OneToMany( CascadeOperations = CascadeOperation.CascadeRead )]
-        public List<ShoppingListMaterial> Materials { get; set; }
+        public List<ShoppingListMaterial> LooseMaterials { get; set; }
+
+        [ManyToMany( typeof( ServiceItemShoppingList ), CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true )]
+        public List<ServiceItem> ServiceItems { get; set; }
 
         #endregion
 

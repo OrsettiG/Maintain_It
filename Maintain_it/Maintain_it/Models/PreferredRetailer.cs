@@ -10,22 +10,15 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class Tag : IStorableObject, IEquatable<Tag>
+    public class PreferredRetailer : IStorableObject
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        [ManyToMany(typeof(MaterialTag))]
+        [OneToMany(CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true)]
         public List<Material> Materials { get; set; }
 
-        [Unique]
         public string Name { get; set; }
-
         public DateTime CreatedOn { get; set; }
-
-        public bool Equals( Tag other )
-        {
-            return other?.Id == Id;
-        }
     }
 }

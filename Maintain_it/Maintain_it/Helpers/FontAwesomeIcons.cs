@@ -17576,11 +17576,11 @@ namespace Maintain_it.Helpers.FontAwesome
         public const string Tag = "\uf02b";
 
         /// <summary>
-        /// fa-tags unicode value ("\uf02c").
+        /// fa-allTags unicode value ("\uf02c").
         /// <para/>
         /// This icon supports the following styles: Light (Pro), Regular (Pro), Solid, Duotone (Pro)
         /// <para/>
-        /// See https://fontawesome.com/icons/tags
+        /// See https://fontawesome.com/icons/allTags
         /// </summary>
         public const string Tags = "\uf02c";
 

@@ -16,7 +16,7 @@ namespace Maintain_it.Helpers
         /// Creates a new instance of a ShoppingListMaterial and adds it to the database. Also adds the newly created SLM to the ShoppingList with the passed in Id.
         /// </summary>
         /// <returns>The Id of the newly created ShoppingListMaterial</returns>
-        public static async Task<int> NewShoppingListMaterial( int materialId, int shoppingListId, string name, int quantityRequired = 1, bool purchased = false )
+        public static async Task<int> NewShoppingListMaterial( int materialId, int shoppingListId, string name = null, int quantityRequired = 1, bool purchased = false )
         {
             Material m = await MaterialManager.GetItemAsync( materialId );
             ShoppingList list = await ShoppingListManager.GetItemAsync( shoppingListId );
@@ -25,7 +25,7 @@ namespace Maintain_it.Helpers
             {
                 Material = m,
                 ShoppingList = list,
-                Name = name,
+                Name = m.Name,
                 Quantity = quantityRequired,
                 Purchased = purchased,
                 CreatedOn = DateTime.UtcNow
@@ -54,6 +54,28 @@ namespace Maintain_it.Helpers
             item.Name = name ?? item.Name;
             item.Quantity = quantity ?? item.Quantity;
             item.Purchased = purchased ?? item.Purchased;
+        }
+
+        public static async Task PurchaseItemAsync( int id, bool purchased, int? alternateQuantity = null )
+        {
+            ShoppingListMaterial item = await GetItemRecursiveAsync(id);
+            
+            item.Purchased = purchased;
+
+            int amount = alternateQuantity != null && alternateQuantity.Value > 0 ? alternateQuantity.Value : item.Quantity;
+
+            switch( purchased )
+            {
+                case true:
+                    await MaterialManager.IncreaseMaterialQuantity( item.MaterialId, amount);
+                    break;
+
+                case false:
+                    await MaterialManager.DecreaseMaterialQuantity( item.MaterialId, amount);
+                    break;
+            }
+
+            await DbServiceLocator.UpdateItemAsync( item );
         }
         #endregion Item Modification
 

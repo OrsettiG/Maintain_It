@@ -34,22 +34,60 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="25"/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
                         <Label Text="Remaining Items:" 
                            FontSize="Medium"
                            Grid.Column="1"
                            Grid.ColumnSpan="2"/>
-                        <Label Text="{Binding Count}" 
+                        <Label Text="{Binding RemainingItemsCount}" 
                            FontSize="Medium"
                            Grid.Column="2"
                            HorizontalOptions="End"/>
+
+                        <Line HeightRequest="1" 
+                              Grid.Column="0"
+                              Grid.Row="1"
+                              BackgroundColor="{StaticResource Secondary}"
+                              VerticalOptions="Center"/>
+
+
+                        <Label HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               VerticalTextAlignment="Center"
+                               Grid.Column="1"
+                               Grid.ColumnSpan="2"
+                               Grid.Row="1"
+                               WidthRequest="100"
+                               HeightRequest="25">
+                            <Label.Text>
+                                <MultiBinding StringFormat="Completed {0}/{1}">
+                                    <Binding Path="RemainingProjectsCount"/>
+                                    <Binding Path="GroupedMaterials.Count"/>
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+
+                        <Line HeightRequest="1" 
+                              Grid.Column="3"
+                              Grid.Row="1"
+                              BackgroundColor="{StaticResource Secondary}"
+                              VerticalOptions="Center"/>
                     </Grid>
                 </Frame>
-                <Frame Padding="1" 
-                       Margin="5" 
-                       BorderColor="{Binding EditingStateColor}">
-                    <CollectionView ItemsSource="{Binding Materials}" 
-                                    Margin="10" >
+
+                <StackLayout>
+                    <CollectionView ItemsSource="{Binding GroupedMaterials}" 
+                                    Margin="10"
+                                    IsGrouped="true"
+                                    EmptyView="No Projects Currently Require Materials"
+                                    
+                                    >
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" 
+                                               ItemSpacing="4"/>
+                        </CollectionView.ItemsLayout>
                         <CollectionView.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -64,7 +102,7 @@
                                 </Grid.RowDefinitions>
                                 <Label Text="Name" FontSize="Medium"
                                        Grid.Column="1"
-                                       HorizontalOptions="Start"/>  
+                                       HorizontalOptions="Start"/>
                                 <Label Text="Quantity" FontSize="Medium"
                                        Grid.Column="1" Grid.ColumnSpan="2"
                                        HorizontalOptions="End"/>
@@ -75,13 +113,41 @@
                                       VerticalOptions="Center"/>
                             </Grid>
                         </CollectionView.Header>
+                        <CollectionView.GroupHeaderTemplate>
+                            <DataTemplate>
+                                <SwipeView Threshold="100">
+                                    <SwipeView.LeftItems>
+                                        <SwipeItems Mode="Execute">
+                                            <SwipeItem
+                                                Command="{Binding PurchaseAllItemsCommand}"
+                                                IsDestructive="False"
+                                                IconImageSource="{FontImageSource Glyph={
+                                                Static fontawesome:FontAwesomeIcons.CheckSquare},
+                                                FontFamily=FA-Solid}"
+                                                BackgroundColor="{StaticResource Cue}"/>
+                                        </SwipeItems>
+                                    </SwipeView.LeftItems>
+                                    <Frame Padding="3" 
+                                       Margin="5"
+                                       BackgroundColor="{StaticResource Primary}"
+                                       HeightRequest="50">
+                                        <Label Text="{Binding DisplayName}"
+                                           HeightRequest="25"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           FontSize="Medium"/>
+                                    </Frame>
+                                </SwipeView>
+                            </DataTemplate>
+                        </CollectionView.GroupHeaderTemplate>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <SwipeView Padding="2">
+                                <SwipeView Padding="2" 
+                                           Threshold="100">
                                     <SwipeView.RightItems>
                                         <SwipeItems>
                                             <SwipeItem 
-                                                Command="{Binding DeleteItemCommand}"
+                                                Command="{Binding DeleteCommand}"
                                                 IsDestructive="True"
                                                 IconImageSource="{FontImage Glyph=
                                                {
@@ -89,18 +155,27 @@
                                                },
                                                FontFamily=FA-Solid}"
                                                BackgroundColor="DarkRed" 
-                                               IsVisible="{Binding CanEdit}"
                                                />
+                                            <!--IsVisible="{Binding CanEdit}"-->
                                         </SwipeItems>
                                     </SwipeView.RightItems>
-                                    <Frame Padding="0,10,5,10" 
+                                    <SwipeView.LeftItems>
+                                        <SwipeItems Mode="Execute">
+                                            <SwipeItem
+                                                Command="{Binding TogglePurchasedCommand}"
+                                                IsDestructive="False"
+                                                IconImageSource="{FontImageSource Glyph={
+                                                Static fontawesome:FontAwesomeIcons.CheckSquare},
+                                                FontFamily=FA-Solid}"
+                                                BackgroundColor="{StaticResource Cue}"/>
+                                        </SwipeItems>
+                                    </SwipeView.LeftItems>
+                                    <Frame Padding="0,10,5,10"
+                                           Margin="25,2,2,2"
                                            BorderColor="{Binding Color}" 
                                            HeightRequest="45">
                                         <Grid>
                                             <Grid.GestureRecognizers>
-                                                <SwipeGestureRecognizer Direction="Right"
-                                                                        Command="{Binding CrossOffCommand}"
-                                                                        CommandParameter="Right"/>
                                                 <TapGestureRecognizer Command="{Binding OpenCommand}"/>
                                             </Grid.GestureRecognizers>
                                             <Grid.ColumnDefinitions>
@@ -132,7 +207,122 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                </Frame>
+                </StackLayout>
+                <!--<Frame Margin="5"
+                    BorderColor="{Binding EditingStateColor}">
+                    <StackLayout>
+                        <Grid HorizontalOptions="CenterAndExpand">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Line HeightRequest="1" 
+                                      Grid.Column="0"
+                                      BackgroundColor="{StaticResource Secondary}"
+                                      VerticalOptions="Center"/>
+
+
+                            <Label Text="Other Items"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"
+                                   Grid.Column="1"
+                                   WidthRequest="100"
+                                   HeightRequest="100"/>
+
+                            <Line HeightRequest="1" 
+                                      Grid.Column="2"
+                                      BackgroundColor="{StaticResource Secondary}"
+                                      VerticalOptions="Center"/>
+                        </Grid>
+                        <CollectionView ItemsSource="{Binding LooseMaterials}">
+                            <CollectionView.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="7*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="5"/>
+                                    </Grid.RowDefinitions>
+                                    <Label Text="Name" FontSize="Medium"
+                                       Grid.Column="1"
+                                       HorizontalOptions="Start"/>
+                                    <Label Text="Quantity" FontSize="Medium"
+                                       Grid.Column="1" Grid.ColumnSpan="2"
+                                       HorizontalOptions="End"/>
+                                    <Line HeightRequest="1" 
+                                      Grid.Column="0" Grid.ColumnSpan="4"
+                                      Grid.Row="1"
+                                      BackgroundColor="{StaticResource Secondary}"
+                                      VerticalOptions="Center"/>
+                                </Grid>
+                            </CollectionView.Header>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <SwipeView Padding="2">
+                                        <SwipeView.RightItems>
+                                            <SwipeItems>
+                                                <SwipeItem 
+                                                Command="{Binding DeleteItemCommand}"
+                                                IsDestructive="True"
+                                                IconImageSource="{FontImage Glyph=
+                                               {
+                                                   Static fontawesome:FontAwesomeIcons.Trash
+                                               },
+                                               FontFamily=FA-Solid}"
+                                               BackgroundColor="DarkRed" 
+                                               IsVisible="{Binding CanEdit}"
+                                               />
+                                            </SwipeItems>
+                                        </SwipeView.RightItems>
+                                        <Frame Padding="0,10,5,10" 
+                                           BorderColor="{Binding Color}" 
+                                           HeightRequest="45">
+                                            <Grid>
+                                                <Grid.GestureRecognizers>
+                                                    <SwipeGestureRecognizer Direction="Right"
+                                                                        Command="{Binding CrossOffCommand}"
+                                                                        CommandParameter="Right"/>
+                                                    <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                                                </Grid.GestureRecognizers>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="10"/>
+                                                    <ColumnDefinition Width="7*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Text="{Binding Name}"
+                                                   FontSize="Medium"
+                                                   Grid.Column="1"
+                                                   TextDecorations="{Binding TextDecoration}"
+                                                   HorizontalOptions="FillAndExpand"
+                                                   VerticalOptions="CenterAndExpand"/>
+                                                <Label Text="{Binding Quantity}"
+                                                   FontSize="Medium"
+                                                   Grid.Column="2"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="CenterAndExpand"/>
+                                                <Label Text="{Static fontawesome:FontAwesomeIcons.AngleRight}"
+                                                   FontSize="Medium"
+                                                   FontFamily="FA-Solid" 
+                                                   VerticalOptions="Center"
+                                                   Grid.Column="3"
+                                                   HorizontalOptions="End"/>
+                                            </Grid>
+                                        </Frame>
+                                    </SwipeView>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Frame>-->
             </StackLayout>
 
             <Button Text="{Static fontawesome:FontAwesomeIcons.Plus}"

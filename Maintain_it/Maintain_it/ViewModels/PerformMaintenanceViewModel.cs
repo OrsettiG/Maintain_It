@@ -79,7 +79,7 @@ namespace Maintain_it.ViewModels
         public bool NextStepExists { get => nextStepExists; set => SetProperty( ref nextStepExists, value ); }
 
         private List<Step> steps = new List<Step>();
-        private MaintenanceItem maintenanceItem { get; set; }
+        private ServiceItem maintenanceItem { get; set; }
 
         private int stepNumber;
         public string StepNumber
@@ -137,7 +137,7 @@ namespace Maintain_it.ViewModels
             }
             else
             {
-                await MaintenanceItemManager.CompleteMaintenance( Step.MaintenanceItemId, TimeTaken );
+                await ServiceItemManager.CompleteMaintenance( Step.MaintenanceItemId, TimeTaken );
                 await Shell.Current.GoToAsync( $"../?{QueryParameters.Refresh}=true" );
             }
         }
@@ -167,7 +167,7 @@ namespace Maintain_it.ViewModels
             StepViewModel = new StepViewModel( Step );
 
             StepNumber = Step.Index.ToString();
-            // !!! PICK UP HERE !!! Get this viewmodel properly populated and then sort out the addition and subtraction of materials. After that figure out how/what to do when a service is completed.
+            // !!! PICK UP HERE !!! Get this viewmodel properly populated and then sort out the addition and subtraction of looseMaterials. After that figure out how/what to do when a service is completed.
             IsCompleted = !Step.IsCompleted;
             Description = Step.Description;
             TimeRequired = Step.TimeRequired;
@@ -202,10 +202,10 @@ namespace Maintain_it.ViewModels
         {
             switch( kvp.Key )
             {
-                case QueryParameters.MaintenanceItemId:
+                case QueryParameters.ServiceItemId:
                     if( int.TryParse( kvp.Value, out maintenanceItemId ) )
                     {
-                        maintenanceItem = await MaintenanceItemManager.GetItemRecursiveAsync( maintenanceItemId );
+                        maintenanceItem = await ServiceItemManager.GetItemRecursiveAsync( maintenanceItemId );
 
                         if( maintenanceItem.Steps.Count > 0 )
                         {

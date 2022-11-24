@@ -30,10 +30,10 @@ namespace Maintain_it.ViewModels
         private List<ShoppingList> shoppingLists { get; set; }
 
         private ObservableRangeCollection<ShoppingListViewModel> shoppingListViewModels;
-        public ObservableRangeCollection<ShoppingListViewModel> ShoppingListViewModels 
-        { 
-            get => shoppingListViewModels ??= new ObservableRangeCollection<ShoppingListViewModel>(); 
-            set => SetProperty( ref shoppingListViewModels, value ); 
+        public ObservableRangeCollection<ShoppingListViewModel> ShoppingListViewModels
+        {
+            get => shoppingListViewModels ??= new ObservableRangeCollection<ShoppingListViewModel>();
+            set => SetProperty( ref shoppingListViewModels, value );
         }
 
         #endregion
@@ -41,9 +41,9 @@ namespace Maintain_it.ViewModels
         #region Commands
         // Create New Shopping List
         private AsyncCommand createNewShoppingListCommand;
-        public ICommand CreateNewShoppingListCommand 
-        { 
-            get => createNewShoppingListCommand ??= new AsyncCommand( CreateNewShoppingList ); 
+        public ICommand CreateNewShoppingListCommand
+        {
+            get => createNewShoppingListCommand ??= new AsyncCommand( CreateNewShoppingList );
         }
 
         private async Task CreateNewShoppingList()
@@ -53,21 +53,21 @@ namespace Maintain_it.ViewModels
 
         // Open ShoppingList
         private AsyncCommand<int> openShoppingListCommand;
-        private ICommand OpenShoppingListCommand 
-        { 
+        private ICommand OpenShoppingListCommand
+        {
             get => openShoppingListCommand ??= new AsyncCommand<int>( x => OpenShoppingList( x ) );
         }
 
         private async Task OpenShoppingList( int shoppingListId )
         {
             string encodedId = HttpUtility.HtmlEncode(shoppingListId);
-            await Shell.Current.GoToAsync( $"{nameof( ShoppingListDetailView )}?id={encodedId}" );
+            await Shell.Current.GoToAsync( $"{nameof( ShoppingListDetailView )}?{QueryParameters.ShoppingListId}={encodedId}" );
         }
-        
-        // Refresh
+
+        // ItemDeleted
         private AsyncCommand refreshCommand;
-        public ICommand RefreshCommand 
-        {  
+        public ICommand RefreshCommand
+        {
             get => refreshCommand ??= new AsyncCommand( Refresh );
         }
         private async Task Refresh()
@@ -79,13 +79,9 @@ namespace Maintain_it.ViewModels
 
             _ = Parallel.ForEach( shoppingLists, sList =>
             {
-                if( sList.Active || !sList.Active)
-                {
-                    ShoppingListViewModel item = new ShoppingListViewModel( sList );
-                    item.RefreshContainer = (AsyncCommand)RefreshCommand;
-                    bag.Add( item );
-                    
-                }
+                ShoppingListViewModel item = new ShoppingListViewModel( sList );
+                item.RefreshContainer = (AsyncCommand)RefreshCommand;
+                bag.Add( item );
             } );
 
             ShoppingListViewModels.AddRange( bag );

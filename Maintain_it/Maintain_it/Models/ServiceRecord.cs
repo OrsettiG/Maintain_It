@@ -21,7 +21,7 @@ namespace Maintain_it.Models
 
         #region Many to One
 
-        [ForeignKey( typeof( MaintenanceItem ) )]
+        [ForeignKey( typeof( ServiceItem ) )]
         public int MaintenanceItemId
         {
             get;
@@ -29,7 +29,7 @@ namespace Maintain_it.Models
         }
 
         [ManyToOne]
-        public MaintenanceItem Item
+        public ServiceItem Item
         {
             get;
             set;

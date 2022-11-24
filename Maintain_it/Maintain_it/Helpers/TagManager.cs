@@ -13,34 +13,54 @@ namespace Maintain_it.Helpers
         /// <summary>
         /// Creates a new tag, adds it to the database and returns the Id
         /// </summary>
-        public static async Task<int> GetNewTagAndReturnId( string name, TagType tagType = TagType.General )
+        public static async Task<int> GetNewTagAndReturnId( string name )
         {
-            // AddShallow any validation here if needed.
+            try
+            {
+                return await NewTag( name );
+            }
+            catch( Exception )
+            {
 
-            return await NewTag( name, tagType );
+                throw;
+            }
         }
 
         /// <summary>
         /// Creates a new tag, adds it to the database, and returns it
         /// </summary>
-        public static async Task<Tag> GetNewTag( string name, TagType tagType = TagType.General )
+        public static async Task<Tag> GetNewTag( string name )
         {
-            return await GetItemRecursiveAsync( await NewTag( name, tagType ) );
+            try
+            {
+                return await GetItemRecursiveAsync( await NewTag( name ) );
+            }
+            catch( Exception )
+            {
+
+                throw;
+            }
         }
 
         /// <summary>
         /// Creates a new tag, adds it to the database and returns the Id
         /// </summary>
-        private static async Task<int> NewTag( string name, TagType tagType )
+        private static async Task<int> NewTag( string name )
         {
             Tag tag = new Tag()
             {
                 Name = name,
-                TagType = tagType,
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = DateTime.UtcNow,
+                Materials = new List<Material>()
             };
-
-            return await DbServiceLocator.AddItemAndReturnIdAsync( tag );
+            try
+            {
+                return await DbServiceLocator.AddItemAndReturnIdAsync( tag );
+            }
+            catch( Exception )
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -69,7 +89,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds the passed in Material to the passed in Tags and updates the db unless specified otherwise. DOES NOT UPDATE THE MATERIAL, ONLY THE TAGS.
+        /// Adds the passed in Material to the passed in AllTags and updates the db unless specified otherwise. DOES NOT UPDATE THE MATERIAL, ONLY THE TAGS.
         /// </summary>
         public static async Task AddMaterialToTags( IEnumerable<int> tagIds, int materialId )
         {
@@ -80,7 +100,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds the passed in Material to the passed in Tags and updates the db unless specified otherwise. DOES NOT UPDATE THE MATERIAL, ONLY THE TAGS.
+        /// Adds the passed in Material to the passed in AllTags and updates the db unless specified otherwise. DOES NOT UPDATE THE MATERIAL, ONLY THE TAGS.
         /// </summary>
         private static async Task AddMaterialToTags( IEnumerable<Tag> tags, Material material )
         {
@@ -91,7 +111,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds the passed in Materials to the passed in Tags and updates the db unless specified otherwise. DOES NOT UPDATE THE MATERIALS, ONLY THE TAGS.
+        /// Adds the passed in LooseMaterials to the passed in AllTags and updates the db unless specified otherwise. DOES NOT UPDATE THE MATERIALS, ONLY THE TAGS.
         /// 
         ///<para> This is a nested <see langword="foreach"/> loop with a lot of Db read/write. Expect it to be quite slow. If you have a lot of data in one or both lists maybe try and find a different way to get it done.</para>
         /// </summary>
@@ -104,7 +124,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds the passed in Materials to the passed in Tags and updates the db unless specified otherwise. DOES NOT UPDATE THE MATERIALS, ONLY THE TAGS.
+        /// Adds the passed in LooseMaterials to the passed in AllTags and updates the db unless specified otherwise. DOES NOT UPDATE THE MATERIALS, ONLY THE TAGS.
         /// 
         ///<para>This is a nested <see langword="foreach"/> loop with a lot of Db read/write. Expect it to be quite slow. If you have a lot of data in one or both lists maybe try and find a different way to get it done.</para>
         /// </summary>
@@ -125,7 +145,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Gets the range of Tags with the passed in from the database recursively.
+        /// Gets the range of AllTags with the passed in from the database recursively.
         /// </summary>
         public static async Task<List<Tag>> GetItemRangeRecursiveAsync( IEnumerable<int> tagIds )
         {
@@ -150,7 +170,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Gets all the Tags in the Db
+        /// Gets all the AllTags in the Db
         /// </summary>
         public static async Task<List<Tag>> GetAllItemsAsync()
         {
@@ -158,7 +178,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Gets all the Tags in the Db recursively
+        /// Gets all the AllTags in the Db recursively
         /// 
         /// <para><i>Inverse relationships are not populated recursively</i></para>
         /// </summary>

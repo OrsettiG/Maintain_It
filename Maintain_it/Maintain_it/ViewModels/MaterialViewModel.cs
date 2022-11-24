@@ -26,9 +26,13 @@ namespace Maintain_it.ViewModels
 
             Name = material.Name;
             Description = material.Description;
-            Size = material.Size;
             QuantityOwned = material.QuantityOwned;
+            Size = material.Size;
+            Units = material.Units;
+            PartNumber = material.PartNumber;
             Tags.AddRange( material.Tags );
+
+            CreatedOn = material.CreatedOn;
         }
 
         #endregion

@@ -33,6 +33,11 @@ namespace Maintain_it.Helpers
         /// </summary>
         public enum NotificationReminderWindow { Morning, Afternoon, Evening }
 
+        /// <summary>
+        /// Edit state flag
+        /// </summary>
+        public enum EditState { Locked, Editing}
+
         #region Constants
         #region Notifications
         public const string TitleKey = "title";

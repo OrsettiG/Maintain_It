@@ -51,7 +51,7 @@ namespace Maintain_it.Helpers
 
 
         /// <summary>
-        /// Adds the passed in tag to the passed in material's Tags list. DOES NOT UPDATE THE TAG, MAKE SURE TO DO THAT.
+        /// Adds the passed in tag to the passed in material's AllTags list. DOES NOT UPDATE THE TAG, MAKE SURE TO DO THAT.
         /// </summary>
         public static async Task AddTagToMaterial( int materialId, int tagId )
         {
@@ -62,7 +62,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds the passed in tag to the passed in material's Tags list. DOES NOT UPDATE THE TAG, MAKE SURE TO DO THAT.
+        /// Adds the passed in tag to the passed in material's AllTags list. DOES NOT UPDATE THE TAG, MAKE SURE TO DO THAT.
         /// </summary>
         private static async Task AddTagToMaterial( Material material, Tag tag, bool updateDb = true )
         {
@@ -76,7 +76,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds each of the passed in tags to the passed in material's Tags list. DOES NOT UPDATE THE TAGS, MAKE SURE TO DO THAT.
+        /// Adds each of the passed in allTags to the passed in material's AllTags list. DOES NOT UPDATE THE TAGS, MAKE SURE TO DO THAT.
         /// </summary>
         public static async Task AddTagsToMaterial( int materialId, IEnumerable<int> tagIds )
         {
@@ -87,7 +87,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds each of the passed in tags to the passed in material's Tags list. DOES NOT UPDATE THE TAGS, MAKE SURE TO DO THAT.
+        /// Adds each of the passed in allTags to the passed in material's AllTags list. DOES NOT UPDATE THE TAGS, MAKE SURE TO DO THAT.
         /// </summary>
         private static async Task AddTagsToMaterial( Material material, IEnumerable<Tag> tags )
         {
@@ -116,6 +116,27 @@ namespace Maintain_it.Helpers
             await DbServiceLocator.UpdateItemAsync( material );
         }
 
+        public static async Task IncreaseMaterialQuantity( int materialId, int quantityToAdd )
+        {
+            Material material = await GetItemRecursiveAsync(materialId);
+            material.QuantityOwned += quantityToAdd;
+
+            await DbServiceLocator.UpdateItemAsync( material );
+        }
+
+        public static async Task DecreaseMaterialQuantity( int materialId, int quantityToRemove )
+        {
+            Material material = await GetItemRecursiveAsync(materialId);
+            material.QuantityOwned -= quantityToRemove;
+            await DbServiceLocator.UpdateItemAsync( material );
+        }
+
+        public static async Task<int> GetItemStockCount( int id )
+        {
+            Material material = await GetItemAsync(id);
+            return material.QuantityOwned;
+        }
+
         public static async Task<Material> GetItemAsync( int materialId )
         {
             return await DbServiceLocator.GetItemAsync<Material>( materialId );
@@ -141,7 +162,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Gets all the Materials in the Db
+        /// Gets all the LooseMaterials in the Db
         /// </summary>
         public static async Task<List<Material>> GetAllItemsAsync()
         {
@@ -149,7 +170,7 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Gets all the Materials in the Db recursively
+        /// Gets all the LooseMaterials in the Db recursively
         /// 
         /// <para><i>Inverse relationships are not populated recursively</i></para>
         /// </summary>

@@ -11,11 +11,11 @@ using Maintain_it.ViewModels;
 
 namespace Maintain_it.Helpers
 {
-    public static class MaintenanceItemManager
+    public static class ServiceItemManager
     {
         public static async Task<int> NewMaintenanceItem( string name, DateTime firstServiceDate, string comment = "", int recursEvery = 0, bool hasServiceLimit = false, int timesToRepeatService = 0, int serviceTimeframe = 3, int timesToRemind = 0, bool notifyOfNextServiceDate = false, int advanceNotice = 1, int noticeTimeframe = 3, IEnumerable<int> stepIds = null, int? isActive = null )
         {
-            MaintenanceItem item = new MaintenanceItem()
+            ServiceItem item = new ServiceItem()
             {
                 Name = name,
                 NextServiceDate = Config.DefaultServiceDateTime,
@@ -75,11 +75,11 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Retrieves the passed in <see cref="MaintenanceItem"/> and <see cref="Step"/> from the Db, adds the Step to the MaintenanceItem's Steps List, if it is not already there, and updates the Db. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
+        /// Retrieves the passed in <see cref="ServiceItem"/> and <see cref="Step"/> from the Db, adds the Step to the ServiceItem's Steps List, if it is not already there, and updates the Db. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
         /// </summary>
         public static async Task AddStep( int maintenanceItemId, int stepId )
         {
-            MaintenanceItem item = await GetItemRecursiveAsync( maintenanceItemId );
+            ServiceItem item = await GetItemRecursiveAsync( maintenanceItemId );
 
             Step step = await StepManager.GetItemRecursiveAsync( stepId );
 
@@ -87,9 +87,9 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds the Step to the MaintenanceItem's Steps List, if it is not already there, and updates the Db if specified. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
+        /// Adds the Step to the ServiceItem's Steps List, if it is not already there, and updates the Db if specified. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
         /// </summary>
-        private static async Task AddStep( MaintenanceItem item, Step step, bool updateDb = true )
+        private static async Task AddStep( ServiceItem item, Step step, bool updateDb = true )
         {
             if( !item.Steps.Contains( step ) )
             {
@@ -171,11 +171,11 @@ namespace Maintain_it.Helpers
 
 
         /// <summary>
-        /// Retrieves the passed in <see cref="MaintenanceItem"/> and <see cref="Step"/> from the Db. Adds the Step to the MaintenanceItem's Steps List, if it is not already there, and updates the Db. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
+        /// Retrieves the passed in <see cref="ServiceItem"/> and <see cref="Step"/> from the Db. Adds the Step to the ServiceItem's Steps List, if it is not already there, and updates the Db. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
         /// </summary>
         public static async Task AddSteps( int itemId, IEnumerable<int> stepIds )
         {
-            MaintenanceItem item = await GetItemRecursiveAsync(itemId);
+            ServiceItem item = await GetItemRecursiveAsync(itemId);
             List<Step> steps = await StepManager.GetItemRange( stepIds );
 
             await AddSteps( item, steps, false );
@@ -184,9 +184,9 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Adds the Step to the MaintenanceItem's Steps List, if it is not already there, and updates the Db if specified. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
+        /// Adds the Step to the ServiceItem's Steps List, if it is not already there, and updates the Db if specified. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
         /// </summary>
-        private static async Task AddSteps( MaintenanceItem item, IEnumerable<Step> steps, bool updateDb = true )
+        private static async Task AddSteps( ServiceItem item, IEnumerable<Step> steps, bool updateDb = true )
         {
             foreach( Step step in steps )
             {
@@ -199,12 +199,12 @@ namespace Maintain_it.Helpers
 
         public static async Task<bool> RemoveStep( int itemId, int stepId )
         {
-            MaintenanceItem item = await GetItemRecursiveAsync(itemId);
+            ServiceItem item = await GetItemRecursiveAsync(itemId);
 
             return await RemoveStep( item, stepId );
         }
 
-        private static async Task<bool> RemoveStep( MaintenanceItem item, int stepId )
+        private static async Task<bool> RemoveStep( ServiceItem item, int stepId )
         {
             if( item.Steps.RemoveAll( x => x.Id == stepId ) > 0 )
             {
@@ -217,11 +217,11 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Retrieves the passed in <see cref="MaintenanceItem"/> and <see cref="Step"/> from the Db. Adds the Step to the MaintenanceItem's Steps List, if it is not already there, and updates the Db if specified. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
+        /// Retrieves the passed in <see cref="ServiceItem"/> and <see cref="Step"/> from the Db. Adds the Step to the ServiceItem's Steps List, if it is not already there, and updates the Db if specified. DOES NOT UPDATE THE PASSED IN STEP, MAKE SURE TO UPDATE IT SEPARATELY.
         /// </summary>
         public static async Task UpdateSteps( int maintenanceItemId, IEnumerable<int> stepIds )
         {
-            MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
+            ServiceItem item = await DbServiceLocator.GetItemRecursiveAsync<ServiceItem>(maintenanceItemId);
 
             item.Steps = await UpdateStepSequence( stepIds );
             await DbServiceLocator.UpdateItemAsync( item );
@@ -236,7 +236,7 @@ namespace Maintain_it.Helpers
         /// </summary>
         public static async Task UpdateProperties( int maintenanceItemId, string? name = null, DateTime? serviceDate = null, string? comment = null, int? recursEvery = null, int? timeframe = null, bool? notifyOfNextServiceDate = null, bool? hasServiceLimit = null, int? timesToRepeatService = null, int? advanceNotice = null, int? advanceNoticeTimeframe = null, int? noticeTimeframe = null, bool? notificationActive = null, int? reminders = null, IEnumerable<int>? steps = null, int? isActive = null )
         {
-            MaintenanceItem item = await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>(maintenanceItemId);
+            ServiceItem item = await DbServiceLocator.GetItemRecursiveAsync<ServiceItem>(maintenanceItemId);
 
             item.Name = name ?? item.Name;
             item.NextServiceDate = serviceDate ?? item.NextServiceDate;
@@ -362,7 +362,7 @@ namespace Maintain_it.Helpers
 
         public static async Task CompleteMaintenance( int maintenanceItemId, double timeTaken )
         {
-            MaintenanceItem item = await GetItemRecursiveAsync( maintenanceItemId );
+            ServiceItem item = await GetItemRecursiveAsync( maintenanceItemId );
             ServiceRecord record = item.ServiceRecords.Last();
 
             await UpdateServiceRecord( record.Id, true, serviceTime: timeTaken );
@@ -392,11 +392,11 @@ namespace Maintain_it.Helpers
         }
 
         /// <summary>
-        /// Inserts a new ServiceRecord to the <see cref="MaintenanceItem.ServiceRecords"/> collection with the passed in values. Updates both the MaintenanceItem and ServiceRecord in the database.
+        /// Inserts a new ServiceRecord to the <see cref="ServiceItem.ServiceRecords"/> collection with the passed in values. Updates both the ServiceItem and ServiceRecord in the database.
         /// </summary>
         public static async Task<ServiceRecord> InsertServiceRecord( int maintenanceItemId, bool serviceCompleted = false, bool serviceStarted = false, int currentStepIndex = 1 )
         {
-            MaintenanceItem item = await GetItemRecursiveAsync(maintenanceItemId);
+            ServiceItem item = await GetItemRecursiveAsync(maintenanceItemId);
 
             ServiceRecord record = new ServiceRecord();
 
@@ -426,25 +426,25 @@ namespace Maintain_it.Helpers
             return record;
         }
 
-        public static async Task<MaintenanceItem> GetItemAsync( int maintenanceItemId )
+        public static async Task<ServiceItem> GetItemAsync( int maintenanceItemId )
         {
-            return await DbServiceLocator.GetItemAsync<MaintenanceItem>( maintenanceItemId );
+            return await DbServiceLocator.GetItemAsync<ServiceItem>( maintenanceItemId );
         }
 
-        public static async Task<MaintenanceItem> GetItemRecursiveAsync( int maintenanceItemId )
-        { 
+        public static async Task<ServiceItem> GetItemRecursiveAsync( int maintenanceItemId )
+        {
 
-            return await DbServiceLocator.GetItemRecursiveAsync<MaintenanceItem>( maintenanceItemId );
+            return await DbServiceLocator.GetItemRecursiveAsync<ServiceItem>( maintenanceItemId );
         }
 
-        public static async Task<List<MaintenanceItem>> GetAllItemsAsync()
+        public static async Task<List<ServiceItem>> GetAllItemsAsync()
         {
-            return await DbServiceLocator.GetAllItemsAsync<MaintenanceItem>() as List<MaintenanceItem>;
+            return await DbServiceLocator.GetAllItemsAsync<ServiceItem>() as List<ServiceItem>;
         }
 
-        public static async Task<List<MaintenanceItem>> GetAllItemsRecursiveAsync()
+        public static async Task<List<ServiceItem>> GetAllItemsRecursiveAsync()
         {
-            return await DbServiceLocator.GetAllItemsRecursiveAsync<MaintenanceItem>() as List<MaintenanceItem>;
+            return await DbServiceLocator.GetAllItemsRecursiveAsync<ServiceItem>() as List<ServiceItem>;
         }
 
         public static async Task<ServiceRecord> GetServiceRecordAsync( int recordId )
@@ -459,7 +459,7 @@ namespace Maintain_it.Helpers
         {
             ServiceRecord record = await DbServiceLocator.GetItemRecursiveAsync<ServiceRecord>( recordId );
 
-            record.Item ??= await DbServiceLocator.GetItemAsync<MaintenanceItem>( record.MaintenanceItemId );
+            record.Item ??= await DbServiceLocator.GetItemAsync<ServiceItem>( record.MaintenanceItemId );
 
             return record;
         }
@@ -471,7 +471,7 @@ namespace Maintain_it.Helpers
 
 
         /// <summary>
-        /// Gets all ServiceRecords and their associated MaintenanceItems from the database. This is a memory intensive call, so it is probably better to find the ServiceRecord/MaintenanceItem you want some other way.
+        /// Gets all ServiceRecords and their associated ServiceItems from the database. This is a memory intensive call, so it is probably better to find the ServiceRecord/ServiceItem you want some other way.
         /// </summary>
         public static async Task<List<ServiceRecord>> GetAllServiceRecordsRecursiveAsync()
         {
@@ -479,7 +479,7 @@ namespace Maintain_it.Helpers
 
             foreach( ServiceRecord record in records )
             {
-                record.Item ??= await DbServiceLocator.GetItemAsync<MaintenanceItem>( record.MaintenanceItemId );
+                record.Item ??= await DbServiceLocator.GetItemAsync<ServiceItem>( record.MaintenanceItemId );
             }
 
             return records;
@@ -524,13 +524,13 @@ namespace Maintain_it.Helpers
 
         public static async Task UpdateItemStepsAsync( int itemId, IEnumerable<int> stepIds )
         {
-            MaintenanceItem item = await GetItemRecursiveAsync(itemId);
+            ServiceItem item = await GetItemRecursiveAsync(itemId);
             List<Step> steps = (List<Step>)await StepManager.GetItemRangeRecursiveAsync( stepIds );
 
             await UpdateItemStepsAsync( item, steps );
         }
 
-        private static async Task UpdateItemStepsAsync( MaintenanceItem item, IEnumerable<Step> steps )
+        private static async Task UpdateItemStepsAsync( ServiceItem item, IEnumerable<Step> steps )
         {
             item.Steps = steps as List<Step>;
             await DbServiceLocator.UpdateItemAsync( item );
@@ -539,11 +539,11 @@ namespace Maintain_it.Helpers
 #nullable disable
 
         /// <summary>
-        /// Deletes the MaintenanceItem with the passed in id and all the unique data associated with it (does not delete Materials but does delete Steps, StepMaterials, Notes etc.)
+        /// Deletes the ServiceItem with the passed in id and all the unique data associated with it (does not delete LooseMaterials but does delete Steps, StepMaterials, Notes etc.)
         /// </summary>
         public static async Task DeleteItem( int id )
         {
-            MaintenanceItem item = await GetItemRecursiveAsync(id);
+            ServiceItem item = await GetItemRecursiveAsync(id);
 
             if( item.Steps != null && item.Steps.Count > 0 )
             {
@@ -560,7 +560,7 @@ namespace Maintain_it.Helpers
                 await DbServiceLocator.DeleteItemAsync<NotificationEventArgs>( item.NotificationEventArgsId );
             }
 
-            await DbServiceLocator.DeleteItemAsync<MaintenanceItem>( item.Id );
+            await DbServiceLocator.DeleteItemAsync<ServiceItem>( item.Id );
         }
 
         public static async Task DeleteServiceRecord( int id )
@@ -582,6 +582,13 @@ namespace Maintain_it.Helpers
             {
                 await DeleteServiceRecord( record.Id );
             }
+        }
+
+        internal static async Task<List<ServiceItem>> GetItemRangeRecursiveAsync( IEnumerable<int> serviceItemIds )
+        {
+            List<ServiceItem> items = await DbServiceLocator.GetItemRangeRecursiveAsync<ServiceItem>( serviceItemIds ) as List<ServiceItem>;
+
+            return items;
         }
     }
 }

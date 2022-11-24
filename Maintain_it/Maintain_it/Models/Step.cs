@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Maintain_it.Models.Interfaces;
 using Maintain_it.Services;
 
 using SQLite;
@@ -28,10 +28,10 @@ namespace Maintain_it.Models
 
         #region Many To One Relationships
 
-        [ForeignKey( typeof( MaintenanceItem ) )]
+        [ForeignKey( typeof( ServiceItem ) )]
         public int MaintenanceItemId { get; set; }
         [ManyToOne]
-        public MaintenanceItem MaintenanceItem { get; set; }
+        public ServiceItem MaintenanceItem { get; set; }
 
         #endregion
 

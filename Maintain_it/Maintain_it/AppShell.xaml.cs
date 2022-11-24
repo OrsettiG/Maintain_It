@@ -24,7 +24,7 @@ namespace Maintain_it
 
             //Routing.RegisterRoute( nameof( HomeView ), typeof( HomeView ) );
 
-            //MaintenanceItem Routes
+            //ServiceItem Routes
             Routing.RegisterRoute( nameof( MaintenanceView ), typeof( MaintenanceView ) );
 
             Routing.RegisterRoute( $"{nameof( MaintenanceItemDetailView )}", typeof( MaintenanceItemDetailView ) );

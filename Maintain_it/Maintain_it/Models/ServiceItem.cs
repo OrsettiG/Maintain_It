@@ -13,10 +13,9 @@ using SQLiteNetExtensions.Attributes;
 
 namespace Maintain_it.Models
 {
-    public class MaintenanceItem : IStorableObject
+    public class ServiceItem : IStorableObject
     {
-        public MaintenanceItem(){}
-
+        public ServiceItem(){}
 
         #region Properties
         #region Uncontained Data
@@ -49,7 +48,7 @@ namespace Maintain_it.Models
         // Life Expectancy
         public int LifeExpectancy { get; set; }
         public int LifeExpectancyTimeframe { get; set; }
-        public DateTime Birthday { get; set; }
+        public DateTime Birthday { get; set; } // Not sure why we need this. We can always use either the LastServiceDate or the creation date to determine the items remaining lifespan.
         #endregion Uncontained Data
 
         #region Summary Data
@@ -71,6 +70,9 @@ namespace Maintain_it.Models
         // Service Records
         [OneToMany(CascadeOperations = CascadeOperation.CascadeRead)]
         public List<ServiceRecord> ServiceRecords { get; set; }
+
+        [ManyToMany(typeof(ServiceItemShoppingList))]
+        public List<ShoppingList> ShoppingLists { get; set; }
         #endregion Contained Data
     }
 }

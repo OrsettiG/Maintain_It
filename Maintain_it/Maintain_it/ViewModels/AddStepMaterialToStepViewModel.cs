@@ -81,7 +81,7 @@ namespace Maintain_it.ViewModels
                 DisplayedMaterials.Clear();
                 DisplayedMaterialSelections.Clear();
 
-                // We can just straight up add all the materials to these collections because we want to allow the user to see every material they have added.
+                // We can just straight up add all the looseMaterials to these collections because we want to allow the user to see every material they have added.
                 _materials.AddRange( mats );
                 DisplayedMaterials.AddRange( mats );
 
@@ -101,7 +101,7 @@ namespace Maintain_it.ViewModels
                             Console.WriteLine( ex.StackTrace );
                         }
                     }
-                    // AddShallow all our selected materials into our DisplayedMaterialSelections collection so that the user can easily see/interact with what they have selected.
+                    // AddShallow all our selected looseMaterials into our DisplayedMaterialSelections collection so that the user can easily see/interact with what they have selected.
                     DisplayedMaterialSelections.AddRange( DisplayedMaterials.Where( x => SelectedMaterialIds.Contains( x.Id ) ) );
                 }
 
@@ -255,11 +255,11 @@ namespace Maintain_it.ViewModels
 
             switch( kvp.Key )
             {
-                // Used when coming from CreateNewMaterialViewModel to add the Material the user just created and save them having to find it in the list of Materials.
+                // Used when coming from CreateNewMaterialViewModel to add the Material the user just created and save them having to find it in the list of LooseMaterials.
                 case QueryParameters.MaterialID:
                     MaterialNameSearch = string.Empty;
                     
-                    // We have to do this Refresh() in because it caches the materials/selected StepMaterials. If we don't then any methods called before the next refresh that rely on cached data will throw an error.
+                    // We have to do this ItemDeleted() in because it caches the looseMaterials/selected StepMaterials. If we don't then any methods called before the next refresh that rely on cached data will throw an error.
                     await Refresh();
 
                     string decodedValue = HttpUtility.UrlDecode(kvp.Value);
@@ -269,13 +269,13 @@ namespace Maintain_it.ViewModels
                         await UpdateStepMaterials( _materials.Where( x => x.Id == addMaterialId ).SingleOrDefault() ).ConfigureAwait( false );
                     }
 
-                    // We have to do the double Refresh() in order to get all the materials/selections to show up correctly. This can probably be optimized eventually.
+                    // We have to do the double ItemDeleted() in order to get all the looseMaterials/selections to show up correctly. This can probably be optimized eventually.
                     await Refresh();
                     break;
 
-                // Used when coming from StepViewModel when some StepMaterials have already been added to the step, such as when a user wants to edit the materials used in a step they have already created.
+                // Used when coming from StepViewModel when some StepMaterials have already been added to the step, such as when a user wants to edit the looseMaterials used in a step they have already created.
                 case nameof( preselectedStepMaterialIds ):
-                    // We have to do this Refresh() in because it caches the materials/selected StepMaterials. If we don't then any methods called before the next Refresh() that rely on cached data will throw an error.
+                    // We have to do this ItemDeleted() in because it caches the looseMaterials/selected StepMaterials. If we don't then any methods called before the next ItemDeleted() that rely on cached data will throw an error.
                     await Refresh();
 
                     string decodedIds = HttpUtility.UrlDecode(kvp.Value);

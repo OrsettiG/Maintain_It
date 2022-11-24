@@ -72,7 +72,7 @@ namespace Maintain_it.Helpers
         /// <item><see cref="PerformMaintenanceViewModel"/></item>
         /// </list>
         /// </summary>
-        public const string MaintenanceItemId = "maintenanceItemId";
+        public const string ServiceItemId = "serviceItemId";
 
         /// <summary>
         /// Query Param for:
