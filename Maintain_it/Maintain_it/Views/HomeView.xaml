@@ -250,7 +250,7 @@
                                     <local:CustomSwitchViewCell Text="Test"
                                                                 TextColor="{StaticResource Secondary}"
                                                                 IsToggled="{Binding ShowActiveFilterFlag}"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
+                                    <local:CustomSwitchViewCell Text="TEST"/>
                                     <local:CustomSwitchViewCell Text="BLANK"/>
                                     <local:CustomSwitchViewCell Text="BLANK"/>
                                     <local:CustomSwitchViewCell Text="BLANK"/>
