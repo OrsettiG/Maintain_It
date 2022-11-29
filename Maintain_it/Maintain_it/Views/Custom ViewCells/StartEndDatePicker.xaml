@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms" 
+          xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+          x:Class="Maintain_it.Views.Custom_ViewCells.StartEndDatePicker"
+          x:Name="CustomStartEndDatePicker">
+    <ViewCell.View>
+        <StackLayout Padding="15,10">
+            <Label Text="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=Text, StringFormat='{0}'}"
+                   TextColor="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=TextColor}"/>
+            <StackLayout Orientation="Horizontal">
+                <DatePicker Date="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=StartDate}"
+                                                            HorizontalOptions="FillAndExpand"/>
+                <Label Text="to" VerticalOptions="Center"/>
+                <DatePicker Date="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=EndDate}"
+                                                            HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+        </StackLayout>
+    </ViewCell.View>
+</ViewCell>

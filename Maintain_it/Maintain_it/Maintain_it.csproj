@@ -56,6 +56,9 @@
 		<EmbeddedResource Update="Views\Custom ViewCells\CustomSwitchViewCell.xaml">
 		  <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
 		</EmbeddedResource>
+		<EmbeddedResource Update="Views\Custom ViewCells\StartEndDatePicker.xaml">
+		  <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+		</EmbeddedResource>
 		<EmbeddedResource Update="Views\DisplayAllShoppingListsView.xaml">
 			<Generator>MSBuild:UpdateDesignTimeXaml</Generator>
 		</EmbeddedResource>
