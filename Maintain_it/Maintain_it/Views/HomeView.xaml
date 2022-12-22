@@ -250,7 +250,8 @@
                                     <local:CustomSwitchViewCell Text="Test"
                                                                 TextColor="{StaticResource Secondary}"
                                                                 IsToggled="{Binding ShowActiveFilterFlag}"/>
-                                    <local:CustomSwitchViewCell Text="TEST"/>
+                                    <local:StartEndDatePicker Text="Due Date Range" 
+                                                              TextColor="{StaticResource Secondary}"/>
                                     <local:CustomSwitchViewCell Text="BLANK"/>
                                     <local:CustomSwitchViewCell Text="BLANK"/>
                                     <local:CustomSwitchViewCell Text="BLANK"/>
