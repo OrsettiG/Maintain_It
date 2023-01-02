@@ -11,9 +11,10 @@
                    Padding="15,10"
                    VerticalOptions="Center"/>
 
-            <Switch IsToggled="{Binding Source={x:Reference CustomSwitch}, Path=IsToggled}"
-                     VerticalOptions="Center"
-                     HorizontalOptions="EndAndExpand"/>
+            <Switch IsToggled="{Binding IsToggled,Source={x:Reference CustomSwitch}}"
+                    VerticalOptions="Center"
+                    HorizontalOptions="EndAndExpand"
+                    IsEnabled="{Binding IsSwitchEnabled, Source={x:Reference CustomSwitch} }"/>
         </StackLayout>
     </ViewCell.View>
 </ViewCell>

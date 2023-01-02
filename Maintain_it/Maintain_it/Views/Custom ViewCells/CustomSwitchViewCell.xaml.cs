@@ -9,13 +9,13 @@ using Xamarin.Forms.Xaml;
 
 namespace Maintain_it.Views.Custom_ViewCells
 {
-	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class CustomSwitchViewCell : ViewCell
-	{
-		public CustomSwitchViewCell ()
-		{
-			InitializeComponent ();
-		}
+    [XamlCompilation( XamlCompilationOptions.Compile )]
+    public partial class CustomSwitchViewCell : ViewCell
+    {
+        public CustomSwitchViewCell()
+        {
+            InitializeComponent();
+        }
 
         public static readonly BindableProperty TextProperty =
          BindableProperty.Create("Text", typeof(string), typeof(ViewCell), null,
@@ -46,5 +46,14 @@ namespace Maintain_it.Views.Custom_ViewCells
             get => (bool)GetValue( IsToggledProperty );
             set => SetValue( IsToggledProperty, value );
         }
+
+        public static readonly BindableProperty IsSwitchEnabledProperty = BindableProperty.Create("IsSwitchEnabled", typeof(bool), typeof(ViewCell), true, defaultBindingMode: BindingMode.TwoWay);
+
+        public bool IsSwitchEnabled
+        {
+            get => (bool)GetValue( IsSwitchEnabledProperty );
+            set => SetValue( IsSwitchEnabledProperty, value );
+        }
     }
+
 }

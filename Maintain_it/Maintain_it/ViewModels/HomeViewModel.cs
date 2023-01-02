@@ -68,14 +68,14 @@ namespace Maintain_it.ViewModels
         // --
 
         // IStorableObject
-        private DateTime creationDateFilterRangeStart;
+        private DateTime creationDateFilterRangeStart = DateTime.UtcNow.ToLocalTime();
         public DateTime CreationDateFilterRangeStart
         {
             get => creationDateFilterRangeStart;
             set => SetProperty( ref creationDateFilterRangeStart, value );
         }
 
-        private DateTime creationDateFilterRangeEnd;
+        private DateTime creationDateFilterRangeEnd = DateTime.UtcNow.ToLocalTime().AddDays(7);
         public DateTime CreationDateFilterRangeEnd
         {
             get => creationDateFilterRangeEnd;
@@ -130,14 +130,14 @@ namespace Maintain_it.ViewModels
         // --
 
         // Service Schedule
-        private DateTime nextServiceDateFilterRangeStart;
+        private DateTime nextServiceDateFilterRangeStart = DateTime.UtcNow.ToLocalTime();
         public DateTime NextServiceDateFilterRangeStart
         {
             get => nextServiceDateFilterRangeStart;
             set => SetProperty( ref nextServiceDateFilterRangeStart, value );
         }
 
-        private DateTime nextServiceDateFilterRangeEnd;
+        private DateTime nextServiceDateFilterRangeEnd = DateTime.UtcNow.ToLocalTime().AddDays(7);
         public DateTime NextServiceDateFilterRangeEnd
         {
             get => nextServiceDateFilterRangeEnd;
@@ -180,6 +180,33 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref estimatedServiceCompletionTimeFilterRangeEndTimeframe, value );
         }
 
+        // Misc
+        private bool useServiceDateFilters = true;
+        public bool UseServiceDateFilters
+        {
+            get => useServiceDateFilters;
+            set 
+            { 
+                _ = SetProperty( ref useServiceDateFilters, value );
+                Console.WriteLine( value );
+            }
+        }
+
+        private bool showCompleted;
+        public bool ShowCompleted
+        {
+            get => showCompleted;
+            set => SetProperty( ref showCompleted, value );
+        }
+
+        private bool showOverdue;
+        public bool ShowOverdue
+        {
+            get => showOverdue;
+            set => SetProperty( ref showOverdue, value );
+        }
+
+
         #endregion Filters
 
         private ObservableRangeCollection<ServiceItem> maintenanceItems = new ObservableRangeCollection<ServiceItem>();
@@ -213,24 +240,28 @@ namespace Maintain_it.ViewModels
         public ICommand RefreshCommand => refreshCommand ??= new AsyncCommand( Refresh );
 
 
-        private Command toggleFilterCommand;
-        public ICommand ToggleFilterCommand
+        private Command toggleFiltersCommand;
+        public ICommand ToggleFiltersCommand
         {
-            get => toggleFilterCommand ??= new Command( ToggleFilter );
+            get => toggleFiltersCommand ??= new Command( ToggleFilters );
         }
 
-        private void ToggleFilter()
+        private void ToggleFilters()
         {
-            if( ShowFilters )
-            {
-                Console.WriteLine( "Close Filters" );
-            }
-            else
-            { 
-                Console.WriteLine( "Open Filters" ); 
-            }
-
             ShowFilters = !ShowFilters;
+        }
+
+        private AsyncCommand applyFiltersCommand;
+        public ICommand ApplyFiltersCommand
+        {
+            get => applyFiltersCommand ??= new AsyncCommand( ApplyFilters );
+        }
+        private async Task ApplyFilters()
+        {
+            throw new NotImplementedException();
+            // Next & Last Service Date Filter
+
+            ToggleFilters();
         }
         #endregion
 

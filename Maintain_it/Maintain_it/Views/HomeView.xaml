@@ -36,7 +36,7 @@
                         <ImageButton Source="{FontImage Glyph={Static fontAwesome:FontAwesomeIcons.Filter}, 
                                                     FontFamily={Static fontAwesome:Config.FontFamilySolid}, 
                                                     Color={StaticResource Cue}}"
-                                 Command="{Binding ToggleFilterCommand}"
+                                 Command="{Binding ToggleFiltersCommand}"
                                  BackgroundColor="{StaticResource Transition}"
                                  WidthRequest="25"
                                  HeightRequest="25"
@@ -247,41 +247,33 @@
                                                                 IsToggled="{Binding ShowInactiveFilterFlag}"/>
                                     <local:CustomSwitchViewCell Text="Show Suspended"
                                                                 IsToggled="{Binding ShowSuspendedFilterFlag}"/>
-                                    <local:CustomSwitchViewCell Text="Test"
-                                                                TextColor="{StaticResource Secondary}"
-                                                                IsToggled="{Binding ShowActiveFilterFlag}"/>
-                                    <local:StartEndDatePicker Text="Due Date Range" 
-                                                              TextColor="{StaticResource Secondary}"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
-                                    <local:CustomSwitchViewCell Text="BLANK"/>
+
                                 </TableSection>
                                 <TableSection Title="Service Dates"
                                               TextColor="{StaticResource Secondary}">
-                                    <ViewCell>
-                                        <StackLayout Padding="15,10">
-                                                <Label Text="Next Service Date Range"/>
-                                            <StackLayout Orientation="Horizontal">
-                                                <DatePicker Date="{Binding NextServiceDateFilterRangeStart}"
-                                                            HorizontalOptions="FillAndExpand"/>
-                                                <Label Text="to" VerticalOptions="Center"/>
-                                                <DatePicker Date="{Binding NextServiceDateFilterRangeEnd}"
-                                                            HorizontalOptions="FillAndExpand"/>
-                                            </StackLayout>
-                                        </StackLayout>
-                                    </ViewCell>
+                                    <local:CustomSwitchViewCell Text="Use Filter"
+                                                                IsToggled="{Binding UseServiceDateFilters}"/>
+                                    
+                                    <local:CustomSwitchViewCell Text="Show Completed"
+                                                                IsToggled="{Binding ShowCompleted}"
+                                                                IsSwitchEnabled="{Binding UseServiceDateFilters}"/>
+                                    <local:CustomSwitchViewCell Text="Show Overdue"
+                                                                IsToggled="{Binding ShowOverdue}"
+                                                                IsSwitchEnabled="{Binding UseServiceDateFilters}"/>
+                                    <local:StartEndDatePicker Text="Due Date Range"
+                                                              TextColor="{StaticResource Secondary}"
+                                                              StartDate="{Binding NextServiceDateFilterRangeStart}"
+                                                              EndDate="{Binding NextServiceDateFilterRangeEnd}"
+                                                              IsEnabled="{Binding UseServiceDateFilters}"/>
                                 </TableSection>
                             </TableRoot>
 
                         </TableView>
 
                         <Button Text="Close"
-                                Command="{Binding ToggleFilterCommand}"/>
+                                Command="{Binding ToggleFiltersCommand}"/>
+                        <Button Text="Apply"
+                                Command="{Binding ApplyFiltersCommand}"/>
                     </StackLayout>
                 </Frame>
             </Grid>

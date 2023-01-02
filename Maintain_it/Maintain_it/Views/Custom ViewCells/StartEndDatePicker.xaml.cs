@@ -25,7 +25,7 @@ namespace Maintain_it.Views.Custom_ViewCells
             set => SetValue( TextProperty, value );
         }
 
-        public static readonly BindableProperty TextColorProperty = BindableProperty.Create("TextColor", typeof(Color), typeof(ViewCell), Shell.Current.Resources["Secondary"], defaultBindingMode: BindingMode.OneWay);
+        public static readonly BindableProperty TextColorProperty = BindableProperty.Create("TextColor", typeof(Color), typeof(ViewCell), null, defaultBindingMode: BindingMode.OneWay);
 
         public Color TextColor
         {
