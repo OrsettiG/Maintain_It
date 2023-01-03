@@ -6,13 +6,17 @@
     <ViewCell.View>
         <StackLayout Padding="15,10">
             <Label Text="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=Text, StringFormat='{0}'}"
-                   TextColor="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=TextColor}"/>
+                   TextColor="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=TextColor}"
+                   IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker}}"/>
             <StackLayout Orientation="Horizontal">
                 <DatePicker Date="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=StartDate}"
-                                                            HorizontalOptions="FillAndExpand"/>
-                <Label Text="to" VerticalOptions="Center"/>
+                            HorizontalOptions="FillAndExpand"
+                            IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker }}"/>
+                <Label Text="to" VerticalOptions="Center"
+                       IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker}}"/>
                 <DatePicker Date="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=EndDate}"
-                                                            HorizontalOptions="FillAndExpand"/>
+                            HorizontalOptions="FillAndExpand"
+                            IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker }}"/>
             </StackLayout>
         </StackLayout>
     </ViewCell.View>

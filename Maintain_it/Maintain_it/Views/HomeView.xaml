@@ -249,7 +249,7 @@
                                                                 IsToggled="{Binding ShowSuspendedFilterFlag}"/>
 
                                 </TableSection>
-                                <TableSection Title="Service Dates"
+                                <TableSection Title="Next Service Date Range"
                                               TextColor="{StaticResource Secondary}">
                                     <local:CustomSwitchViewCell Text="Use Filter"
                                                                 IsToggled="{Binding UseServiceDateFilters}"/>
@@ -264,7 +264,17 @@
                                                               TextColor="{StaticResource Secondary}"
                                                               StartDate="{Binding NextServiceDateFilterRangeStart}"
                                                               EndDate="{Binding NextServiceDateFilterRangeEnd}"
-                                                              IsEnabled="{Binding UseServiceDateFilters}"/>
+                                                              IsDatePickerEnabled="{Binding UseServiceDateFilters}"/>
+                                </TableSection>
+                                <TableSection Title="Creation Date Range"
+                                              TextColor="{StaticResource Secondary}">
+                                    <local:CustomSwitchViewCell Text="Use Filter"
+                                                                IsToggled="{Binding UseCreationDateFilters}"/>
+                                    <local:StartEndDatePicker Text="Creation Date Range"
+                                                              TextColor="{StaticResource Secondary}"
+                                                              StartDate="{Binding CreationDateFilterRangeStart}"
+                                                              EndDate="{Binding CreationDateFilterRangeEnd}"
+                                                              IsDatePickerEnabled="{Binding UseCreationDateFilters}"/>
                                 </TableSection>
                             </TableRoot>
 

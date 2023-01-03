@@ -48,5 +48,14 @@ namespace Maintain_it.Views.Custom_ViewCells
             get => (DateTime)GetValue( EndDateProperty );
             set => SetValue( EndDateProperty, value );
         }
+
+        public static readonly BindableProperty IsDatePickerEnabledProperty = BindableProperty.Create( "IsDatePickerEnabled", typeof(bool), typeof(ViewCell), true, BindingMode.TwoWay);
+
+        public bool IsDatePickerEnabled
+        {
+            get => (bool)GetValue( IsDatePickerEnabledProperty );
+            set => SetValue( IsDatePickerEnabledProperty, value );
+        }
+
     }
 }

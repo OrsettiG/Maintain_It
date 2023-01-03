@@ -7,7 +7,7 @@
         <StackLayout Orientation="Horizontal">
             <Label Text="{Binding Source={x:Reference CustomSwitch}, Path=Text, StringFormat='{0}'}" 
                    TextColor="{Binding Source={x:Reference CustomSwitch}, Path=TextColor}"
-                   
+                   IsEnabled="{Binding IsSwitchEnabled, Source={x:Reference CustomSwitch}}"
                    Padding="15,10"
                    VerticalOptions="Center"/>
 

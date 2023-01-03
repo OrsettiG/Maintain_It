@@ -185,11 +185,14 @@ namespace Maintain_it.ViewModels
         public bool UseServiceDateFilters
         {
             get => useServiceDateFilters;
-            set 
-            { 
-                _ = SetProperty( ref useServiceDateFilters, value );
-                Console.WriteLine( value );
-            }
+            set => SetProperty( ref useServiceDateFilters, value );
+        }
+
+        private bool useCreationDateFilters = false;
+        public bool UseCreationDateFilters
+        {
+            get => useCreationDateFilters;
+            set => SetProperty( ref useCreationDateFilters, value );
         }
 
         private bool showCompleted;
