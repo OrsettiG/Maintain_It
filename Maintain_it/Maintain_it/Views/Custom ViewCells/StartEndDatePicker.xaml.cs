@@ -17,7 +17,7 @@ namespace Maintain_it.Views.Custom_ViewCells
             InitializeComponent();
         }
 
-        public static readonly BindableProperty TextProperty = BindableProperty.Create("Text", typeof(string), typeof(ViewCell), null, defaultBindingMode: BindingMode.OneWay);
+        public static readonly BindableProperty TextProperty = BindableProperty.Create( "Text", typeof( string ), typeof( ViewCell ), null, defaultBindingMode: BindingMode.OneWay );
 
         public string Text
         {
@@ -25,7 +25,7 @@ namespace Maintain_it.Views.Custom_ViewCells
             set => SetValue( TextProperty, value );
         }
 
-        public static readonly BindableProperty TextColorProperty = BindableProperty.Create("TextColor", typeof(Color), typeof(ViewCell), null, defaultBindingMode: BindingMode.OneWay);
+        public static readonly BindableProperty TextColorProperty = BindableProperty.Create( "TextColor", typeof( Color ), typeof( ViewCell ), null, defaultBindingMode: BindingMode.OneWay );
 
         public Color TextColor
         {
@@ -33,7 +33,7 @@ namespace Maintain_it.Views.Custom_ViewCells
             set => SetValue( TextColorProperty, value );
         }
 
-        public static readonly BindableProperty StartDateProperty = BindableProperty.Create( "StartDate", typeof(DateTime), typeof(ViewCell), DateTime.UtcNow.ToLocalTime(), defaultBindingMode: BindingMode.OneWay);
+        public static readonly BindableProperty StartDateProperty = BindableProperty.Create( "StartDate", typeof( DateTime ), typeof( ViewCell ), DateTime.UtcNow.ToLocalTime(), defaultBindingMode: BindingMode.TwoWay );
 
         public DateTime StartDate
         {
@@ -41,7 +41,7 @@ namespace Maintain_it.Views.Custom_ViewCells
             set => SetValue( StartDateProperty, value );
         }
 
-        public static readonly BindableProperty EndDateProperty = BindableProperty.Create( "EndDate", typeof(DateTime), typeof(ViewCell), DateTime.UtcNow.AddDays(7).ToLocalTime(), defaultBindingMode: BindingMode.OneWay);
+        public static readonly BindableProperty EndDateProperty = BindableProperty.Create( "EndDate", typeof( DateTime ), typeof( ViewCell ), DateTime.UtcNow.AddDays( 7 ).ToLocalTime(), defaultBindingMode: BindingMode.TwoWay );
 
         public DateTime EndDate
         {
@@ -49,7 +49,7 @@ namespace Maintain_it.Views.Custom_ViewCells
             set => SetValue( EndDateProperty, value );
         }
 
-        public static readonly BindableProperty IsDatePickerEnabledProperty = BindableProperty.Create( "IsDatePickerEnabled", typeof(bool), typeof(ViewCell), true, BindingMode.TwoWay);
+        public static readonly BindableProperty IsDatePickerEnabledProperty = BindableProperty.Create( "IsDatePickerEnabled", typeof( bool ), typeof( ViewCell ), true, BindingMode.TwoWay );
 
         public bool IsDatePickerEnabled
         {

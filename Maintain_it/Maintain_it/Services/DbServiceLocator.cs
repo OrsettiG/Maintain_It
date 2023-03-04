@@ -15,7 +15,10 @@ namespace Maintain_it.Services
         // Private singleton class for each Service type.
         private static class LocatorEntry<T, U> where T : Service<U> where U : IStorableObject, new()
         {
-            public static Service<U> Instance { get; set; }
+            public static Service<U> Instance
+            {
+                get; set;
+            }
         }
 
         // Registers new services
@@ -78,7 +81,10 @@ namespace Maintain_it.Services
 
             try
             {
+
                 return await instance.AddItemAndReturnRowIdAsync( Item ).ConfigureAwait( false );
+                
+
             }
             catch( Exception )
             {
@@ -120,7 +126,7 @@ namespace Maintain_it.Services
         public static async Task<IEnumerable<T>> GetAllItemsAsync<T>() where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
-            IEnumerable<T> data = await instance.GetAllItemsAsync().ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetAllItemsAsync().ConfigureAwait( false );
             return data;
         }
 
@@ -132,7 +138,7 @@ namespace Maintain_it.Services
         public static async Task<IEnumerable<T>> GetAllItemsRecursiveAsync<T>() where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
-            IEnumerable<T> data = await instance.GetAllItemsRecursiveAsync().ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetAllItemsRecursiveAsync().ConfigureAwait( false );
             return data;
         }
 
@@ -146,7 +152,7 @@ namespace Maintain_it.Services
         {
             Service<T> instance = await GetService<T>();
 
-            IEnumerable<T> data = await instance.GetItemRangeAsync( ids.Where( x => x > 0 ) ).ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetItemRangeAsync( ids.Where( x => x > 0 ) ).ConfigureAwait( false );
             return data;
         }
 
@@ -160,7 +166,7 @@ namespace Maintain_it.Services
         {
             Service<T> instance = await GetService<T>();
 
-            IEnumerable<T> data = await instance.GetItemRangeRecursiveAsync( ids.Where( x => x > 0 ) ).ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetItemRangeRecursiveAsync( ids.Where( x => x > 0 ) ).ConfigureAwait( false );
             return data;
         }
 
@@ -174,7 +180,7 @@ namespace Maintain_it.Services
         {
             Service<T> instance = await GetService<T>();
 
-            IEnumerable<T> data = await instance.GetItemRangeBasedOnSearchTermAsync(searchTerm).ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetItemRangeBasedOnSearchTermAsync( searchTerm ).ConfigureAwait( false );
             return data;
         }
 
@@ -188,7 +194,7 @@ namespace Maintain_it.Services
         {
             Service<T> instance = await GetService<T>();
 
-            IEnumerable<T> data = await instance.GetItemRangeBasedOnSearchTermRecursiveAsync(searchTerm).ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetItemRangeBasedOnSearchTermRecursiveAsync( searchTerm ).ConfigureAwait( false );
             return data;
         }
 
@@ -204,7 +210,7 @@ namespace Maintain_it.Services
         public static async Task<IEnumerable<T>> GetItemsInDateRangeAsync<T>( DateTime newestDateCreated, DateTime oldestDateCreated, bool returnAll = true, int returnCount = 0 ) where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
-            IEnumerable<T> data = await instance.GetItemsInDateRangeAsync(newestDateCreated, oldestDateCreated, returnAll, returnCount).ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetItemsInDateRangeAsync( newestDateCreated, oldestDateCreated, returnAll, returnCount ).ConfigureAwait( false );
 
             return data;
         }
@@ -221,7 +227,7 @@ namespace Maintain_it.Services
         public static async Task<IEnumerable<T>> GetItemsInDateRangeRecursiveAsync<T>( DateTime newestDateCreated, DateTime oldestDateCreated, bool returnAll = true, int returnCount = 0 ) where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
-            IEnumerable<T> data = await instance.GetItemsInDateRangeRecursiveAsync(newestDateCreated, oldestDateCreated, returnAll, returnCount).ConfigureAwait(false);
+            IEnumerable<T> data = await instance.GetItemsInDateRangeRecursiveAsync( newestDateCreated, oldestDateCreated, returnAll, returnCount ).ConfigureAwait( false );
 
             return data;
         }
@@ -287,7 +293,7 @@ namespace Maintain_it.Services
         public static async Task<int> AddOrUpdateItemAndReturnIdAsync<T>( T item ) where T : IStorableObject, new()
         {
             Service<T> instance = await GetService<T>();
-            int id = await instance.AddOrUpdateAndReturnId( item ).ConfigureAwait(false);
+            int id = await instance.AddOrUpdateAndReturnId( item ).ConfigureAwait( false );
             return id;
         }
 

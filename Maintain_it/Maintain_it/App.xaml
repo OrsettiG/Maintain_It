@@ -1,36 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Application xmlns="http://xamarin.com/schemas/2014/forms"
+<Application x:Class="Maintain_it.App"
+             xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Maintain_it.App">
+             >
     <!--
         Define global resources and styles here, that apply to all pages in your app.
-    E5E2C7
+        E5E2C7
     -->
     <Application.Resources>
         <ResourceDictionary>
-            <!-- Colours -->
+            <!--  Colours  -->
             <Color x:Key="Primary">#B6C197</Color>
             <Color x:Key="Secondary">#38302E</Color>
             <Color x:Key="Transition">#F3F1DE</Color>
             <Color x:Key="Cue">#037171</Color>
             <Color x:Key="Warning">#D64933</Color>
-            
+
 
             <Style TargetType="Button">
-                <Setter Property="TextColor" Value="{StaticResource Secondary}"></Setter>
+                <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
-                                    <Setter Property="BorderColor" Value="{StaticResource Secondary}" />
-                                    <Setter Property="BorderWidth" Value="1" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                                    <Setter Property="BorderColor" Value="{StaticResource Secondary}"/>
+                                    <Setter Property="BorderWidth" Value="1"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Disabled">
                                 <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="#332196F3" />
+                                    <Setter Property="BackgroundColor" Value="#332196F3"/>
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
@@ -47,41 +48,41 @@
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
                 <Setter Property="HasShadow" Value="True"/>
             </Style>
-            
-            <!-- Collection View -->
+
+            <!--  Collection View  -->
             <Style TargetType="CollectionView">
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
 
-            <!-- Box View -->
+            <!--  Box View  -->
             <Style TargetType="BoxView">
                 <Setter Property="BackgroundColor" Value="{StaticResource Secondary}"/>
             </Style>
-            
-            <!-- Check Box -->
+
+            <!--  Check Box  -->
             <Style TargetType="CheckBox">
                 <Setter Property="Color" Value="{StaticResource Primary}"/>
             </Style>
 
-            <!-- Stack Layout -->
+            <!--  Stack Layout  -->
             <Style TargetType="StackLayout">
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
-            
-            <!-- Scroll View -->
+
+            <!--  Scroll View  -->
             <Style TargetType="ScrollView">
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
-            
-            <!-- TODO: Create Custom Entry Renderer for Android and IOS -->
-            <!-- Entry -->
+
+            <!--  TODO: Create Custom Entry Renderer for Android and IOS  -->
+            <!--  Entry  -->
             <Style TargetType="Entry">
                 <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
                 <Setter Property="PlaceholderColor" Value="{StaticResource Secondary}"/>
             </Style>
 
-            <!-- TODO: Create Custom Editor Renderer for Android and IOS -->
-            <!-- Editor -->
+            <!--  TODO: Create Custom Editor Renderer for Android and IOS  -->
+            <!--  Editor  -->
             <Style TargetType="Editor">
                 <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
                 <Setter Property="PlaceholderColor" Value="{StaticResource Secondary}"/>
@@ -89,16 +90,16 @@
                 <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
             </Style>
 
-            <!-- DatePicker -->
+            <!--  DatePicker  -->
             <Style TargetType="DatePicker">
                 <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
             </Style>
 
-            <!-- Picker -->
+            <!--  Picker  -->
             <Style TargetType="Picker">
                 <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
             </Style>
-            
-        </ResourceDictionary>        
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

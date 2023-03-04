@@ -45,6 +45,8 @@ namespace Maintain_it.Helpers
 
             int id = await DbServiceLocator.AddItemAndReturnIdAsync( item );
 
+            await InsertServiceRecord( id );
+
             return id;
 
         }
@@ -400,7 +402,7 @@ namespace Maintain_it.Helpers
 
             ServiceRecord record = new ServiceRecord();
 
-            record.Name = $"{item.Name}_Service#{item.ServiceRecords.Count + 1}";
+            record.Name = $"{item.Name}_Service#_{item.ServiceRecords.Count + 1}";
             record.ServiceCompleted = serviceCompleted;
             record.ServiceStarted = serviceStarted;
             record.ServiceTime = 0;

@@ -16,6 +16,7 @@ using MvvmHelpers.Commands;
 using Command = MvvmHelpers.Commands.Command;
 
 using Xamarin.Forms;
+using Maintain_it.Services;
 
 namespace Maintain_it.ViewModels
 {
@@ -62,25 +63,13 @@ namespace Maintain_it.ViewModels
         public bool ShowSuspendedFilterFlag
         {
             get => showSuspendedFilterFlag;
-            set => SetProperty(ref showSuspendedFilterFlag, value );
+            set => SetProperty( ref showSuspendedFilterFlag, value );
         }
 
         // --
 
         // IStorableObject
-        private DateTime creationDateFilterRangeStart = DateTime.UtcNow.ToLocalTime();
-        public DateTime CreationDateFilterRangeStart
-        {
-            get => creationDateFilterRangeStart;
-            set => SetProperty( ref creationDateFilterRangeStart, value );
-        }
 
-        private DateTime creationDateFilterRangeEnd = DateTime.UtcNow.ToLocalTime().AddDays(7);
-        public DateTime CreationDateFilterRangeEnd
-        {
-            get => creationDateFilterRangeEnd;
-            set => SetProperty( ref creationDateFilterRangeEnd, value );
-        }
         // --
 
         // Service Record Summary
@@ -130,6 +119,29 @@ namespace Maintain_it.ViewModels
         // --
 
         // Service Schedule
+
+        // Next Service Date Filters
+        private bool useNextServiceDateFilters = true;
+        public bool UseNextServiceDateFilters
+        {
+            get => useNextServiceDateFilters;
+            set => SetProperty( ref useNextServiceDateFilters, value );
+        }
+
+        private bool showCompleted;
+        public bool ShowCompleted_NextServiceDateFilter
+        {
+            get => showCompleted;
+            set => SetProperty( ref showCompleted, value );
+        }
+
+        private bool showOverdue;
+        public bool ShowOverdue_NextServiceDateFilters
+        {
+            get => showOverdue;
+            set => SetProperty( ref showOverdue, value );
+        }
+
         private DateTime nextServiceDateFilterRangeStart = DateTime.UtcNow.ToLocalTime();
         public DateTime NextServiceDateFilterRangeStart
         {
@@ -137,7 +149,7 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref nextServiceDateFilterRangeStart, value );
         }
 
-        private DateTime nextServiceDateFilterRangeEnd = DateTime.UtcNow.ToLocalTime().AddDays(7);
+        private DateTime nextServiceDateFilterRangeEnd = DateTime.UtcNow.ToLocalTime().AddDays( 7 );
         public DateTime NextServiceDateFilterRangeEnd
         {
             get => nextServiceDateFilterRangeEnd;
@@ -180,14 +192,7 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref estimatedServiceCompletionTimeFilterRangeEndTimeframe, value );
         }
 
-        // Misc
-        private bool useServiceDateFilters = true;
-        public bool UseServiceDateFilters
-        {
-            get => useServiceDateFilters;
-            set => SetProperty( ref useServiceDateFilters, value );
-        }
-
+        // Creation Date Filters
         private bool useCreationDateFilters = false;
         public bool UseCreationDateFilters
         {
@@ -195,20 +200,33 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref useCreationDateFilters, value );
         }
 
-        private bool showCompleted;
-        public bool ShowCompleted
+        private bool showCompleted_CreationDateFilters;
+        public bool ShowCompleted_CreationDateFilters
         {
-            get => showCompleted;
-            set => SetProperty( ref showCompleted, value );
+            get => showCompleted_CreationDateFilters;
+            set => SetProperty( ref showCompleted_CreationDateFilters, value );
         }
 
-        private bool showOverdue;
-        public bool ShowOverdue
+        private bool showOverdue_CreationDateFilters;
+        public bool ShowOverdue_CreationDateFilters
         {
-            get => showOverdue;
-            set => SetProperty( ref showOverdue, value );
+            get => showOverdue_CreationDateFilters;
+            set => SetProperty( ref showOverdue_CreationDateFilters, value );
         }
 
+        private DateTime creationDateFilterRangeStart = DateTime.UtcNow.ToLocalTime();
+        public DateTime CreationDateFilterRangeStart
+        {
+            get => creationDateFilterRangeStart;
+            set => SetProperty( ref creationDateFilterRangeStart, value );
+        }
+
+        private DateTime creationDateFilterRangeEnd = DateTime.UtcNow.ToLocalTime().AddDays( 7 );
+        public DateTime CreationDateFilterRangeEnd
+        {
+            get => creationDateFilterRangeEnd;
+            set => SetProperty( ref creationDateFilterRangeEnd, value );
+        }
 
         #endregion Filters
 
@@ -261,8 +279,51 @@ namespace Maintain_it.ViewModels
         }
         private async Task ApplyFilters()
         {
-            throw new NotImplementedException();
-            // Next & Last Service Date Filter
+            await Refresh();
+
+            // Create new List from allServiceViewModels with only the Active/Inactive/Suspended projects desired
+
+            List<MaintenanceItemViewModel> filteredItems = allServiceItemViewModels.Where( x => ( x.ActiveState == ActiveStateFlag.Active && ShowActiveFilterFlag == true ) || ( x.ActiveState == ActiveStateFlag.Inactive && ShowInactiveFilterFlag == true ) || ( x.ActiveState == ActiveStateFlag.Suspended && ShowSuspendedFilterFlag == true ) ).ToList();
+            // Iterate over the list and remove any items that do not match one or more filters
+            // Next Service Date
+            if( UseNextServiceDateFilters )
+            {
+                DateTime dateRangeStart = NextServiceDateFilterRangeStart.ToUniversalTime();
+                DateTime dateRangeEnd = NextServiceDateFilterRangeEnd.ToUniversalTime();
+
+                filteredItems = filteredItems.Where( x => DateTime.Compare( x.NextServiceDate.ToUniversalTime(), dateRangeStart ) >= 0 && DateTime.Compare( x.NextServiceDate.ToUniversalTime() , dateRangeEnd ) <= 0 ).ToList();
+
+                // If the user doesn't want to see completed items we need to remove them from the results
+                if( !ShowCompleted_NextServiceDateFilter )
+                {
+                    filteredItems = filteredItems.Where( x => !x.Item.ServiceRecords.Last().ServiceCompleted ).ToList();
+                }
+
+                //TODO: Add an option to filter by only completed items.
+
+                // If the user doesn't want to see overdue items we need to remove them from the results
+                if( !ShowOverdue_NextServiceDateFilters )
+                {
+                    filteredItems = filteredItems.Where( x => x.NextServiceDate.ToLocalTime() >= DateTime.UtcNow.ToLocalTime() ).ToList();
+                }
+            }
+
+            // Date Created
+            if( UseCreationDateFilters )
+            {
+                DateTime dateRangeStart = CreationDateFilterRangeStart.ToUniversalTime();
+                DateTime dateRangeEnd = CreationDateFilterRangeEnd.ToUniversalTime();
+
+                filteredItems = filteredItems.Where( x => x.CreatedOn.ToUniversalTime() >= dateRangeStart && x.CreatedOn.ToUniversalTime() <= dateRangeEnd ).ToList();
+            }
+            // Date Last Completed
+            // etc)
+
+            // Clear DisplayedItems ObservableRangeCollection
+            DisplayedMaintenanceItems.Clear();
+            DisplayedMaintenanceItems.AddRange( filteredItems );
+            // Add new List to maintenanceItems Collection
+
 
             ToggleFilters();
         }

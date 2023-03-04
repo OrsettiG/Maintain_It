@@ -1,38 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<ContentPage x:Class="Maintain_it.Views.MaterialDetailView"
+             xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:Maintain_it.ViewModels"
-             x:Class="Maintain_it.Views.MaterialDetailView">
+             >
     <ContentPage.BindingContext>
         <viewmodel:MaterialDetailViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.Content>
-        <ScrollView HorizontalOptions="Fill" VerticalOptions="StartAndExpand" Orientation="Vertical">
+        <ScrollView HorizontalOptions="Fill"
+                    Orientation="Vertical"
+                    VerticalOptions="StartAndExpand"
+                    >
             <StackLayout HorizontalOptions="FillAndExpand"
-                         VerticalOptions="FillAndExpand">
+                         VerticalOptions="FillAndExpand"
+                         >
                 <Label Text="{Binding Name}"
-                   FontSize="Title"
-                   HorizontalOptions="CenterAndExpand"
+                       FontSize="Title"
+                       HorizontalOptions="CenterAndExpand"
                        HorizontalTextAlignment="Center"
-                   VerticalOptions="Start"/>
+                       VerticalOptions="Start"
+                       />
                 <Label Text="Description"
-                       HorizontalOptions="Start"
+                       Margin="5,2"
                        FontSize="Medium"
-                       Margin="5,2"/>
+                       HorizontalOptions="Start"
+                       />
                 <Frame Margin="5">
                     <Label Text="{Binding Description}"
-                        HorizontalOptions="StartAndExpand"/>
+                           HorizontalOptions="StartAndExpand"
+                           />
                 </Frame>
                 <Label Text="Details"
+                       Margin="5,2"
                        FontSize="Medium"
-                       Margin="5,2"/>
+                       />
                 <Frame Margin="5">
                     <StackLayout>
                         <StackLayout Orientation="Horizontal">
                             <Label Text="Owned:"/>
                             <Label Text="{Binding QuantityOwned}"/>
                             <Label Text="30 Day Active Demand:"
-                                   HorizontalOptions="EndAndExpand"/>
+                                   HorizontalOptions="EndAndExpand"
+                                   />
                             <Label Text="200"/>
                         </StackLayout>
                         <StackLayout Orientation="Horizontal">
@@ -41,20 +51,29 @@
                             <Label Text="{Binding Units}"/>
 
                             <Label Text="Total Demand:"
-                                   HorizontalOptions="EndAndExpand"/>
+                                   HorizontalOptions="EndAndExpand"
+                                   />
                             <Label Text="80"/>
                         </StackLayout>
                     </StackLayout>
                 </Frame>
 
-                <Grid RowDefinitions="*,*" Padding="5" VerticalOptions="Fill" HeightRequest="650">
+                <Grid Padding="5"
+                      HeightRequest="650"
+                      RowDefinitions="*,*"
+                      VerticalOptions="Fill"
+                      >
                     <Frame Grid.Row="0">
                         <StackLayout>
                             <Label Text="Used in Steps:"
-                                   FontSize="Large"
                                    Margin="5"
-                                   VerticalOptions="Start"/>
-                            <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HeightRequest="80">
+                                   FontSize="Large"
+                                   VerticalOptions="Start"
+                                   />
+                            <Grid HeightRequest="80"
+                                  HorizontalOptions="FillAndExpand"
+                                  VerticalOptions="FillAndExpand"
+                                  >
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
@@ -63,22 +82,28 @@
                                 <Label Text="Project Name"
                                        Grid.Column="0"
                                        HorizontalOptions="Center"
-                                       VerticalOptions="Center"/>
+                                       VerticalOptions="Center"
+                                       />
                                 <Label Text="Step Name"
                                        Grid.Column="1"
                                        HorizontalOptions="Center"
-                                       VerticalOptions="Center"/>
+                                       VerticalOptions="Center"
+                                       />
                                 <Label Text="Step Number"
                                        Grid.Column="2"
                                        HorizontalOptions="Center"
-                                       VerticalOptions="Center"/>
+                                       VerticalOptions="Center"
+                                       />
                             </Grid>
-                            <CollectionView ItemsSource="{Binding Steps}" 
-                                                EmptyView="No Steps Use This Material" 
-                                                Margin="5"
-                                                HorizontalOptions="End">
+                            <CollectionView Margin="5"
+                                            EmptyView="No Steps Use This Material"
+                                            HorizontalOptions="End"
+                                            ItemsSource="{Binding Steps}"
+                                            >
                                 <CollectionView.ItemsLayout>
-                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="5"/>
+                                    <LinearItemsLayout ItemSpacing="5"
+                                                       Orientation="Vertical"
+                                                       />
                                 </CollectionView.ItemsLayout>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
@@ -91,17 +116,20 @@
                                                 </Grid.ColumnDefinitions>
                                                 <Label Text="{Binding MaintenanceItemName}"
                                                        Grid.Column="0"
+                                                       HorizontalTextAlignment="Center"
                                                        VerticalOptions="Center"
-                                                       HorizontalTextAlignment="Center"/>
+                                                       />
 
                                                 <Label Text="{Binding Name}"
                                                        Grid.Column="1"
+                                                       HorizontalTextAlignment="Center"
                                                        VerticalOptions="Center"
-                                                       HorizontalTextAlignment="Center"/>
+                                                       />
                                                 <Label Text="{Binding StepNum}"
                                                        Grid.Column="2"
+                                                       HorizontalTextAlignment="Center"
                                                        VerticalOptions="Center"
-                                                       HorizontalTextAlignment="Center"/>
+                                                       />
                                             </Grid>
                                         </Frame>
                                     </DataTemplate>
@@ -113,8 +141,9 @@
                     <Frame Grid.Row="1">
                         <StackLayout>
                             <Label Text="On Shopping Lists:"
+                                   Margin="5"
                                    FontSize="Medium"
-                                   Margin="5"/>
+                                   />
                             <Grid HeightRequest="80">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
@@ -122,34 +151,41 @@
                                 </Grid.ColumnDefinitions>
                                 <Label Text="Name"
                                        Grid.Column="0"
-                                       HorizontalOptions="Center"/>
+                                       HorizontalOptions="Center"
+                                       />
                                 <Label Text="Quantity"
                                        Grid.Column="1"
-                                       HorizontalOptions="Center"/>
+                                       HorizontalOptions="Center"
+                                       />
 
                             </Grid>
-                            <CollectionView ItemsSource="{Binding ShoppingLists}" 
+                            <CollectionView Grid.Column="1"
+                                            Margin="5"
                                             EmptyView="Not On Any Shopping Lists"
                                             HorizontalOptions="CenterAndExpand"
-                                            Margin="5"
-                                            Grid.Column="1">
+                                            ItemsSource="{Binding ShoppingLists}"
+                                            >
                                 <CollectionView.ItemsLayout>
-                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="5"/>
+                                    <LinearItemsLayout ItemSpacing="5"
+                                                       Orientation="Vertical"
+                                                       />
                                 </CollectionView.ItemsLayout>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
-                                        <Frame >
+                                        <Frame>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition/>
                                                     <ColumnDefinition/>
                                                 </Grid.ColumnDefinitions>
                                                 <Label Text="{Binding Name}"
-                                       Grid.Column="0"
-                                       HorizontalOptions="Center"/>
+                                                       Grid.Column="0"
+                                                       HorizontalOptions="Center"
+                                                       />
                                                 <Label Text="{Binding Count}"
-                                       Grid.Column="1"
-                                       HorizontalOptions="Center"/>
+                                                       Grid.Column="1"
+                                                       HorizontalOptions="Center"
+                                                       />
                                             </Grid>
                                         </Frame>
                                     </DataTemplate>

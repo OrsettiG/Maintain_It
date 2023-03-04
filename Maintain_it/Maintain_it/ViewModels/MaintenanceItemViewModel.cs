@@ -604,8 +604,9 @@ namespace Maintain_it.ViewModels
 
             // Service Record Summary
             PreviousServiceCompleted = TimesServiced > 0 && Item.ServiceRecords[^1].ServiceCompleted;
-            TimesServiced = Item.ServiceRecords.Count;
-            LastServiceDate = Item.ServiceRecords.Count > 0 ? Item.ServiceRecords.Where( x => x.ServiceCompleted == true ).OrderByDescending( x => x.ActualServiceCompletionDate ).First().ActualServiceCompletionDate : DateTime.MinValue;
+            List<ServiceRecord> completedServiceRecords = Item.ServiceRecords.Where( x => x.ServiceCompleted == true ).ToList();
+            TimesServiced = completedServiceRecords.Count;
+            LastServiceDate = completedServiceRecords.Count > 0 ? completedServiceRecords.Where( x => x.ServiceCompleted == true ).OrderByDescending( x => x.ActualServiceCompletionDate ).First().ActualServiceCompletionDate : DateTime.MinValue;
 
             // Steps
 

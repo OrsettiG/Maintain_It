@@ -1,22 +1,28 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<ViewCell xmlns="http://xamarin.com/schemas/2014/forms" 
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ViewCell x:Class="Maintain_it.Views.Custom_ViewCells.StartEndDatePicker"
+          xmlns="http://xamarin.com/schemas/2014/forms"
           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-          x:Class="Maintain_it.Views.Custom_ViewCells.StartEndDatePicker"
-          x:Name="CustomStartEndDatePicker">
+          x:Name="CustomStartEndDatePicker"
+          >
     <ViewCell.View>
         <StackLayout Padding="15,10">
             <Label Text="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=Text, StringFormat='{0}'}"
+                   IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker}}"
                    TextColor="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=TextColor}"
-                   IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker}}"/>
+                   />
             <StackLayout Orientation="Horizontal">
-                <DatePicker Date="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=StartDate}"
+                <DatePicker Date="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=StartDate, Mode=TwoWay}"
                             HorizontalOptions="FillAndExpand"
-                            IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker }}"/>
-                <Label Text="to" VerticalOptions="Center"
-                       IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker}}"/>
-                <DatePicker Date="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=EndDate}"
+                            IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker}}"
+                            />
+                <Label Text="to"
+                       IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker}}"
+                       VerticalOptions="Center"
+                       />
+                <DatePicker Date="{Binding Source={x:Reference CustomStartEndDatePicker}, Path=EndDate, Mode=TwoWay}"
                             HorizontalOptions="FillAndExpand"
-                            IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker }}"/>
+                            IsEnabled="{Binding IsDatePickerEnabled, Source={x:Reference CustomStartEndDatePicker}}"
+                            />
             </StackLayout>
         </StackLayout>
     </ViewCell.View>
