@@ -13,7 +13,7 @@
     </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
         <ToolbarItem IconImageSource="{FontImage Glyph={Static fontAwesome:FontAwesomeIcons.Camera}, 
-                                                 FontFamily={Static fontAwesome:Config.FontFamilySolid}, 
+                                                 FontFamily={Static fontAwesome:Config.FontFamilySolid},
                                                  Size=Large}"
                      Command="{Binding TakePhotoCommand}"/>
     </ContentPage.ToolbarItems>
@@ -140,23 +140,21 @@
                                     </CollectionView.ItemsLayout>
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate>
-                                            <Frame BackgroundColor="{StaticResource Secondary}"
-                                                   CornerRadius="8"
+                                            <Frame CornerRadius="8"
                                                    Padding="5"
                                                    Margin="5">
                                                 <StackLayout Orientation="Horizontal"
-                                                             HeightRequest="20"
-                                                             BackgroundColor="{StaticResource Secondary}">
+                                                             HeightRequest="20">
                                                     <Label Text="{Binding Name}"
-                                                           TextColor="{StaticResource Primary}"
                                                            HorizontalOptions="StartAndExpand"
                                                            VerticalTextAlignment="Center"
                                                            VerticalOptions="Center"/>
                                                     <ImageButton Source="{FontImage 
                                                                             Glyph={Static fontAwesome:FontAwesomeIcons.WindowClose}
-                                                                            , Color={StaticResource Cue}, 
+                                                                            , Color={StaticResource Accent2}, 
                                                                             FontFamily={Static fontAwesome:Config.FontFamilySolid}}"
                                                                  HorizontalOptions="End"
+                                                                 Padding="2"
                                                                  Command="{Binding ToggleSelectionStateCommand}"/>
                                                 </StackLayout>
                                             </Frame>
@@ -167,7 +165,18 @@
                         </StackLayout>
 
                         <!--Select Tags-->
-                        <Button Text="Select Tags" FlexLayout.AlignSelf="Stretch" Command="{Binding SelectTagsCommand}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button Style="{StaticResource StandardButton}"
+                                    Text="Select Tags" 
+                                    Command="{Binding SelectTagsCommand}"
+                                    Grid.Column="1"/>
+                        </Grid>
 
                         <!--Quantity-->
                         <StackLayout Orientation="Horizontal" FlexLayout.AlignSelf="Stretch">
@@ -195,9 +204,10 @@
                         </StackLayout>
                     </StackLayout>
                 </ScrollView>
-                <Button Text="Save" 
-                    Command="{Binding SaveMaterialCommand}"
-                    VerticalOptions="End"/>
+                <Button Style="{StaticResource CueButton}"
+                        Text="Save" 
+                        Command="{Binding SaveMaterialCommand}"
+                        VerticalOptions="End"/>
             </StackLayout>
             <!--Tag Popup-->
             <ContentView IsVisible="{Binding IsVisible}"
@@ -215,7 +225,7 @@
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <StackLayout Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding Selected}" Color="{StaticResource Cue}"/>
+                                        <CheckBox IsChecked="{Binding Selected}"/>
                                         <Label Text="{Binding Name}" 
                                            FontSize="Medium"
                                            HorizontalOptions="CenterAndExpand" 
@@ -236,9 +246,10 @@
                                 Command="{Binding CreateNewTagCommand}"/>
                         </StackLayout>
                         <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                            <Button Text="Close"
-                                HorizontalOptions="FillAndExpand"
-                                Command="{Binding AddSelectedTagsCommand}"/>
+                            <Button Style="{StaticResource StandardButton}"
+                                    Text="Close"
+                                    HorizontalOptions="FillAndExpand"
+                                    Command="{Binding AddSelectedTagsCommand}"/>
                         </StackLayout>
                     </StackLayout>
                 </Frame>

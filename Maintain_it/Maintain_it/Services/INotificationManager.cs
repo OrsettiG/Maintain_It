@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Maintain_it.Services
 {
@@ -8,9 +6,9 @@ namespace Maintain_it.Services
 
     public interface INotificationManager
     {
-        event EventHandler NotificationRecieved;
+        event EventHandler NotificationReceived;
         void Initialize();
         void SendNotification( string title, string message, int notificationId, DateTime notifyTime = default );
-        void RecieveNotification( string title, string message );
+        void ReceiveNotification( string title, string message );
     }
 }

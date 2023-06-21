@@ -13,26 +13,26 @@
     -->
     <Shell.Resources>
         <ResourceDictionary>
-            <Style x:Key="BaseStyle" TargetType="Element">
-                <Setter Property="Shell.BackgroundColor" Value="{StaticResource Primary}" />
-                <Setter Property="Shell.ForegroundColor" Value="{StaticResource Cue}" />
-                <Setter Property="Shell.TitleColor" Value="{StaticResource Secondary}" />
+            <!--<Style x:Key="BaseStyle" TargetType="Element">
+                <Setter Property="Shell.BackgroundColor" Value="{StaticResource LightPrimary}" />
+                <Setter Property="Shell.ForegroundColor" Value="{StaticResource Accent1}" />
+                <Setter Property="Shell.TitleColor" Value="{StaticResource LightSecondary}" />
                 <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
                 <Setter Property="Shell.UnselectedColor" Value="#95FFFFFF" />
-                <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource Primary}" />
-                <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource Transition}"/>
+                <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource LightPrimary}" />
+                <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource LightPrimary}"/>
                 <Setter Property="Shell.TabBarUnselectedColor" Value="#95FFFFFF"/>
-                <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource Transition}"/>
+                <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource Accent1}"/>
             </Style>
             <Style TargetType="TabBar" BasedOn="{StaticResource BaseStyle}" />
-            <Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />
+            <Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />-->
 
             <!--
             Default Styles for all Flyout Items
             https://docs.microsoft.com/xamarin/xamarin-forms/app-fundamentals/shell/flyout#flyoutitem-and-menuitem-style-classes
             -->
-            <Style Class="FlyoutItemLabelStyle" TargetType="Label">
-                <Setter Property="TextColor" Value="{StaticResource Secondary}"></Setter>
+            <!--<Style Class="FlyoutItemLabelStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource LightSecondary}"></Setter>
             </Style>
             <Style Class="FlyoutItemLayoutStyle" TargetType="Layout" ApplyToDerivedTypes="True">
                 <Setter Property="VisualStateManager.VisualStateGroups">
@@ -40,36 +40,36 @@
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="{x:OnPlatform UWP=Transparent, iOS=White}" />
-                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Secondary}"/>
+                                    <Setter Property="BackgroundColor" Value="{x:OnPlatform UWP=Transparent, iOS=White, Android={StaticResource LightPrimary}}" />
+                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource LightSecondary}"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Selected">
                                 <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource LightPrimary}" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
                     </VisualStateGroupList>
                 </Setter>
-            </Style>
+            </Style>-->
 
             <!--
             Custom Style you can apply to any Flyout Item
             -->
-            <Style Class="MenuItemLayoutStyle" TargetType="Layout" ApplyToDerivedTypes="True">
+            <!--<Style Class="MenuItemLayoutStyle" TargetType="Layout" ApplyToDerivedTypes="True">
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Secondary}" />
+                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource LightSecondary}" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
                     </VisualStateGroupList>
                 </Setter>
-            </Style>
+            </Style>-->
         </ResourceDictionary>
     </Shell.Resources>
     <!-- 
@@ -82,22 +82,23 @@
             <FontImageSource
                 FontFamily="FA-Solid"
                 Glyph="{Static fontAwesome:FontAwesomeIcons.Home}"
-                Color="{StaticResource Secondary}"
+                Color="{StaticResource LightSecondary}"
                 Size="12"/>
         </FlyoutItem.Icon>
         <ShellContent Route="HomeView" ContentTemplate="{DataTemplate local:HomeView}" />
     </FlyoutItem>
+    
     <FlyoutItem Title="Maintenance" Icon="icon_feed.png">
         <!--<ShellContent Route="MaintenanceItemDetailView" ContentTemplate="{DataTemplate local:MaintenanceItemDetailView}" />-->
     </FlyoutItem>
     
     <!--Shopping List-->
-    <FlyoutItem Title="Shopping Lists" IsVisible="True">
+    <FlyoutItem Title="Shopping Lists">
         <FlyoutItem.Icon>
             <FontImageSource
                 FontFamily="FA-Solid"
                 Glyph="{Static fontAwesome:FontAwesomeIcons.ShoppingCart}"
-                Color="{StaticResource Secondary}"/>
+                Color="{StaticResource LightSecondary}"/>
         </FlyoutItem.Icon>
         <ShellContent Route="DisplayAllShoppingListsView"  ContentTemplate="{DataTemplate local:DisplayAllShoppingListsView}"/>
     </FlyoutItem>
@@ -119,7 +120,7 @@
             <FontImageSource
                 FontFamily="FA-Solid"
                 Glyph="{Static fontAwesome:FontAwesomeIcons.Cog}"
-                Color="{StaticResource Secondary}"
+                Color="{StaticResource LightSecondary}"
                 Size="15"/>
         </FlyoutItem.Icon>
         <ShellContent Route="SettingsView" ContentTemplate="{DataTemplate local:SettingsView}" />
@@ -129,7 +130,7 @@
             <FontImageSource
                 FontFamily="FA-Solid"
                 Glyph="{Static fontAwesome:FontAwesomeIcons.InfoCircle}"
-                Color="{StaticResource Secondary}"
+                Color="{StaticResource LightSecondary}"
                 Size="20"/>
         </FlyoutItem.Icon>
         <ShellContent Route="AboutView" ContentTemplate="{DataTemplate local:AboutView}" />

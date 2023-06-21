@@ -58,6 +58,9 @@ namespace Maintain_it.ViewModels
         public bool Locked { get; private set; }
 
         private string name = "";
+        /// <summary>
+        /// The Name of the ServiceItem
+        /// </summary>
         public string Name
         {
             get => name;
@@ -65,6 +68,9 @@ namespace Maintain_it.ViewModels
         }
 
         private string comment = "";
+        /// <summary>
+        /// General comments the user has about the ServiceItem
+        /// </summary>
         public string Comment
         {
             get => comment;
@@ -72,6 +78,9 @@ namespace Maintain_it.ViewModels
         }
 
         private DateTime nextServiceDate = DateTime.MinValue;
+        /// <summary>
+        /// The date of the next scheduled service
+        /// </summary>
         public DateTime NextServiceDate
         {
             get => nextServiceDate;
@@ -87,6 +96,9 @@ namespace Maintain_it.ViewModels
         }
 
         private DateTime lastServiceDate = DateTime.MinValue;
+        /// <summary>
+        /// The actual completion date of the last service
+        /// </summary>
         public DateTime LastServiceDate
         {
             get => lastServiceDate;
@@ -102,6 +114,9 @@ namespace Maintain_it.ViewModels
         }
 
         private TimeSpan serviceTime = Config.DefaultReminderTime;
+        /// <summary>
+        /// The estimated service time based on the sum of the estimate time for all the steps in this service item
+        /// </summary>
         public TimeSpan ServiceTime
         {
             get => serviceTime;
@@ -109,6 +124,9 @@ namespace Maintain_it.ViewModels
         }
 
         private bool isRecurring = false;
+        /// <summary>
+        /// Whether or not this ServiceItem will be automatically rescheduled for service upon service completion
+        /// </summary>
         public bool IsRecurring
         {
             get => isRecurring;
@@ -120,6 +138,9 @@ namespace Maintain_it.ViewModels
         }
 
         private int recursEvery;
+        /// <summary>
+        /// The interval at which rescheduling should be done (i.e. _5_ days)
+        /// </summary>
         public int RecursEvery
         {
             get => recursEvery;
@@ -127,6 +148,9 @@ namespace Maintain_it.ViewModels
         }
 
         private Timeframe serviceTimeframe = Timeframe.Months;
+        /// <summary>
+        /// The timeframe that the ReccursEvery interval should be applied to (i.e. 5 _days_)
+        /// </summary>
         public Timeframe ServiceTimeframe
         {
             get => serviceTimeframe;
@@ -134,6 +158,9 @@ namespace Maintain_it.ViewModels
         }
 
         private bool hasServiceLimit;
+        /// <summary>
+        /// Indicates if there should be a limit to the number of times service should be rescheduled for this ServiceItem.
+        /// </summary>
         public bool HasServiceLimit
         {
             get => hasServiceLimit;
@@ -145,6 +172,9 @@ namespace Maintain_it.ViewModels
         }
 
         private int timesToRepeatService = 0;
+        /// <summary>
+        /// The number of times service should be repeated for this ServiceItem. After this number of Services the ServiceItem will be marked Inactive.
+        /// </summary>
         public int TimesToRepeatService
         {
             get => timesToRepeatService;
@@ -152,6 +182,9 @@ namespace Maintain_it.ViewModels
         }
 
         private int timesServiced;
+        /// <summary>
+        /// The number of times this item has been serviced
+        /// </summary>
         public int TimesServiced
         {
             get => timesServiced;
@@ -159,6 +192,9 @@ namespace Maintain_it.ViewModels
         }
 
         private bool previousServiceCompleted;
+        /// <summary>
+        /// Indicates if the previous service has been marked as complete.
+        /// </summary>
         public bool PreviousServiceCompleted
         {
             get => previousServiceCompleted;
@@ -166,6 +202,9 @@ namespace Maintain_it.ViewModels
         }
 
         private bool notifyOfNextServiceDate = true;
+        /// <summary>
+        /// Indicates if the user wishes to receive a notification reminder of the upcoming service
+        /// </summary>
         public bool NotifyOfNextServiceDate
         {
             get => notifyOfNextServiceDate;
@@ -173,6 +212,9 @@ namespace Maintain_it.ViewModels
         }
 
         private Timeframe noticeTimeframe = Timeframe.Days;
+        /// <summary>
+        /// The timeframe of advance notice that the reminder notification should be dispatched (i.e. 2 _days_)
+        /// </summary>
         public Timeframe NoticeTimeframe
         {
             get => noticeTimeframe;
@@ -180,6 +222,9 @@ namespace Maintain_it.ViewModels
         }
 
         private int advanceNotice = 3;
+        /// <summary>
+        /// The interval of time that the reminder notification should be dispatched (i.e. _2_ days)
+        /// </summary>
         public int AdvanceNotice
         {
             get => advanceNotice;
@@ -187,6 +232,9 @@ namespace Maintain_it.ViewModels
         }
 
         private int maxReminders = Config.DefaultReminders;
+        /// <summary>
+        /// The maximum number of reminders to dispatch before stopping
+        /// </summary>
         public int TimesToRemind
         {
             get => maxReminders;
@@ -194,6 +242,12 @@ namespace Maintain_it.ViewModels
         }
 
         private ActiveStateFlag activeState;
+        /// <summary>
+        /// The active state of the ServiceItem. Can be:
+        /// - Active
+        /// - Inactive
+        /// - Suspended
+        /// </summary>
         public ActiveStateFlag ActiveState
         {
             get => activeState;
@@ -206,15 +260,18 @@ namespace Maintain_it.ViewModels
             {
                 return ActiveState switch
                 {
-                    ActiveStateFlag.Inactive => (Color)App.Current.Resources["Secondary"],
-                    ActiveStateFlag.Suspended => (Color)App.Current.Resources["Warning"],
-                    ActiveStateFlag.Active => (Color)App.Current.Resources["Cue"],
-                    _ => (Color)App.Current.Resources["Cue"],
+                    ActiveStateFlag.Inactive => (Color)App.Current.Resources["LightSecondary"],
+                    ActiveStateFlag.Suspended => (Color)App.Current.Resources["Accent2"],
+                    ActiveStateFlag.Active => (Color)App.Current.Resources["Accent1"],
+                    _ => (Color)App.Current.Resources["Accent1"],
                 };
             }
         }
 
         private DateTime createdOn;
+        /// <summary>
+        /// The date on which the ServiceItem was created
+        /// </summary>
         public DateTime CreatedOn
         {
             get => createdOn.ToLocalTime();
@@ -249,6 +306,19 @@ namespace Maintain_it.ViewModels
         }
 
         #endregion
+
+        private AsyncCommand themeSwapTestCommand;
+        public AsyncCommand ThemeSwapTestCommand => themeSwapTestCommand ??= new AsyncCommand( SwapTheme );
+        private async Task SwapTheme()
+        {
+            if( App.Current.UserAppTheme == OSAppTheme.Light || App.Current.UserAppTheme == OSAppTheme.Unspecified )
+            {
+                App.Current.UserAppTheme = OSAppTheme.Dark;
+                return;
+            }
+
+            App.Current.UserAppTheme = OSAppTheme.Light;
+        }
 
         #region COMMANDS
         private AsyncCommand addCommand;
@@ -603,7 +673,7 @@ namespace Maintain_it.ViewModels
             // Step Data Summary
 
             // Service Record Summary
-            PreviousServiceCompleted = TimesServiced > 0 && Item.ServiceRecords[^1].ServiceCompleted;
+            PreviousServiceCompleted = Item.ServiceRecords.Count > 0 && Item.ServiceRecords[^1].ServiceCompleted;
             List<ServiceRecord> completedServiceRecords = Item.ServiceRecords.Where( x => x.ServiceCompleted == true ).ToList();
             TimesServiced = completedServiceRecords.Count;
             LastServiceDate = completedServiceRecords.Count > 0 ? completedServiceRecords.Where( x => x.ServiceCompleted == true ).OrderByDescending( x => x.ActualServiceCompletionDate ).First().ActualServiceCompletionDate : DateTime.MinValue;

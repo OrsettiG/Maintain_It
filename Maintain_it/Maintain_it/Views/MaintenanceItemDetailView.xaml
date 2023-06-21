@@ -286,6 +286,7 @@
                                                    WidthRequest="50"/>
 
                                             <Button Text="{Static fontawesome:FontAwesomeIcons.TrashAlt}"
+                                                    Style="{StaticResource WarningButton}"
                                                     FontFamily="{Static fontawesome:Config.FontFamilySolid}"
                                                     Command="{Binding DeleteCommand}"
                                                     Grid.Column="2"
@@ -296,8 +297,6 @@
                                                     Scale="0.85"
                                                     Padding="0"
                                                     Margin="0"
-                                                    BorderColor="{StaticResource Warning}"
-                                                    TextColor="{StaticResource Warning}"
                                                     VerticalOptions="Start"
                                                     HorizontalOptions="End"/>
 

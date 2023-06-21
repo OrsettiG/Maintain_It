@@ -24,6 +24,13 @@ namespace Maintain_it.ViewModels
 
         }
 
+        public StepMaterialViewModel( StepMaterial stepMaterial )
+        {
+            StepMaterial = stepMaterial;
+            MaterialId = stepMaterial.MaterialId;
+            Quantity = stepMaterial.Quantity;
+        }
+
         public StepMaterialViewModel( Material material )
         {
             stepMaterial = new StepMaterial()

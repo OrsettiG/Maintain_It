@@ -2,6 +2,7 @@
 <Application x:Class="Maintain_it.App"
              xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:Maintain_it.Helpers"
              >
     <!--
         Define global resources and styles here, that apply to all pages in your app.
@@ -10,23 +11,130 @@
     <Application.Resources>
         <ResourceDictionary>
             <!--  Colours  -->
-            <Color x:Key="Primary">#B6C197</Color>
-            <Color x:Key="Secondary">#38302E</Color>
-            <Color x:Key="Transition">#F3F1DE</Color>
-            <Color x:Key="Cue">#037171</Color>
-            <Color x:Key="Warning">#D64933</Color>
+            <Color x:Key="LightPrimary">#EDEDED</Color>
+            <Color x:Key="DarkPrimary">#38302E</Color>
+            <!--Primary: #46878d B6C197 -->
+            <Color x:Key="LightSecondary">#38302E</Color>
+            <Color x:Key="DarkSecondary">#F3F1DE</Color>
+            <!--Secondary: #ffffff-->
+            <Color x:Key="Accent1">#46878d</Color>
+            <!--Accent 1: #04131a  F3F1DE-->
+            <Color x:Key="Accent2">#e38640</Color>
+            <!--Accent 2: #a1bea6
+                          #a6aaad
+                          #06b649
+                          #e38640
+                          #d09802
+                          #3cb549-->
+
+            <!-- Border Thicknesses -->
+            <x:Double x:Key="NormalBorder">1</x:Double>
+            <x:Double x:Key="ThickBorder">2</x:Double>
+            <x:Double x:Key="ExtraThickBorder">4</x:Double>
+
+            
+
+            <Color x:Key="This" >White</Color>
+
+            <!-- Content Page -->
+            <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+                <Setter Property="BackgroundColor"
+                        Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                Light={StaticResource LightPrimary}}"/>
+            </Style>
+
+            <!-- Navigation Page-->
+            <Style TargetType="Shell" ApplyToDerivedTypes="True">
+                <Setter Property="Shell.BackgroundColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                Light={StaticResource LightPrimary}}"/>
+                <Setter Property="Shell.ForegroundColor"
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
+                <Setter Property="Shell.TitleColor"
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
+                <Setter Property="Shell.FlyoutBackgroundColor"
+                        Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                Light={StaticResource LightPrimary}}"/>
+            </Style>
 
 
-            <Style TargetType="Button">
-                <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
+            <Style TargetType="Label"
+                   Class="FlyoutItemLabelStyle">
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
-                                    <Setter Property="BorderColor" Value="{StaticResource Secondary}"/>
-                                    <Setter Property="BorderWidth" Value="1"/>
+                                    <Setter Property="TextColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource Accent1},
+                                                                    Light={StaticResource Accent1}}"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Selected">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor"
+                                            Value="Green" />
+
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource Accent2},
+                                                                    Light={StaticResource Accent2}}"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            <Style Class="FlyoutItemLayoutStyle" 
+                   TargetType="Layout" 
+                   ApplyToDerivedTypes="True">
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                                    Light={StaticResource LightPrimary}}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Selected">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                                    Light={StaticResource LightSecondary}}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+
+            <!-- Buttons -->
+            <Style x:Key="StandardButton" TargetType="Button" ApplyToDerivedTypes="True">
+                <Setter Property="TextColor" Value="{StaticResource LightSecondary}"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource DarkPrimary}, 
+                                                                    Light={StaticResource LightPrimary}}"/>
+                                    <Setter Property="TextColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource DarkSecondary}, 
+                                                                    Light={StaticResource LightSecondary}}"/>
+                                    <Setter Property="BorderColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource DarkSecondary}, 
+                                                                    Light={StaticResource LightSecondary}}"/>
+                                    <Setter Property="BorderWidth" Value="{StaticResource NormalBorder}"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Disabled">
@@ -39,65 +147,149 @@
                 </Setter>
             </Style>
 
-            <Style TargetType="Label">
-                <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
+            <Style x:Key="WarningButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Accent2}"/>
+                <Setter Property="TextColor" Value="{StaticResource LightPrimary}"/>
+                <Setter Property="BorderColor" Value="{StaticResource Accent2}"/>
+                <Setter Property="BorderWidth" Value="{StaticResource NormalBorder}"/>
             </Style>
+
+            <Style x:Key="CueButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Accent1}"/>
+                <Setter Property="TextColor" Value="{StaticResource LightPrimary}"/>
+                <Setter Property="BorderColor" Value="{StaticResource Accent1}"/>
+                <Setter Property="BorderWidth" Value="{StaticResource NormalBorder}"/>
+            </Style>
+
+            <Style TargetType="ImageButton">
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource DarkPrimary}, 
+                                                                    Light={StaticResource LightPrimary}}"/>
+                                    <Setter Property="BorderColor" 
+                                            Value="{AppThemeBinding Dark={StaticResource DarkPrimary}, 
+                                                                    Light={StaticResource LightPrimary}}"/>
+                                    <Setter Property="BorderWidth" Value="{StaticResource NormalBorder}"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#332196F3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            <!-- Labels -->
+            <Style TargetType="Label">
+                <Setter Property="TextColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
+            </Style>
+
+            <!-- Frames -->
             <Style TargetType="Frame">
-                <Setter Property="BorderColor" Value="{StaticResource Secondary}"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
-                <Setter Property="HasShadow" Value="True"/>
+                <Setter Property="BorderColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
+                <Setter Property="CornerRadius" 
+                        Value="10"/>
+                <Setter Property="BackgroundColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                Light={StaticResource LightPrimary}}"/>
+                <Setter Property="HasShadow" 
+                        Value="{AppThemeBinding Dark=False,
+                                                Light=True}"/>
             </Style>
 
             <!--  Collection View  -->
             <Style TargetType="CollectionView">
-                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
+                <Setter Property="BackgroundColor"
+                        Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                Light={StaticResource LightPrimary}}"/>
             </Style>
 
             <!--  Box View  -->
             <Style TargetType="BoxView">
-                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="BackgroundColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
             </Style>
 
             <!--  Check Box  -->
             <Style TargetType="CheckBox">
-                <Setter Property="Color" Value="{StaticResource Primary}"/>
+                <Setter Property="Color" 
+                        Value="{AppThemeBinding Dark={StaticResource Accent1},
+                                                Light={StaticResource Accent1}}"/>
             </Style>
 
             <!--  Stack Layout  -->
             <Style TargetType="StackLayout">
-                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
+                <Setter Property="BackgroundColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                Light={StaticResource LightPrimary}}"/>
             </Style>
 
             <!--  Scroll View  -->
             <Style TargetType="ScrollView">
-                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
+                <Setter Property="BackgroundColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                Light={StaticResource LightPrimary}}"/>
             </Style>
 
             <!--  TODO: Create Custom Entry Renderer for Android and IOS  -->
             <!--  Entry  -->
             <Style TargetType="Entry">
-                <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
-                <Setter Property="PlaceholderColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="TextColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
+                <Setter Property="PlaceholderColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
             </Style>
 
             <!--  TODO: Create Custom Editor Renderer for Android and IOS  -->
             <!--  Editor  -->
             <Style TargetType="Editor">
-                <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
-                <Setter Property="PlaceholderColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="TextColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
+                <Setter Property="PlaceholderColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
                 <Setter Property="Placeholder" Value="Enter Text..."/>
-                <Setter Property="BackgroundColor" Value="{StaticResource Transition}"/>
+                <Setter Property="BackgroundColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkPrimary},
+                                                Light={StaticResource LightPrimary}}"/>
             </Style>
 
             <!--  DatePicker  -->
             <Style TargetType="DatePicker">
-                <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="TextColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
             </Style>
 
             <!--  Picker  -->
             <Style TargetType="Picker">
-                <Setter Property="TextColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="TextColor" 
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
+            </Style>
+
+            <Style TargetType="IndicatorView">
+                <Setter Property="IndicatorColor"
+                        Value="{AppThemeBinding Dark={StaticResource DarkSecondary},
+                                                Light={StaticResource LightSecondary}}"/>
+                <Setter Property="SelectedIndicatorColor"
+                        Value="{AppThemeBinding Dark={StaticResource Accent1},
+                                                Light={StaticResource Accent1}}"/>
             </Style>
 
         </ResourceDictionary>

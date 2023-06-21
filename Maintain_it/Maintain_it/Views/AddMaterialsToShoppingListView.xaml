@@ -16,7 +16,7 @@
                         <VisualState x:Name="Selected">
                             <VisualState.Setters>
                                 <Setter Property="BackgroundColor"
-                                        Value="{StaticResource Cue}" />
+                                        Value="{StaticResource Accent1}" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>

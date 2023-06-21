@@ -121,5 +121,13 @@ namespace Maintain_it.Helpers
         /// </list>
         /// </summary>
         public const string RefreshSteps = "refreshSteps";
+
+        /// <summary>
+        /// Query Param for:
+        /// <list type="bullet">
+        /// <item><see cref="StepViewModel"/> >> <see cref="StepMaterialViewModel"/></item>
+        /// </list>
+        /// </summary>
+        public const string PreselectedStepMaterialIds = "preselectedStepMaterialIds";
     }
 }

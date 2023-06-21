@@ -20,7 +20,7 @@ namespace Maintain_it.Services
         static LocalNotificationManager()
         {
             notificationManager = DependencyService.Get<INotificationManager>();
-            notificationManager.NotificationRecieved += ( sender, args ) =>
+            notificationManager.NotificationReceived += ( sender, args ) =>
             {
                 NotificationEventArgs eventArgs = (NotificationEventArgs)args;
                 ShowNotification( eventArgs.Name, eventArgs.Message );
@@ -37,9 +37,9 @@ namespace Maintain_it.Services
         {
             List<NotificationEventArgs> notifications = await DbServiceLocator.GetAllItemsAsync<NotificationEventArgs>() as List<NotificationEventArgs>;
 
-            DateTime NotificationWindowEnd = DateTime.UtcNow.AddHours(9);
+            DateTime NotificationWindowEnd = DateTime.UtcNow.AddHours( NotificationScanFrequencyWindowHours + NotificationScanFrequencyFlexWindowHours );
 
-            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindowEnd, x.NotifyTime) >= 0 && x.Active ).ToList();
+            List<NotificationEventArgs> pendingNotifications = notifications.Where( x => DateTime.Compare(NotificationWindowEnd, x.NotifyTime.ToUniversalTime()) >= 0 && x.Active ).ToList();
 
             foreach( NotificationEventArgs notification in pendingNotifications )
             {

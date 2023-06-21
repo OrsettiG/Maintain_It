@@ -8,6 +8,7 @@ using Android.App.Job;
 
 using Maintain_it.Services;
 using Maintain_it.Helpers;
+using Maintain_it.Droid.Notifications;
 
 namespace Maintain_it.Droid
 {
@@ -34,16 +35,16 @@ namespace Maintain_it.Droid
         private void ScheduleNotificationJobService()
         {
             // Get the JobScheduler
-            JobScheduler jobScheduler = (JobScheduler)GetSystemService(JobSchedulerService);
+            JobScheduler jobScheduler = (JobScheduler)GetSystemService( JobSchedulerService );
 
             // Make sure the service is not already running
             if( jobScheduler.GetPendingJob( (int)Config.JobServiceIds.Notification ) == null )
             {
                 // Create our Notification Service with the Notification Id so that next time we start the app we can verify that the service is still running.
-                JobInfo.Builder builder = this.CreateJobBuilderUsingJobId<NotificationJobService>((int)Config.JobServiceIds.Notification);
-
-                // Set the service to run every 3-4 hours
-                _ = builder.SetPeriodic( (int)Config.MilliTimeIntervals.Hour * 3, (int)Config.MilliTimeIntervals.Hour ).SetRequiresBatteryNotLow( true ).SetRequiresDeviceIdle( true );
+                JobInfo.Builder builder = this.CreateJobBuilderUsingJobId<NotificationJobService>( (int)Config.JobServiceIds.Notification );
+                
+                // Set the service to run every 2 hours
+                _ = builder.SetPeriodic( Config.NotificationScanFrequencyWindowMilliseconds, Config.NotificationScanFrequencyFlexWindowMilliseconds ).SetRequiresCharging( true ).SetPersisted(true);
 
                 // Build the JobInfo Object that tells the service how and when to run.
                 JobInfo jobInfo = builder.Build();
@@ -51,6 +52,18 @@ namespace Maintain_it.Droid
                 // Start the service
                 _ = jobScheduler.Schedule( jobInfo );
             }
+        }
+
+        private void ScheduleServiceItemRefresh()
+        {
+            // Get the JobScheduler
+
+            // Make sure the service is not already running
+                // Create a new ServiceItemManagementService using the ServiceItemManagement Id (201) so that next time we can verify if the service is already running
+                // Set the service to run every hour if device is charging
+                // Build the JobInfo Object
+                // Start the service
+
         }
     }
 }

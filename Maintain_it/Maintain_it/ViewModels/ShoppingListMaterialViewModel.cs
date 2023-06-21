@@ -46,7 +46,7 @@ namespace Maintain_it.ViewModels
             else
             {
                 TextDecoration = TextDecorations.None;
-                Color = (Color)App.Current.Resources["Cue"];
+                Color = (Color)App.Current.Resources["Accent1"];
             }
         }
 
@@ -182,7 +182,7 @@ namespace Maintain_it.ViewModels
         {
             Purchased = !Purchased;
             TextDecoration = Purchased ? TextDecorations.Strikethrough : TextDecorations.None;
-            Color = Purchased ? (Color)App.Current.Resources["Secondary"] : (Color)App.Current.Resources["Cue"];
+            Color = Purchased ? (Color)App.Current.Resources["Secondary"] : (Color)App.Current.Resources["Accent1"];
 
             await ShoppingListMaterialManager.PurchaseItemAsync( ShoppingListMaterial.Id, Purchased );
 

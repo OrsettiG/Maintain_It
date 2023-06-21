@@ -19,8 +19,8 @@ using static Maintain_it.Helpers.Config;
 
 using AndroidApp = Android.App.Application;
 
-[assembly: Dependency( typeof( Maintain_it.Droid.AndroidNotificationManager ) )]
-namespace Maintain_it.Droid
+[assembly: Dependency( typeof( Maintain_it.Droid.Notifications.AndroidNotificationManager) )]
+namespace Maintain_it.Droid.Notifications
 {
     class AndroidNotificationManager : INotificationManager
     {
@@ -42,7 +42,7 @@ namespace Maintain_it.Droid
 
         NotificationManager manager;
 
-        public event EventHandler NotificationRecieved;
+        public event EventHandler NotificationReceived;
         #endregion
 
         // Wanted to make this a self initializing singleton, but Android throws an error when I do that, so it is just going to have to be null checked every time it is called.
@@ -87,7 +87,7 @@ namespace Maintain_it.Droid
             }
         }
 
-        public void RecieveNotification( string title, string message )
+        public void ReceiveNotification( string title, string message )
         {
             NotificationEventArgs args = new NotificationEventArgs()
             {
@@ -95,7 +95,7 @@ namespace Maintain_it.Droid
                 Message = message
             };
 
-            NotificationRecieved?.Invoke( null, args );
+            NotificationReceived?.Invoke( null, args );
         }
 
         public void Show( string title, string message, int notificationId )

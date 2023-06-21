@@ -152,8 +152,6 @@
                             </CarouselView>
 
                             <IndicatorView x:Name="NotesIndicatorView"
-                                            IndicatorColor="{StaticResource Secondary}"
-                                            SelectedIndicatorColor="{StaticResource Cue}"
                                             HorizontalOptions="Center"
                                             IndicatorSize="8"/>
                         </StackLayout>

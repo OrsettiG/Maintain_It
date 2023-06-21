@@ -12,9 +12,9 @@ using Xamarin.Essentials;
 
 using static Maintain_it.Helpers.Config;
 
-namespace Maintain_it.Droid
+namespace Maintain_it.Droid.Notifications
 {
-    [Service( Exported = true, Permission = "android.permission.BIND_JOB_SERVICE", DirectBootAware = true )]
+    [Service( Name = "com.maintain_it.Droid.NotificationJobService", Exported = true, Permission = "android.permission.BIND_JOB_SERVICE", DirectBootAware = true )]
     public class NotificationJobService : JobService
     {
 

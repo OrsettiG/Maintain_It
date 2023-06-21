@@ -43,7 +43,7 @@
                     </CarouselView>
                     <IndicatorView x:Name="NotesIndicator" 
                                    IndicatorColor="{StaticResource Secondary}" 
-                                   SelectedIndicatorColor="{StaticResource Cue}"
+                                   SelectedIndicatorColor="{StaticResource Accent1}"
                                    IndicatorSize="10"/>
                 </StackLayout>
             </Frame>

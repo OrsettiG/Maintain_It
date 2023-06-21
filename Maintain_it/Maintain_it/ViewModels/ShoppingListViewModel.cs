@@ -129,10 +129,19 @@ namespace Maintain_it.ViewModels
         //
         private async Task EditShoppingListMaterials()
         {
+            string notEditingColor = App.Current.UserAppTheme switch
+            {
+                OSAppTheme.Light => Config.AppResourceKeys.LightPrimary.ToString(),
+                OSAppTheme.Dark => Config.AppResourceKeys.DarkPrimary.ToString(),
+                _ => Config.AppResourceKeys.LightPrimary.ToString(),
+            };
+
+            string editingColor = Config.AppResourceKeys.Accent2.ToString();
+
             IsEditing = !IsEditing;
             if( IsEditing )
             {
-                EditingStateColor = IsEditing ? (Color)App.Current.Resources["Warning"] : (Color)App.Current.Resources["Primary"];
+                EditingStateColor = IsEditing ? (Color)App.Current.Resources[editingColor] : (Color)App.Current.Resources[notEditingColor];
 
                 _ = Parallel.ForEach( GroupedMaterials, mat =>
                 {

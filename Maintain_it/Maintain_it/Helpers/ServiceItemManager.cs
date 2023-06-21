@@ -270,7 +270,7 @@ namespace Maintain_it.Helpers
                     args.TimesToRemind = reminders ?? args.TimesToRemind;
                     args.NotifyTime = serviceDate ?? args.NotifyTime;
 
-                    await LocalNotificationManager.UpdateScheduledNotification( item.NotificationEventArgsId, item.Name, serviceDate ?? item.NextServiceDate, advanceNotice ?? 2, advanceNoticeTimeframe ?? (int)Timeframe.Days, true, reminders ?? int.MinValue );
+                    await LocalNotificationManager.UpdateScheduledNotification( item.NotificationEventArgsId, item.Name, serviceDate ?? item.NextServiceDate, advanceNotice ?? Config.DefaultAdvanceNotice, advanceNoticeTimeframe ?? (int)Config.DefaultNoticeTimeframe, true, reminders ?? int.MinValue );
 
                     await DbServiceLocator.UpdateItemAsync( args );
                 }
@@ -377,6 +377,8 @@ namespace Maintain_it.Helpers
 
             /* Should a new service record be inserted here, or when the user starts the service?
              * It probably makes sense to insert the record when the user starts a new service because that way we always know that the last record is current and complete/in progress. If we insert a new record now then we need to check every time we get the last service record whether or not that service record is the one we want. Whereas if we insert the new service record when the users starts a service, we know that the last record has the data for the most recently started/completed service, even if we access is 2 months later.
+             * 
+             * Actually, what we probably want to do is only add a new ServiceRecord here if there is another service scheduled for the future. That way, if we ask for the last service record and get back an incomplete record we know it is 
              */
 
             if( nextServiceDate > DateTime.MinValue )
@@ -386,6 +388,11 @@ namespace Maintain_it.Helpers
                 foreach( Step step in item.Steps )
                 {
                     await StepManager.UpdateItemAsync( step.Id, isCompleted: false );
+                }
+
+                if( DateTime.Compare( DateTime.UtcNow.AddDays( 1 ), nextServiceDate.ToUniversalTime() ) >= 0 )
+                {
+                    await InsertServiceRecord( item.Id );
                 }
             }
 

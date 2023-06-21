@@ -30,7 +30,7 @@ namespace Maintain_it.ViewModels
             ShoppingList = sList;
 
             // General
-            Color = (Color)App.Current.Resources["Cue"];
+            Color = (Color)App.Current.Resources["Accent1"];
             TextDecoration = TextDecorations.None;
         }
 
@@ -47,7 +47,7 @@ namespace Maintain_it.ViewModels
             ShoppingList = sList;
 
             // General
-            Color = (Color)App.Current.Resources["Cue"];
+            Color = (Color)App.Current.Resources["Accent1"];
             TextDecoration = TextDecorations.None;
         }
         
@@ -64,7 +64,7 @@ namespace Maintain_it.ViewModels
             ShoppingList = sList;
 
             // General
-            Color = (Color)App.Current.Resources["Cue"];
+            Color = (Color)App.Current.Resources["Accent1"];
             TextDecoration = TextDecorations.None;
         }
         
@@ -81,7 +81,7 @@ namespace Maintain_it.ViewModels
             ShoppingList = sList;
 
             // General
-            Color = (Color)App.Current.Resources["Cue"];
+            Color = (Color)App.Current.Resources["Accent1"];
             TextDecoration = TextDecorations.None;
         }
         #endregion
@@ -164,7 +164,7 @@ namespace Maintain_it.ViewModels
         {
             Purchased = !Purchased;
             TextDecoration = Purchased ? TextDecorations.Strikethrough : TextDecorations.None;
-            Color = Purchased ? (Color)App.Current.Resources["Secondary"] : (Color)App.Current.Resources["Cue"];
+            Color = Purchased ? (Color)App.Current.Resources["Secondary"] : (Color)App.Current.Resources["Accent1"];
 
             switch( Purchased )
             {

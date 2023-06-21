@@ -59,7 +59,7 @@
 
                 <ImageButton Source="{FontImage FontFamily={Static fontawesome:Config.FontFamilySolid},
                                                 Glyph={Static fontawesome:FontAwesomeIcons.ArrowLeft},
-                                                Color={StaticResource Cue},
+                                                Color={StaticResource Accent1},
                                                 Size=Header}"
                              BackgroundColor="{StaticResource Primary}"
                              Command="{Binding BackCommand}"
@@ -70,7 +70,7 @@
 
                 <ImageButton Source="{FontImage FontFamily={Static fontawesome:Config.FontFamilySolid},
                                                 Glyph={Static fontawesome:FontAwesomeIcons.Camera},
-                                                Color={StaticResource Cue},
+                                                Color={StaticResource Accent1},
                                                 Size=Header}"
                              BackgroundColor="{StaticResource Primary}"
                              Command="{Binding ReplacePhotoCommand}"

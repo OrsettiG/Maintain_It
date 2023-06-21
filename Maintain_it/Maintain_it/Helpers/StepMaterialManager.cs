@@ -120,9 +120,12 @@ namespace Maintain_it.Helpers
         public static async Task<StepMaterial> GetItemRecursiveAsync( int stepMaterialId )
         {
             StepMaterial stepMaterial = await DbServiceLocator.GetItemRecursiveAsync<StepMaterial>(stepMaterialId);
+            
+            if( stepMaterial.StepId > 0 )
+                stepMaterial.Step ??= await StepManager.GetItemAsync( stepMaterial.StepId );
 
-            stepMaterial.Step ??= await StepManager.GetItemAsync( stepMaterial.StepId );
-            stepMaterial.Material ??= await MaterialManager.GetItemAsync( stepMaterialId );
+            if( stepMaterial.MaterialId > 0 )
+                stepMaterial.Material ??= await MaterialManager.GetItemAsync( stepMaterialId );
 
             return stepMaterial;
         }

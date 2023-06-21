@@ -24,7 +24,7 @@ namespace Maintain_it.ViewModels
     {
         public HomeViewModel()
         {
-            _ = Task.Run( async () => await Refresh() );
+            Task task = Task.Run( async () => await Refresh() );
         }
 
         #region PROPERTIES
@@ -44,6 +44,13 @@ namespace Maintain_it.ViewModels
         }
 
         #region Filters
+        private bool showFilters;
+        public bool ShowFilters
+        {
+            get => showFilters;
+            set => SetProperty( ref showFilters, value );
+        }
+
         // Notifications
         private bool showActiveFilterFlag = true;
         public bool ShowActiveFilterFlag
@@ -128,14 +135,7 @@ namespace Maintain_it.ViewModels
             set => SetProperty( ref useNextServiceDateFilters, value );
         }
 
-        private bool showCompleted;
-        public bool ShowCompleted_NextServiceDateFilter
-        {
-            get => showCompleted;
-            set => SetProperty( ref showCompleted, value );
-        }
-
-        private bool showOverdue;
+        private bool showOverdue = true;
         public bool ShowOverdue_NextServiceDateFilters
         {
             get => showOverdue;
@@ -244,12 +244,6 @@ namespace Maintain_it.ViewModels
         private bool Locked { get; set; } = false;
         public bool IsRefreshing => Locked;
 
-        private bool showFilters;
-        public bool ShowFilters
-        {
-            get => showFilters;
-            set => SetProperty( ref showFilters, value );
-        }
 
         #endregion
 
@@ -272,14 +266,14 @@ namespace Maintain_it.ViewModels
             ShowFilters = !ShowFilters;
         }
 
-        private AsyncCommand applyFiltersCommand;
+        private Command applyFiltersCommand;
         public ICommand ApplyFiltersCommand
         {
-            get => applyFiltersCommand ??= new AsyncCommand( ApplyFilters );
+            get => applyFiltersCommand ??= new Command( ApplyFilters );
         }
-        private async Task ApplyFilters()
+        private void ApplyFilters()
         {
-            await Refresh();
+            //await Refresh();
 
             // Create new List from allServiceViewModels with only the Active/Inactive/Suspended projects desired
 
@@ -291,13 +285,7 @@ namespace Maintain_it.ViewModels
                 DateTime dateRangeStart = NextServiceDateFilterRangeStart.ToUniversalTime();
                 DateTime dateRangeEnd = NextServiceDateFilterRangeEnd.ToUniversalTime();
 
-                filteredItems = filteredItems.Where( x => DateTime.Compare( x.NextServiceDate.ToUniversalTime(), dateRangeStart ) >= 0 && DateTime.Compare( x.NextServiceDate.ToUniversalTime() , dateRangeEnd ) <= 0 ).ToList();
-
-                // If the user doesn't want to see completed items we need to remove them from the results
-                if( !ShowCompleted_NextServiceDateFilter )
-                {
-                    filteredItems = filteredItems.Where( x => !x.Item.ServiceRecords.Last().ServiceCompleted ).ToList();
-                }
+                filteredItems = filteredItems.Where( x => ( DateTime.Compare( x.NextServiceDate.ToUniversalTime(), dateRangeStart ) >= 0 && DateTime.Compare( x.NextServiceDate.ToUniversalTime(), dateRangeEnd ) <= 0 ) || ( DateTime.Compare( x.NextServiceDate.ToUniversalTime(), dateRangeStart ) < 0 && x.Item.ServiceRecords.Last().ServiceCompleted == false ) ).ToList();
 
                 //TODO: Add an option to filter by only completed items.
 
@@ -324,8 +312,10 @@ namespace Maintain_it.ViewModels
             DisplayedMaintenanceItems.AddRange( filteredItems );
             // Add new List to maintenanceItems Collection
 
-
-            ToggleFilters();
+            if( ShowFilters )
+            {
+                ToggleFilters();
+            }
         }
         #endregion
 
@@ -358,8 +348,10 @@ namespace Maintain_it.ViewModels
                 allServiceItemViewModels.Clear();
                 allServiceItemViewModels.AddRange( vms );
 
-                DisplayedMaintenanceItems.Clear();
-                DisplayedMaintenanceItems.AddRange( vms );
+
+                ApplyFilters();
+                //DisplayedMaintenanceItems.Clear();
+                //DisplayedMaintenanceItems.AddRange( vms );
             }
 
             Locked = false;

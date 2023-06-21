@@ -74,12 +74,15 @@
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2083" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Notification\AlarmHandler.cs" />
-    <Compile Include="Notification\AndroidNotificationManager.cs" />
+    <Compile Include="Notifications\AlarmHandler.cs" />
+    <Compile Include="Notifications\AndroidNotificationManager.cs" />
     <Compile Include="MainActivity.cs" />
-    <Compile Include="Notification\NotificationJobService.cs" />
+    <Compile Include="Notifications\NotificationJobService.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceItemManagement\AndroidServiceItemManager.cs" />
+    <Compile Include="ServiceItemManagement\ServiceItemHandler.cs" />
+    <Compile Include="ServiceItemManagement\ServiceItemJobService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

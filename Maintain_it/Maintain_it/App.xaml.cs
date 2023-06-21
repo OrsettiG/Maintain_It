@@ -5,6 +5,7 @@ using Maintain_it.Services;
 using Maintain_it.Views;
 
 using Xamarin.Forms;
+using Xamarin.Forms.PlatformConfiguration;
 using Xamarin.Forms.Xaml;
 
 namespace Maintain_it
@@ -24,6 +25,7 @@ namespace Maintain_it
 
         protected override void OnSleep()
         {
+            DependencyService.Get<INotificationManager>().Initialize();
         }
 
         protected override void OnResume()

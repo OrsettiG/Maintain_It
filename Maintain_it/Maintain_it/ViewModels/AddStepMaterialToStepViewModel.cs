@@ -154,9 +154,12 @@ namespace Maintain_it.ViewModels
 
                     foreach( int id in diff.ToList() )
                     {
-                        RemoveMaterialFromSelectedMaterials( id );
+                        await RemoveMaterialFromSelectedMaterials( id );
                     }
                 }
+
+                var all = await DbServiceLocator.GetAllItemsAsync<StepMaterial>();
+                Console.WriteLine( $"Total Step Material Count: {all.Count()}" );
             }
         }
 
@@ -164,7 +167,7 @@ namespace Maintain_it.ViewModels
         /// Attempts to remove the supplied Id from the SelectedMaterialIds <see cref="HashSet{T}"/>. If it successfully removes the Id it ensures that all other references to that material are reset to the unselected state. Otherwise it just returns.
         /// </summary>
         /// <param name="id">The id of the material to remove.</param>
-        internal void RemoveMaterialFromSelectedMaterials( int id )
+        internal async Task RemoveMaterialFromSelectedMaterials( int id )
         {
             if( SelectedMaterialIds.Remove( id ) )
             {
@@ -173,6 +176,7 @@ namespace Maintain_it.ViewModels
                     if( smvm.MaterialId == id )
                     {
                         _ = SelectedMaterials.Remove( smvm );
+                        await StepMaterialManager.DeleteItem( smvm.StepMaterial.Id );
                     }
                 }
 
@@ -207,6 +211,9 @@ namespace Maintain_it.ViewModels
                 }
             }
 
+            var all = await DbServiceLocator.GetAllItemsAsync<StepMaterial>();
+            Console.WriteLine( $"Total Step Material Count: {all.Count()}" );
+
             string encodedQuery = HttpUtility.UrlEncode( queryStringBuilder.ToString() );
 
             await Shell.Current.GoToAsync( $"..?stepMaterialIds={encodedQuery}" );
@@ -233,15 +240,18 @@ namespace Maintain_it.ViewModels
         /// <returns></returns>
         private async Task<int> CreateNewStepMaterial( Material mat )
         {
-            StepMaterialViewModel viewModel = new StepMaterialViewModel( mat )
+            int id = await StepMaterialManager.NewStepMaterial( mat.Name, 1, mat.Id );
+            StepMaterial stepMat = await StepMaterialManager.GetItemRecursiveAsync( id );
+
+            StepMaterialViewModel viewModel = new StepMaterialViewModel( stepMat )
             {
-                Quantity = 1,
-                AddStepMaterialToStepViewModel = this
+                AddStepMaterialToStepViewModel = this,
             };
 
             SelectedMaterials.Add( viewModel );
             //TODO: This will add hundreds of new StepMaterials to the db over time because a new one is added EVERY TIME a material is selected, even if it already exists in the db. Fix it ASAP.
-            int id = await DbServiceLocator.AddItemAndReturnIdAsync(viewModel.StepMaterial);
+            
+            //int id = await DbServiceLocator.AddItemAndReturnIdAsync(viewModel.StepMaterial);
             return id;
         }
 
@@ -274,7 +284,7 @@ namespace Maintain_it.ViewModels
                     break;
 
                 // Used when coming from StepViewModel when some StepMaterials have already been added to the step, such as when a user wants to edit the looseMaterials used in a step they have already created.
-                case nameof( preselectedStepMaterialIds ):
+                case QueryParameters.PreselectedStepMaterialIds:
                     // We have to do this ItemDeleted() in because it caches the looseMaterials/selected StepMaterials. If we don't then any methods called before the next ItemDeleted() that rely on cached data will throw an error.
                     await Refresh();
 
@@ -308,6 +318,11 @@ namespace Maintain_it.ViewModels
         {
             foreach( int id in preselectedStepMaterialIds )
             {
+                if(id == 0)
+                {
+                    continue; 
+                }
+
                 StepMaterialViewModel stepMatVM = new StepMaterialViewModel();
                 await stepMatVM.AsyncInit( id, this );
 

@@ -31,6 +31,7 @@ namespace Maintain_it.ViewModels
             MaintenanceItemVm = maintenanceItemViewModel;
         }
 
+        
         public StepViewModel( Step step )
         {
             Step = step;
@@ -401,7 +402,7 @@ namespace Maintain_it.ViewModels
             if( stepMaterialIds.Count > 0 )
             {
                 string encodedIds = HttpUtility.UrlEncode( string.Join( ',', stepMaterialIds ) );
-                await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?preselectedStepMaterialIds={encodedIds}" );
+                await Shell.Current.GoToAsync( $"/{nameof( AddStepMaterialsToStepView )}?{QueryParameters.PreselectedStepMaterialIds}={encodedIds}" );
             }
             else
             {

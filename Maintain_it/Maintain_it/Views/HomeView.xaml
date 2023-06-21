@@ -44,12 +44,11 @@
                                Placeholder="Search..."
                                />
                         <ImageButton Margin="5"
-                                     BackgroundColor="{StaticResource Transition}"
                                      Command="{Binding ToggleFiltersCommand}"
                                      HeightRequest="25"
                                      Source="{FontImage Glyph={Static fontAwesome:FontAwesomeIcons.Filter},
                                                         FontFamily={Static fontAwesome:Config.FontFamilySolid},
-                                                        Color={StaticResource Cue}}"
+                                                        Color={StaticResource Accent1}}"
                                      WidthRequest="25"
                                      />
                     </StackLayout>
@@ -99,23 +98,22 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <!--  Delete  -->
-                                                <Button Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
+                                                <Button Style="{StaticResource WarningButton}"
+                                                        Text="{Static fontAwesome:FontAwesomeIcons.TrashAlt}"
+                                                        FontFamily="{Static fontAwesome:Config.FontFamilySolid}"
                                                         Grid.Row="0"
                                                         Grid.Column="0"
-                                                        BorderColor="{StaticResource Warning}"
-                                                        BorderWidth="1"
                                                         Command="{Binding DeleteCommand}"
                                                         CornerRadius="25"
-                                                        FontFamily="{Static fontAwesome:Config.FontFamilySolid}"
                                                         HeightRequest="40"
                                                         HorizontalOptions="Center"
-                                                        TextColor="{StaticResource Warning}"
                                                         VerticalOptions="Center"
                                                         WidthRequest="40"
                                                         />
 
                                                 <!--  Name  -->
                                                 <Label Text="{Binding Name}"
+                                                       StyleId="LightMode"
                                                        Grid.Row="0"
                                                        Grid.Column="1"
                                                        Grid.ColumnSpan="2"
@@ -127,19 +125,31 @@
                                                        />
 
                                                 <!--  Edit  -->
-                                                <Button Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
+                                                <Button Style="{StaticResource CueButton}"
+                                                        Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
+                                                        FontFamily="{Static fontAwesome:Config.FontFamilySolid}"
                                                         Grid.Row="0"
                                                         Grid.Column="3"
-                                                        BorderColor="{StaticResource Warning}"
+                                                        Command="{Binding EditCommand}"
+                                                        CornerRadius="25"
+                                                        HeightRequest="40"
+                                                        HorizontalOptions="Center"
+                                                        VerticalOptions="Center"
+                                                        WidthRequest="40"
+                                                        />
+                                                <!--<Button Text="{Static fontAwesome:FontAwesomeIcons.PencilAlt}"
+                                                        Grid.Row="0"
+                                                        Grid.Column="3"
+                                                        BorderColor="{StaticResource Accent2}"
                                                         Command="{Binding EditCommand}"
                                                         CornerRadius="25"
                                                         FontFamily="{Static fontAwesome:Config.FontFamilySolid}"
                                                         HeightRequest="40"
                                                         HorizontalOptions="Center"
-                                                        TextColor="{StaticResource Warning}"
+                                                        TextColor="{StaticResource Accent2}"
                                                         VerticalOptions="Center"
                                                         WidthRequest="40"
-                                                        />
+                                                        />-->
                                             </Grid>
                                             <ScrollView VerticalOptions="FillAndExpand">
                                                 <StackLayout>
@@ -256,24 +266,26 @@
                                             </ScrollView>
 
                                             <!--  Start Maintenance Button  -->
-                                            <Button Text="Start Maintenance"
-                                                    BorderColor="{StaticResource Cue}"
+                                            <Button Style="{StaticResource StandardButton}"
+                                                    Text="Start Maintenance"
                                                     Command="{Binding StartMaintenanceCommand}"
-                                                    FontAttributes="Bold"
-                                                    FontSize="Body"
                                                     HeightRequest="45"
                                                     HorizontalOptions="FillAndExpand"
-                                                    TextColor="{StaticResource Cue}"
                                                     VerticalOptions="EndAndExpand"
                                                     />
 
                                             <!--  Add Items To Cart  -->
-                                            <Button Text="Add To Shopping List"
+                                            <Button Style="{StaticResource StandardButton}"
+                                                    Text="Add To Shopping List"
                                                     Command="{Binding AddMaterialsToShoppingCartCommand}"
                                                     FontSize="Body"
                                                     HeightRequest="45"
                                                     HorizontalOptions="FillAndExpand"
                                                     />
+                                            <Button Style="{StaticResource StandardButton}"
+                                                    Text="Swap Theme"
+                                                    Command="{Binding ThemeSwapTestCommand}"
+                                                    HorizontalOptions="FillAndExpand"/>
                                         </StackLayout>
                                     </Frame>
                                 </DataTemplate>
@@ -290,7 +302,7 @@
                     <StackLayout HorizontalOptions="Fill"
                                  VerticalOptions="Fill"
                                  >
-                        <TableView BackgroundColor="{StaticResource Transition}"
+                        <TableView BackgroundColor="{StaticResource LightPrimary}"
                                    HasUnevenRows="True"
                                    HorizontalOptions="FillAndExpand"
                                    Intent="Menu"
@@ -298,7 +310,7 @@
                                    >
                             <TableRoot>
                                 <TableSection Title="Active State"
-                                              TextColor="{StaticResource Secondary}"
+                                              TextColor="{StaticResource LightSecondary}"
                                               >
 
                                     <!--  Active State Filters  -->
@@ -314,16 +326,12 @@
 
                                 </TableSection>
                                 <TableSection Title="Next Service Date Range"
-                                              TextColor="{StaticResource Secondary}"
+                                              TextColor="{StaticResource LightSecondary}"
                                               >
                                     <local:CustomSwitchViewCell Text="Use Filter"
                                                                 IsToggled="{Binding UseNextServiceDateFilters}"
                                                                 />
 
-                                    <local:CustomSwitchViewCell Text="Show Completed"
-                                                                IsSwitchEnabled="{Binding UseNextServiceDateFilters}"
-                                                                IsToggled="{Binding ShowCompleted_NextServiceDateFilter}"
-                                                                />
                                     <local:CustomSwitchViewCell Text="Show Overdue"
                                                                 IsSwitchEnabled="{Binding UseNextServiceDateFilters}"
                                                                 IsToggled="{Binding ShowOverdue_NextServiceDateFilters}"
@@ -332,11 +340,11 @@
                                                               EndDate="{Binding NextServiceDateFilterRangeEnd}"
                                                               IsDatePickerEnabled="{Binding UseNextServiceDateFilters}"
                                                               StartDate="{Binding NextServiceDateFilterRangeStart}"
-                                                              TextColor="{StaticResource Secondary}"
+                                                              TextColor="{StaticResource LightSecondary}"
                                                               />
                                 </TableSection>
                                 <TableSection Title="Creation Date Range"
-                                              TextColor="{StaticResource Secondary}"
+                                              TextColor="{StaticResource LightSecondary}"
                                               >
                                     <local:CustomSwitchViewCell Text="Use Filter"
                                                                 IsToggled="{Binding UseCreationDateFilters}"
@@ -345,7 +353,7 @@
                                                               EndDate="{Binding CreationDateFilterRangeEnd}"
                                                               IsDatePickerEnabled="{Binding UseCreationDateFilters}"
                                                               StartDate="{Binding CreationDateFilterRangeStart}"
-                                                              TextColor="{StaticResource Secondary}"
+                                                              TextColor="{StaticResource LightSecondary}"
                                                               />
                                 </TableSection>
                             </TableRoot>
